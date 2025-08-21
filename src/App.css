@@ -1,0 +1,30 @@
+/* Global App styles */
+.App {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #FFF8F2;  /* warm ivory background */
+  font-family: 'Arial', sans-serif;
+}
+
+.main-container {
+  width: 100%;
+  max-width: 1200px;
+  background: #A8BCA1; /* muted sage green for content sections */
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.App-link {
+  color: #0066cc;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+.App-link:hover {
+  color: #004499;
+}
