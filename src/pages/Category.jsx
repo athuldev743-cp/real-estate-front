@@ -1,9 +1,7 @@
-// src/pages/Category.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { getProperties } from "../api/PropertyAPI";
 
-// Debounce hook to reduce API calls while typing
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -15,7 +13,7 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-export default function Category() {
+function Category() {
   const { category } = useParams();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -23,10 +21,11 @@ export default function Category() {
 
   const [properties, setProperties] = useState([]);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
+
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
         const response = await getProperties(category, debouncedSearchQuery);
         setProperties(response.data);
@@ -34,13 +33,13 @@ export default function Category() {
         console.error("Error fetching properties:", error);
         setProperties([]);
       }
-    };
+    }
     fetchData();
   }, [category, debouncedSearchQuery]);
 
   return (
     <div className="category-page">
-      <h2 className="category-title">{category?.toUpperCase() || "All Properties"}</h2>
+      <h2 className="category-title">{category ? category.toUpperCase() : "All Properties"}</h2>
 
       <input
         type="text"
@@ -55,7 +54,7 @@ export default function Category() {
           properties.map((prop) => (
             <div key={prop._id} className="property-card">
               <img
-                src={prop.image ? `https://back-end-lybr.onrender.com${prop.image}` : "/image/placeholder.jpg"}
+                src={prop.image ? `${prop.image.replace("http://127.0.0.1:8000", "/")}` : "/image/placeholder.jpg"}
                 alt={prop.title || prop.name}
                 className="property-image"
               />
@@ -72,3 +71,5 @@ export default function Category() {
     </div>
   );
 }
+
+export default Category;
