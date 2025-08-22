@@ -24,7 +24,7 @@ export default function Home() {
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
     { id: 2, name: "Builldings", link: "/category/buildings" },
-    { id: 3, name: "House", link: "/category/houses" },
+    { id: 3, name: "Houses", link: "/category/houses" },
     { id: 4, name: "Appartment", link: "/category/apartments" },
     { id: 5, name: "Villa", link: "/category/villas" },
     { id: 6, name: "Farmlands", link: "/category/farmlands" },
@@ -115,7 +115,7 @@ export default function Home() {
             properties.map((prop) => (
               <div key={prop._id} className="property-card">
                 <img
-                  src={prop.image ? `${prop.image.replace("http://127.0.0.1:8000", "/")}` : "/image/placeholder.jpg"}
+                  src={prop.image ? prop.image : "/image/placeholder.jpg"}
                   alt={prop.title}
                   className="property-image"
                 />

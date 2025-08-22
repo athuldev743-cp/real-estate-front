@@ -1,32 +1,62 @@
+// src/api/PropertyAPI.js
 import axios from "axios";
 
-// Axios instance pointing to your live backend on Render
-const API = axios.create({
-  baseURL: "https://back-end-lybr.onrender.com", // your Render backend URL
-});
+// Backend API URL (from .env or fallback)
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
-// Optional: attach token if exists
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+// Map frontend-friendly category names → backend DB values
+const categoryMap = {
+  apartments: "Appartment",
+  buildings: "Builldings",
+  houses: "Houses",
+  plots: "Plots",
+  villas: "Villa",
+  farmlands: "Farmlands",
+};
+
+// 🟢 Get properties by category
+export const getProperties = async (category) => {
+  try {
+    const backendCategory = categoryMap[category.toLowerCase()] || category;
+    const res = await axios.get(`${API_URL}/properties/${backendCategory}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    throw error;
   }
-  return req;
-});
+};
 
-// ---------------- API FUNCTIONS ----------------
+// 🟢 Add new property
+export const addProperty = async (formData) => {
+  try {
+    const res = await axios.post(`${API_URL}/properties`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error adding property:", error);
+    throw error;
+  }
+};
 
-// Register user
-export const registerUser = (data) => API.post("/api/auth/register", data);
+// 🟢 Register user
+export const registerUser = async (userData) => {
+  try {
+    const res = await axios.post(`${API_URL}/auth/register`, userData);
+    return res.data;
+  } catch (error) {
+    console.error("Error registering user:", error);
+    throw error;
+  }
+};
 
-// Login user
-export const loginUser = (params) => API.post("/api/auth/login", params);
-
-// Add property
-export const addProperty = (data) => API.post("/add-property", data);
-
-// Get properties (category + optional search)
-export const getProperties = (category = "", search = "") =>
-  API.get("/properties/", { params: { category, search } });
-
-export default API;
+// 🟢 Login user
+export const loginUser = async (credentials) => {
+  try {
+    const res = await axios.post(`${API_URL}/auth/login`, credentials);
+    return res.data;
+  } catch (error) {
+    console.error("Error logging in:", error);
+    throw error;
+  }
+};
