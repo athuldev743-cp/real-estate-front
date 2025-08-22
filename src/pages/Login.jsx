@@ -1,7 +1,8 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/PropertyAPI"; // ✅ fixed import
+import { loginUser } from "../api/PropertyAPI";
+import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,34 +13,40 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await loginUser({ email, password });
-      localStorage.setItem("token", res.data.access_token); // ✅ save token
+      localStorage.setItem("token", res.access_token); // fixed
       alert("Login successful!");
-      navigate("/");
+      navigate("/"); // redirect to home
     } catch (err) {
       alert("Login failed: " + (err.response?.data?.detail || "Server error"));
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
+    <div className="login-page">
+      <div className="login-card">
+        <h2>Login</h2>
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Login</button>
+        </form>
+        <div className="register-link">
+          Don't have an account?{" "}
+          <span onClick={() => navigate("/register")}>Register here</span>
+        </div>
+      </div>
     </div>
   );
 }

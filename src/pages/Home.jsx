@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+// src/pages/Home.jsx
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProperties } from "../api/PropertyAPI";
 import "./Home.css";
@@ -7,11 +8,13 @@ import { faFacebookF, faInstagram, faTwitter, faLinkedinIn } from "@fortawesome/
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showNavbar, setShowNavbar] = useState(true);
   const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollYRef = useRef(0);
   const navigate = useNavigate();
 
+  // Navbar hide/show on scroll
   useEffect(() => {
     const controlNavbar = () => {
       setShowNavbar(window.scrollY <= lastScrollYRef.current);
@@ -21,10 +24,11 @@ export default function Home() {
     return () => window.removeEventListener("scroll", controlNavbar);
   }, []);
 
+  // Categories
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
-    { id: 2, name: "Builldings", link: "/category/buildings" },
-    { id: 3, name: "Houses", link: "/category/houses" },
+    { id: 2, name: "Buildings", link: "/category/buildings" },
+    { id: 3, name: "House", link: "/category/houses" },
     { id: 4, name: "Appartment", link: "/category/apartments" },
     { id: 5, name: "Villa", link: "/category/villas" },
     { id: 6, name: "Farmlands", link: "/category/farmlands" },
@@ -34,20 +38,25 @@ export default function Home() {
     navigate(`${link}?search=${encodeURIComponent(searchQuery)}`);
   };
 
+  // Fetch properties on mount and on search query change
   useEffect(() => {
-    async function fetchData() {
+    const fetchProperties = async () => {
+      setLoading(true);
       try {
-        const response = await getProperties("", searchQuery);
-        setProperties(response.data);
+        const data = await getProperties("", searchQuery);
+        setProperties(data);
       } catch (error) {
         console.error("Error fetching properties:", error);
+      } finally {
+        setLoading(false);
       }
-    }
-    fetchData();
+    };
+    fetchProperties();
   }, [searchQuery]);
 
   return (
     <div className="home">
+      {/* Navbar */}
       <nav className={`navbar ${showNavbar ? "navbar-show" : "navbar-hide"}`}>
         <div className="nav-content">
           <div className="logo">
@@ -66,7 +75,6 @@ export default function Home() {
               </button>
             </li>
           </ul>
-
           <div className="nav-search">
             <input
               type="text"
@@ -76,11 +84,11 @@ export default function Home() {
               className="search-input"
             />
           </div>
-
           <div className="mobile-menu">☰</div>
         </div>
       </nav>
 
+      {/* Hero Section */}
       <section className="hero" style={{ backgroundImage: 'url("/image/backr.jpeg")' }}>
         <h1>Find Your Dream Property</h1>
         <p>Plots • Houses • Villas • Apartments</p>
@@ -96,6 +104,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Categories Section */}
       <section className="categories">
         <h2>Categories</h2>
         <div className="categories-grid">
@@ -108,29 +117,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Properties Section */}
       <section className="properties-section">
         <h2>Available Properties</h2>
-        <div className="properties-grid">
-          {properties.length > 0 ? (
-            properties.map((prop) => (
-              <div key={prop._id} className="property-card">
-                <img
-                  src={prop.image ? prop.image : "/image/placeholder.jpg"}
-                  alt={prop.title}
-                  className="property-image"
-                />
-                <h3>{prop.title}</h3>
-                <p>{prop.description}</p>
-                <p>Price: ₹{prop.price}</p>
-                <p>Location: {prop.location}</p>
-              </div>
-            ))
-          ) : (
-            <p>No properties found.</p>
-          )}
-        </div>
+        {loading ? (
+          <p>Loading properties...</p>
+        ) : (
+          <div className="properties-grid">
+            {properties.length > 0 ? (
+              properties.map((prop) => (
+                <div key={prop._id || prop.title} className="property-card">
+                  <img
+                    src={prop.image || "/image/placeholder.jpg"}
+                    alt={prop.title}
+                    className="property-image"
+                  />
+                  <h3>{prop.title}</h3>
+                  <p>{prop.description}</p>
+                  <p>Price: ₹{prop.price}</p>
+                  <p>Location: {prop.location}</p>
+                </div>
+              ))
+            ) : (
+              <p>No properties found.</p>
+            )}
+          </div>
+        )}
       </section>
 
+      {/* About Section */}
       <section className="about" style={{ backgroundImage: 'url("/image/about-bg.jpeg")' }}>
         <h2>About Us</h2>
         <p style={{ maxWidth: "800px", margin: "20px auto", fontSize: "1.2rem", lineHeight: "1.6" }}>
@@ -139,6 +154,7 @@ export default function Home() {
         </p>
       </section>
 
+      {/* Contact Section */}
       <section className="contact">
         <h2>Contact Estateuro</h2>
         <p>Email: info@estateuro.com</p>
