@@ -1,87 +1,66 @@
+// src/pages/AddProperty.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { addProperty } from "../api/PropertyAPI";
 import "./AddProperty.css";
 
-export default function AddProperty({ addProperty }) {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    image: "",
-    category: "Plots",
-  });
+function AddProperty({ onPropertyAdded }) { // <- receive callback
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState("");
+  const [image, setImage] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const categories = ["Plots", "Buildings", "Houses", "Apartments", "Villas", "Farmlands"];
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setFormData((prev) => ({ ...prev, image: reader.result }));
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addProperty(formData);
-    alert(`Property added to ${formData.category}!`);
-    setFormData({ name: "", description: "", image: "", category: "Plots" });
-    navigate(`/category/${formData.category.toLowerCase()}`);
+
+    if (!title || !description || !price || !category || !location || !image) {
+      alert("Please fill all fields and select an image.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("category", category);
+      formData.append("location", location);
+      formData.append("image", image);
+
+      await addProperty(formData);
+      alert("Property added successfully!");
+
+      setTitle(""); setDescription(""); setPrice(""); setCategory(""); setLocation(""); setImage(null);
+
+      // Call the callback to refresh the list
+      if (onPropertyAdded) onPropertyAdded();
+
+    } catch (error) {
+      console.error("Error adding property:", error);
+      alert("Failed to add property.");
+    }
   };
 
   return (
     <div className="add-property-container">
-      <div className="add-property-card">
-        <h2>Add New Property</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Property Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-
-          <textarea
-            name="description"
-            placeholder="Property Description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={4}
-            required
-          />
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            required
-          />
-
-          <select name="category" value={formData.category} onChange={handleChange}>
-            <option>Plots</option>
-            <option>Buildings</option>
-            <option>Houses</option>
-            <option>Apartments</option>
-            <option>Villas</option>
-            <option>Farmlands</option>
-          </select>
-
-          <button type="submit">Add Property</button>
-        </form>
-
-        {formData.image && (
-          <div className="preview-container">
-            <h4>Preview</h4>
-            <img src={formData.image} alt="Preview" />
-          </div>
-        )}
-      </div>
+      <h1>Add New Property</h1>
+      <form onSubmit={handleSubmit} className="add-property-form">
+        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+        <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="">Select Category</option>
+          {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+        </select>
+        <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
+        <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+        <button type="submit">Add Property</button>
+      </form>
     </div>
   );
 }
+
+export default AddProperty;

@@ -1,80 +1,52 @@
+/* src/pages/AddProperty.css */
+
 .add-property-container {
-  padding: 60px 20px;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f5f0, #e0f7fa);
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 10px;
 }
 
-.add-property-card {
-  background: #fff;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  max-width: 500px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.add-property-card h2 {
+.add-property-container h1 {
   text-align: center;
-  color: #0066cc;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  color: #333;
 }
 
-.add-property-card form {
+.add-property-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
-.add-property-card input[type="text"],
-.add-property-card textarea,
-.add-property-card select {
-  padding: 12px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  outline: none;
-  transition: border 0.2s ease;
-}
-
-.add-property-card input[type="text"]:focus,
-.add-property-card textarea:focus,
-.add-property-card select:focus {
-  border-color: #0066cc;
-}
-
-.add-property-card input[type="file"] {
-  cursor: pointer;
+.add-property-form input,
+.add-property-form textarea,
+.add-property-form select {
   padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
 }
 
-.add-property-card button {
-  padding: 14px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 8px;
+.add-property-form textarea {
+  resize: none;
+}
+
+.add-property-form button {
+  padding: 12px;
+  border-radius: 5px;
   border: none;
-  background: linear-gradient(135deg, #0066cc, #00cc88);
+  background-color: #28a745;
   color: #fff;
+  font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
-.add-property-card button:hover {
-  opacity: 0.9;
-}
-
-.preview-container {
-  margin-top: 25px;
-  text-align: center;
-}
-
-.preview-container img {
-  max-width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.add-property-form button:hover {
+  background-color: #218838;
 }
