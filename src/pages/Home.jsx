@@ -27,7 +27,7 @@ export default function Home() {
   // Categories
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
-    { id: 2, name: "Buildings", link: "/category/buildings" },
+    { id: 2, name: "Builldings", link: "/category/buildings" },
     { id: 3, name: "House", link: "/category/houses" },
     { id: 4, name: "Appartment", link: "/category/apartments" },
     { id: 5, name: "Villa", link: "/category/villas" },

@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// Set API URL from env or fallback to deployed backend
 const API_URL = process.env.REACT_APP_API_URL || "https://back-end-lybr.onrender.com";
 
 // Map frontend-friendly category names → backend DB values
@@ -21,8 +22,8 @@ export const getProperties = async (category) => {
     });
     return res.data;
   } catch (error) {
-    console.error("Error fetching properties:", error);
-    throw error;
+    console.error("Error fetching properties:", error.response || error);
+    throw error.response?.data || { detail: "Server error" };
   }
 };
 
@@ -34,8 +35,8 @@ export const addProperty = async (formData) => {
     });
     return res.data;
   } catch (error) {
-    console.error("Error adding property:", error);
-    throw error;
+    console.error("Error adding property:", error.response || error);
+    throw error.response?.data || { detail: "Server error" };
   }
 };
 
@@ -45,8 +46,8 @@ export const registerUser = async (userData) => {
     const res = await axios.post(`${API_URL}/auth/register`, userData);
     return res.data;
   } catch (error) {
-    console.error("Error registering user:", error);
-    throw error;
+    console.error("Error registering user:", error.response || error);
+    throw error.response?.data || { detail: "Server error" };
   }
 };
 
@@ -56,7 +57,7 @@ export const loginUser = async (credentials) => {
     const res = await axios.post(`${API_URL}/auth/login`, credentials);
     return res.data;
   } catch (error) {
-    console.error("Error logging in:", error);
-    throw error;
+    console.error("Error logging in:", error.response || error);
+    throw error.response?.data || { detail: "Server error" };
   }
 };
