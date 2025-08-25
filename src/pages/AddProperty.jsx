@@ -20,11 +20,12 @@ export default function AddProperty() {
         description,
         price,
         location,
-        category: category.toLowerCase(), // store lowercase
-        image_url: imageUrl
+        category: category.toLowerCase(),
+        image_url: imageUrl,
       });
       alert("Property added successfully!");
-      navigate("/");
+      // redirect to the category page where the property belongs
+      navigate(`/category/${category.toLowerCase()}`);
     } catch (err) {
       alert("Failed to add property: " + (err.response?.data?.detail || "Server error"));
     }
@@ -34,11 +35,11 @@ export default function AddProperty() {
     <div className="add-property-page">
       <h2>Add Property</h2>
       <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
         <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
         <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
-        <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} required />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+        <input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} required />
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="plots">Plots</option>
           <option value="buildings">Buildings</option>
           <option value="houses">Houses</option>
@@ -46,7 +47,7 @@ export default function AddProperty() {
           <option value="villas">Villas</option>
           <option value="farmlands">Farmlands</option>
         </select>
-        <input type="text" placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+        <input placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
         <button type="submit">Add Property</button>
       </form>
     </div>

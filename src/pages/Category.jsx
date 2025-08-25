@@ -1,86 +1,48 @@
-// src/pages/AddProperty.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { addProperty } from "../api/PropertyAPI";
-import "./AddProperty.css";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getProperties } from "../api/PropertyAPI";
+import "./Category.css";
 
-export default function AddProperty() {
-  const navigate = useNavigate();
+export default function Category() {
+  const { category } = useParams(); // get category from URL
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [location, setLocation] = useState("");
-  const [category, setCategory] = useState("plots");
-  const [imageUrl, setImageUrl] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Ensure category is lowercase plural
-      const normalizedCategory = category.toLowerCase();
-      await addProperty({
-        title,
-        description,
-        price,
-        location,
-        category: normalizedCategory,
-        image_url: imageUrl,
-      });
-      alert("Property added successfully!");
-      navigate("/"); // redirect to home or category page if you like
-    } catch (err) {
-      alert("Failed to add property: " + (err.response?.data?.detail || "Server error"));
-    }
-  };
+  useEffect(() => {
+    const fetchCategoryProperties = async () => {
+      try {
+        setLoading(true);
+        const data = await getProperties(category); // fetch properties by category
+        setProperties(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategoryProperties();
+  }, [category]);
 
   return (
-    <div className="add-property-page">
-      <h2>Add Property</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          required
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-          <option value="plots">Plots</option>
-          <option value="buildings">Buildings</option>
-          <option value="houses">Houses</option>
-          <option value="apartments">Apartments</option>
-          <option value="villas">Villas</option>
-          <option value="farmlands">Farmlands</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-        />
-        <button type="submit">Add Property</button>
-      </form>
+    <div className="category-page">
+      <h2>{category.charAt(0).toUpperCase() + category.slice(1)}</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : properties.length > 0 ? (
+        <div className="properties-grid">
+          {properties.map((prop) => (
+            <div key={prop._id} className="property-card">
+              <img src={prop.image_url} alt={prop.title} className="property-image" />
+              <h3>{prop.title}</h3>
+              <p>{prop.description}</p>
+              <p>Price: ₹{prop.price}</p>
+              <p>Location: {prop.location}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>No properties found in this category.</p>
+      )}
     </div>
   );
 }
