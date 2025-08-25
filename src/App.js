@@ -16,7 +16,7 @@ function App() {
       <Route path="/category/:category" element={<Category />} />
       <Route path="/login" element={<Login />} />
       <Route path="/auth-test" element={<AuthTest />} />
-      <Route path="/register" element={<Register />} /> 
+      <Route path="/Register" element={<Register />} /> 
       <Route path="/search" element={<Search />} />
     </Routes>
   );
