@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getProperties } from "../api/PropertyAPI";
+import { getPropertiesByCategory } from "../api/PropertyAPI";
 import "./Category.css";
 
 export default function Category() {
@@ -12,7 +12,7 @@ export default function Category() {
     const fetchCategoryProperties = async () => {
       try {
         setLoading(true);
-        const data = await getProperties(category); // fetch properties by category
+        const data = await getPropertiesByCategory(category);
         setProperties(data);
       } catch (err) {
         console.error(err);
@@ -32,7 +32,7 @@ export default function Category() {
         <div className="properties-grid">
           {properties.map((prop) => (
             <div key={prop._id} className="property-card">
-              <img src={prop.image_url} alt={prop.title} className="property-image" />
+              <img src={prop.image} alt={prop.title} className="property-image" />
               <h3>{prop.title}</h3>
               <p>{prop.description}</p>
               <p>Price: ₹{prop.price}</p>

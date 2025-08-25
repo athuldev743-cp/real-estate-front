@@ -10,24 +10,33 @@ export default function AddProperty() {
   const [price, setPrice] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState("plots");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!imageFile) {
+      alert("Please select an image.");
+      return;
+    }
+
     try {
-      await addProperty({
-        title,
-        description,
-        price,
-        location,
-        category: category.toLowerCase(),
-        image_url: imageUrl,
-      });
+      // Prepare FormData for multipart/form-data
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("location", location);
+      formData.append("category", category.toLowerCase());
+      formData.append("image", imageFile);
+
+      // Add property
+      await addProperty(formData); // If your backend requires token, pass it as second arg
+
       alert("Property added successfully!");
-      // redirect to the category page where the property belongs
       navigate(`/category/${category.toLowerCase()}`);
     } catch (err) {
-      alert("Failed to add property: " + (err.response?.data?.detail || "Server error"));
+      alert("Failed to add property: " + (err.message || "Server error"));
     }
   };
 
@@ -47,7 +56,7 @@ export default function AddProperty() {
           <option value="villas">Villas</option>
           <option value="farmlands">Farmlands</option>
         </select>
-        <input placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+        <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} required />
         <button type="submit">Add Property</button>
       </form>
     </div>

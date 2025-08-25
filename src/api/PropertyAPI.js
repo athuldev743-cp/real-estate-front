@@ -33,28 +33,29 @@ export const getCurrentUser = async (token) => {
 
 // -------------------- Properties --------------------
 
-// Add a property (requires token)
+// Add a property (requires FormData for image upload)
 export const addProperty = async (formData, token) => {
   const res = await fetch(`${BASE_URL}/api/add-property`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData,
   });
   return await res.json();
 };
 
-// Get all properties (optionally can add search)
+// Get all properties (optionally add search)
 export const getProperties = async (searchQuery = "") => {
-  const url = searchQuery ? `${BASE_URL}/api/properties?search=${searchQuery}` : `${BASE_URL}/api/properties`;
+  const url = searchQuery
+    ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
+    : `${BASE_URL}/api/properties`;
   const res = await fetch(url);
   return await res.json();
 };
 
 // Get properties by category
 export const getPropertiesByCategory = async (category) => {
-  const res = await fetch(`${BASE_URL}/api/properties?category=${category}`);
+  const url = `${BASE_URL}/api/properties?category=${encodeURIComponent(category)}`;
+  const res = await fetch(url);
   return await res.json();
 };
 
