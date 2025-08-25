@@ -1,9 +1,11 @@
 // src/pages/AddProperty.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { addProperty } from "../api/PropertyAPI";  // ✅ Correct import
 import "./AddProperty.css";
 
 function AddProperty({ onPropertyAdded }) {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -12,6 +14,15 @@ function AddProperty({ onPropertyAdded }) {
   const [image, setImage] = useState(null);
 
   const categories = ["Plots", "Buildings", "Houses", "Apartments", "Villas", "Farmlands"];
+
+  // Check if user is logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to add a property.");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +33,13 @@ function AddProperty({ onPropertyAdded }) {
     }
 
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to add a property.");
+        navigate("/login");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
@@ -30,10 +48,12 @@ function AddProperty({ onPropertyAdded }) {
       formData.append("location", location);
       formData.append("image", image);
 
-      await addProperty(formData);
+      // Pass token to addProperty API
+      await addProperty(formData, token);
+
       alert("Property added successfully!");
 
-      // reset fields
+      // Reset fields
       setTitle("");
       setDescription("");
       setPrice("");

@@ -5,24 +5,19 @@ import AddProperty from "./pages/AddProperty";
 import Category from "./pages/Category";
 import Login from "./pages/Login";
 import AuthTest from "./pages/AuthTest";
+import Register from "./pages/Register"; 
+import Search from "./pages/Search";
 
 function App() {
   return (
     <Routes>
-      {/* Home page */}
       <Route path="/" element={<Home />} />
-
-      {/* Add property page */}
       <Route path="/add-property" element={<AddProperty />} />
-
-      {/* Dynamic category page */}
       <Route path="/category/:category" element={<Category />} />
-
-      {/* Login page */}
       <Route path="/login" element={<Login />} />
-
-      {/* Auth test page */}
       <Route path="/auth-test" element={<AuthTest />} />
+      <Route path="/register" element={<Register />} /> 
+      <Route path="/search" element={<Search />} />
     </Routes>
   );
 }

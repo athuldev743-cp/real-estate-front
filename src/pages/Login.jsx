@@ -12,12 +12,19 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // Call API to login
       const res = await loginUser({ email, password });
-      localStorage.setItem("token", res.access_token); // fixed
+
+      // Save token to localStorage
+      localStorage.setItem("token", res.access_token);
+
       alert("Login successful!");
       navigate("/"); // redirect to home
     } catch (err) {
-      alert("Login failed: " + (err.response?.data?.detail || "Server error"));
+      // Only registered users with correct credentials can login
+      alert(
+        "Login failed: " + (err.response?.data?.detail || "Server error")
+      );
     }
   };
 

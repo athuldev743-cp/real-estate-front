@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProperties } from "../api/PropertyAPI";
@@ -27,9 +26,9 @@ export default function Home() {
   // Categories
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
-    { id: 2, name: "Builldings", link: "/category/buildings" },
+    { id: 2, name: "Buildings", link: "/category/buildings" },
     { id: 3, name: "House", link: "/category/houses" },
-    { id: 4, name: "Appartment", link: "/category/apartments" },
+    { id: 4, name: "Apartment", link: "/category/apartments" },
     { id: 5, name: "Villa", link: "/category/villas" },
     { id: 6, name: "Farmlands", link: "/category/farmlands" },
   ];
@@ -38,12 +37,12 @@ export default function Home() {
     navigate(`${link}?search=${encodeURIComponent(searchQuery)}`);
   };
 
-  // Fetch properties on mount and on search query change
+  // Fetch all properties on mount
   useEffect(() => {
     const fetchProperties = async () => {
       setLoading(true);
       try {
-        const data = await getProperties("", searchQuery);
+        const data = await getProperties("");
         setProperties(data);
       } catch (error) {
         console.error("Error fetching properties:", error);
@@ -52,7 +51,12 @@ export default function Home() {
       }
     };
     fetchProperties();
-  }, [searchQuery]);
+  }, []);
+
+  // Handle search button click
+  const handleSearch = () => {
+    navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+  };
 
   return (
     <div className="home">
@@ -70,6 +74,11 @@ export default function Home() {
               </li>
             ))}
             <li>
+              <button className="register-btn" onClick={() => navigate("/register")}>
+                Register
+              </button>
+            </li>
+            <li>
               <button className="add-property-btn" onClick={() => navigate("/add-property")}>
                 + Add Property
               </button>
@@ -83,6 +92,7 @@ export default function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
+            <button onClick={handleSearch} className="search-btn">Search</button>
           </div>
           <div className="mobile-menu">☰</div>
         </div>
@@ -128,7 +138,7 @@ export default function Home() {
               properties.map((prop) => (
                 <div key={prop._id || prop.title} className="property-card">
                   <img
-                    src={prop.image || "/image/placeholder.jpg"}
+                    src={prop.image_url || "/image/placeholder.jpg"}
                     alt={prop.title}
                     className="property-image"
                   />
