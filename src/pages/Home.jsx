@@ -26,9 +26,9 @@ export default function Home() {
   // Categories
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
-    { id: 2, name: "Buildings", link: "/category/buildings" },
+    { id: 2, name: "Builldings", link: "/category/buildings" },
     { id: 3, name: "House", link: "/category/houses" },
-    { id: 4, name: "Apartment", link: "/category/apartments" },
+    { id: 4, name: "Appartment", link: "/category/apartments" },
     { id: 5, name: "Villa", link: "/category/villas" },
     { id: 6, name: "Farmlands", link: "/category/farmlands" },
   ];
@@ -127,33 +127,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Properties Section */}
-      <section className="properties-section">
-        <h2>Available Properties</h2>
-        {loading ? (
-          <p>Loading properties...</p>
-        ) : (
-          <div className="properties-grid">
-            {properties.length > 0 ? (
-              properties.map((prop) => (
-                <div key={prop._id || prop.title} className="property-card">
-                  <img
-                    src={prop.image_url || "/image/placeholder.jpg"}
-                    alt={prop.title}
-                    className="property-image"
-                  />
-                  <h3>{prop.title}</h3>
-                  <p>{prop.description}</p>
-                  <p>Price: ₹{prop.price}</p>
-                  <p>Location: {prop.location}</p>
-                </div>
-              ))
-            ) : (
-              <p>No properties found.</p>
-            )}
-          </div>
-        )}
-      </section>
+     
 
       {/* About Section */}
       <section className="about" style={{ backgroundImage: 'url("/image/about-bg.jpeg")' }}>
