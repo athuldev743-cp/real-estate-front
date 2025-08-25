@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProperties } from "../api/PropertyAPI";
 import "./Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookF, faInstagram, faTwitter, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollYRef = useRef(0);
   const navigate = useNavigate();
@@ -26,32 +23,16 @@ export default function Home() {
   // Categories
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
-    { id: 2, name: "Builldings", link: "/category/buildings" },
-    { id: 3, name: "House", link: "/category/houses" },
-    { id: 4, name: "Appartment", link: "/category/apartments" },
-    { id: 5, name: "Villa", link: "/category/villas" },
+    { id: 2, name: "Buildings", link: "/category/buildings" },
+    { id: 3, name: "Houses", link: "/category/houses" },
+    { id: 4, name: "Apartments", link: "/category/apartments" },
+    { id: 5, name: "Villas", link: "/category/villas" },
     { id: 6, name: "Farmlands", link: "/category/farmlands" },
   ];
 
   const goToCategory = (link) => {
     navigate(`${link}?search=${encodeURIComponent(searchQuery)}`);
   };
-
-  // Fetch all properties on mount
-  useEffect(() => {
-    const fetchProperties = async () => {
-      setLoading(true);
-      try {
-        const data = await getProperties("");
-        setProperties(data);
-      } catch (error) {
-        console.error("Error fetching properties:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProperties();
-  }, []);
 
   // Handle search button click
   const handleSearch = () => {
@@ -127,8 +108,6 @@ export default function Home() {
         </div>
       </section>
 
-     
-
       {/* About Section */}
       <section className="about" style={{ backgroundImage: 'url("/image/about-bg.jpeg")' }}>
         <h2>About Us</h2>
@@ -144,7 +123,6 @@ export default function Home() {
         <p>Email: info@estateuro.com</p>
         <p>Phone: +91 98765 43210</p>
         <p>Address: 123 Main Street, Your City</p>
-
         <div className="social-media">
           <h3>Follow Us</h3>
           <div className="social-icons">

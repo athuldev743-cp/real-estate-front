@@ -1,124 +1,54 @@
-// src/pages/AddProperty.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addProperty } from "../api/PropertyAPI";  // ✅ Correct import
+import { addProperty } from "../api/PropertyAPI";
 import "./AddProperty.css";
 
-function AddProperty({ onPropertyAdded }) {
+export default function AddProperty() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
-  const [image, setImage] = useState(null);
-
-  const categories = ["Plots", "Buildings", "Houses", "Apartments", "Villas", "Farmlands"];
-
-  // Check if user is logged in
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("You must be logged in to add a property.");
-      navigate("/login");
-    }
-  }, [navigate]);
+  const [category, setCategory] = useState("plots");
+  const [imageUrl, setImageUrl] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!title || !description || !price || !category || !location || !image) {
-      alert("Please fill all fields and select an image.");
-      return;
-    }
-
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You must be logged in to add a property.");
-        navigate("/login");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("category", category);
-      formData.append("location", location);
-      formData.append("image", image);
-
-      // Pass token to addProperty API
-      await addProperty(formData, token);
-
+      await addProperty({
+        title,
+        description,
+        price,
+        location,
+        category: category.toLowerCase(), // store lowercase
+        image_url: imageUrl
+      });
       alert("Property added successfully!");
-
-      // Reset fields
-      setTitle("");
-      setDescription("");
-      setPrice("");
-      setCategory("");
-      setLocation("");
-      setImage(null);
-
-      if (onPropertyAdded) onPropertyAdded(); // refresh list
-    } catch (error) {
-      console.error("Error adding property:", error);
-      alert("Failed to add property.");
+      navigate("/");
+    } catch (err) {
+      alert("Failed to add property: " + (err.response?.data?.detail || "Server error"));
     }
   };
 
   return (
-    <div className="add-property-container">
-      <h1>Add New Property</h1>
-      <form onSubmit={handleSubmit} className="add-property-form">
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-        />
-
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
+    <div className="add-property-page">
+      <h2>Add Property</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+        <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
+        <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} required />
+        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+          <option value="plots">Plots</option>
+          <option value="buildings">Buildings</option>
+          <option value="houses">Houses</option>
+          <option value="apartments">Apartments</option>
+          <option value="villas">Villas</option>
+          <option value="farmlands">Farmlands</option>
         </select>
-
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
-        />
-
+        <input type="text" placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
         <button type="submit">Add Property</button>
       </form>
     </div>
   );
 }
-
-export default AddProperty;
