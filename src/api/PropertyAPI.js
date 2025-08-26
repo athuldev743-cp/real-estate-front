@@ -60,6 +60,13 @@ export const getPropertiesByCategory = async (category, searchQuery = "") => {
   return await res.json();
 };
 
+// Get a single property by ID
+export const getPropertyById = async (id) => {
+  const res = await fetch(`${BASE_URL}/property/${id}`);
+  if (!res.ok) throw new Error("Failed to fetch property");
+  return await res.json();
+};
+
 // Get current user's properties
 export const getMyProperties = async (token) => {
   const res = await fetch(`${BASE_URL}/my-properties`, {
