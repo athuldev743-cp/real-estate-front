@@ -1,11 +1,10 @@
-// src/api/PropertyAPI.js
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 // -------------------- Auth --------------------
 
 // Login user
 export const loginUser = async (data) => {
-  const res = await fetch(`${BASE_URL}/login`, {
+  const res = await fetch(`${BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -15,7 +14,7 @@ export const loginUser = async (data) => {
 
 // Register user
 export const registerUser = async (data) => {
-  const res = await fetch(`${BASE_URL}/register`, {
+  const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -25,7 +24,7 @@ export const registerUser = async (data) => {
 
 // Get current logged-in user
 export const getCurrentUser = async (token) => {
-  const res = await fetch(`${BASE_URL}/me`, {
+  const res = await fetch(`${BASE_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return await res.json();
@@ -33,17 +32,17 @@ export const getCurrentUser = async (token) => {
 
 // -------------------- Properties --------------------
 
-// Add a property (only logged-in users)
+// Add a property (only for logged-in users)
 export const addProperty = async (formData, token) => {
   const res = await fetch(`${BASE_URL}/add-property`, {
     method: "POST",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body: formData,
+    body: formData, // FormData automatically sets multipart/form-data
   });
   return await res.json();
 };
 
-// Get all properties (with optional search query)
+// Get all properties (optional search query)
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
     ? `${BASE_URL}/properties?search=${encodeURIComponent(searchQuery)}`
@@ -52,7 +51,7 @@ export const getProperties = async (searchQuery = "") => {
   return await res.json();
 };
 
-// Get properties by category (with optional search query)
+// Get properties by category (optional search query)
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   const url = `${BASE_URL}/category/${encodeURIComponent(category)}${
     searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""

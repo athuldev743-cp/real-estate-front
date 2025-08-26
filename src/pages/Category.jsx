@@ -9,13 +9,21 @@ export default function Category() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input to reduce API calls
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // 500ms debounce
+    return () => clearTimeout(handler);
+  }, [search]);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        // ✅ Ensure lowercase category is passed to backend
-        const response = await getPropertiesByCategory(category.toLowerCase(), search);
+        const response = await getPropertiesByCategory(category.toLowerCase(), debouncedSearch);
         setProperties(response);
       } catch (error) {
         console.error("Error fetching properties:", error);
@@ -24,7 +32,7 @@ export default function Category() {
       }
     }
     fetchData();
-  }, [category, search]);
+  }, [category, debouncedSearch]);
 
   return (
     <div className="category-page">
@@ -45,7 +53,11 @@ export default function Category() {
         <div className="properties-grid">
           {properties.map((property) => (
             <div key={property._id} className="property-card">
-              <img src={property.image_url} alt={property.title} />
+              <img
+                src={property.image_url || "/image/default-property.jpeg"} // fallback image
+                alt={property.title}
+                className="property-image"
+              />
               <h3>{property.title}</h3>
               <p>{property.description}</p>
               <p><strong>₹{property.price}</strong></p>

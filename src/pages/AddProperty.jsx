@@ -24,18 +24,10 @@ export default function AddProperty() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-
-    if (name === "image" && files && files.length > 0) {
-      setFormData({
-        ...formData,
-        image: files[0], // ✅ correctly store selected file
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] : value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -48,9 +40,10 @@ export default function AddProperty() {
 
     try {
       const res = await addProperty(fd, token);
-      if (res.property && res.property._id) {
+
+      if (res.property?._id) {
         alert("Property added successfully!");
-        navigate(`/category/${formData.category.toLowerCase()}`); // ✅ redirect to category page
+        navigate(`/category/${formData.category.toLowerCase()}`);
       } else {
         alert(res.message || "Something went wrong");
       }
@@ -62,43 +55,11 @@ export default function AddProperty() {
 
   return (
     <form onSubmit={handleSubmit} className="add-property-form">
-      <input
-        type="text"
-        name="title"
-        placeholder="Title"
-        value={formData.title}
-        onChange={handleChange}
-        required
-      />
-      <textarea
-        name="description"
-        placeholder="Description"
-        value={formData.description}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="number"
-        name="price"
-        placeholder="Price"
-        value={formData.price}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="text"
-        name="location"
-        placeholder="Location"
-        value={formData.location}
-        onChange={handleChange}
-        required
-      />
-      <select
-        name="category"
-        value={formData.category}
-        onChange={handleChange}
-        required
-      >
+      <input type="text" name="title" placeholder="Title" onChange={handleChange} required />
+      <textarea name="description" placeholder="Description" onChange={handleChange} required />
+      <input type="number" name="price" placeholder="Price" onChange={handleChange} required />
+      <input type="text" name="location" placeholder="Location" onChange={handleChange} required />
+      <select name="category" onChange={handleChange} required>
         <option value="">Select Category</option>
         <option value="houses">Houses</option>
         <option value="villas">Villas</option>

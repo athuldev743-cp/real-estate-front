@@ -26,7 +26,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", controlNavbar);
   }, []);
 
-  // Categories (always lowercase for images & API consistency)
+  // Categories (lowercase for images & API consistency)
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
     { id: 2, name: "Buildings", link: "/category/buildings" },
@@ -50,7 +50,12 @@ export default function Home() {
       <nav className={`navbar ${showNavbar ? "navbar-show" : "navbar-hide"}`}>
         <div className="nav-content">
           <div className="logo">
-            <img src="/image/logo.jpeg" alt="Logo" className="logo-img" />
+            <img
+              src="/image/logo.jpeg"
+              alt="Logo"
+              className="logo-img"
+              onError={(e) => { e.target.src = "/image/default-category.jpeg"; }}
+            />
           </div>
           <ul className="nav-links">
             <li onClick={() => navigate("/top-deals")}>Top Deals</li>
@@ -96,6 +101,7 @@ export default function Home() {
       <section
         className="hero"
         style={{ backgroundImage: 'url("/image/backr.jpeg")' }}
+        onError={(e) => { e.target.style.backgroundImage = 'url("/image/default-category.jpeg")'; }}
       >
         <h1>Find Your Dream Property</h1>
         <p>Plots • Houses • Villas • Apartments</p>
@@ -120,20 +126,23 @@ export default function Home() {
       <section className="categories">
         <h2>Categories</h2>
         <div className="categories-grid">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="category-card"
-              onClick={() => goToCategory(cat.link)}
-            >
-              {/* Images must exist in public/image/ and be lowercase: plots.jpeg, houses.jpeg, etc. */}
-              <img
-                src={`/image/${cat.name.toLowerCase()}.jpeg`}
-                alt={cat.name}
-              />
-              <div>{cat.name}</div>
-            </div>
-          ))}
+          {categories.map((cat) => {
+            const imgPath = `/image/${cat.name.toLowerCase()}.jpeg`;
+            return (
+              <div
+                key={cat.id}
+                className="category-card"
+                onClick={() => goToCategory(cat.link)}
+              >
+                <img
+                  src={imgPath}
+                  alt={cat.name}
+                  onError={(e) => { e.target.src = "/image/default-category.jpeg"; }}
+                />
+                <div>{cat.name}</div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -143,14 +152,7 @@ export default function Home() {
         style={{ backgroundImage: 'url("/image/about-bg.jpeg")' }}
       >
         <h2>About Us</h2>
-        <p
-          style={{
-            maxWidth: "800px",
-            margin: "20px auto",
-            fontSize: "1.2rem",
-            lineHeight: "1.6",
-          }}
-        >
+        <p>
           At Estateuro, we believe a home is where love grows, trust is nurtured,
           and families thrive. Our mission is to help you find properties that
           bring comfort, joy, and lasting memories.
