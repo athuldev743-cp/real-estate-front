@@ -4,7 +4,7 @@ import { getPropertiesByCategory } from "../api/PropertyAPI";
 import "./Category.css";
 
 export default function Category() {
-  const { category } = useParams(); // get category from URL
+  const { category } = useParams(); // from /category/:category
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,8 +12,9 @@ export default function Category() {
     const fetchCategoryProperties = async () => {
       try {
         setLoading(true);
+        // fetch from backend
         const data = await getPropertiesByCategory(category);
-        console.log("Fetched properties:", data); // debug fetched data
+        console.log("Fetched properties:", data);
         setProperties(data);
       } catch (err) {
         console.error(err);
@@ -33,7 +34,11 @@ export default function Category() {
         <div className="properties-grid">
           {properties.map((prop) => (
             <div key={prop._id} className="property-card">
-              <img src={prop.image_url || prop.image} alt={prop.title} className="property-image" />
+              <img
+                src={prop.image_url || prop.image}
+                alt={prop.title}
+                className="property-image"
+              />
               <h3>{prop.title}</h3>
               <p>{prop.description}</p>
               <p>Price: ₹{prop.price}</p>

@@ -23,7 +23,7 @@ export const registerUser = async (data) => {
   return await res.json();
 };
 
-// Get current logged-in user
+// Get current logged-in user (for dashboard/profile)
 export const getCurrentUser = async (token) => {
   const res = await fetch(`${BASE_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -33,7 +33,7 @@ export const getCurrentUser = async (token) => {
 
 // -------------------- Properties --------------------
 
-// Add a property (requires FormData for image upload)
+// Add a property (only for logged-in users)
 export const addProperty = async (formData, token) => {
   const res = await fetch(`${BASE_URL}/add-property`, {
     method: "POST",
@@ -43,7 +43,7 @@ export const addProperty = async (formData, token) => {
   return await res.json();
 };
 
-// Get all properties (optionally add search)
+// Get all properties (with optional search query)
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
     ? `${BASE_URL}/properties?search=${encodeURIComponent(searchQuery)}`
@@ -52,17 +52,11 @@ export const getProperties = async (searchQuery = "") => {
   return await res.json();
 };
 
-// Get properties by category
-export const getPropertiesByCategory = async (category) => {
-  const url = `${BASE_URL}/properties-by-category?category=${encodeURIComponent(category)}`;
+// Get properties by category (optional search query)
+export const getPropertiesByCategory = async (category, searchQuery = "") => {
+  const url = `${BASE_URL}/category/${encodeURIComponent(category)}${
+    searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
+  }`;
   const res = await fetch(url);
-  return await res.json();
-};
-
-// Get properties of the current logged-in user
-export const getMyProperties = async (token) => {
-  const res = await fetch(`${BASE_URL}/my-properties`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
   return await res.json();
 };

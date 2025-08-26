@@ -22,12 +22,12 @@ export default function Home() {
 
   // Categories
   const categories = [
-    { id: 1, name: "Plots", link: "/category/plots" },
-    { id: 2, name: "Buildings", link: "/category/buildings" },
-    { id: 3, name: "Houses", link: "/category/houses" },
-    { id: 4, name: "Apartments", link: "/category/apartments" },
-    { id: 5, name: "Villas", link: "/category/villas" },
-    { id: 6, name: "Farmlands", link: "/category/farmlands" },
+    { id: 1, name: "Plots", link: "/category/Plots" },
+    { id: 2, name: "Buildings", link: "/category/Buildings" },
+    { id: 3, name: "Houses", link: "/category/Houses" },
+    { id: 4, name: "Apartments", link: "/category/Apartments" },
+    { id: 5, name: "Villas", link: "/category/Villas" },
+    { id: 6, name: "Farmlands", link: "/category/Farmlands" },
   ];
 
   const goToCategory = (link) => {
