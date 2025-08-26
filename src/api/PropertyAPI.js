@@ -35,7 +35,7 @@ export const getCurrentUser = async (token) => {
 
 // Add a property (requires FormData for image upload)
 export const addProperty = async (formData, token) => {
-  const res = await fetch(`${BASE_URL}/api/add-property`, {
+  const res = await fetch(`${BASE_URL}/add-property`, {
     method: "POST",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData,
@@ -46,22 +46,22 @@ export const addProperty = async (formData, token) => {
 // Get all properties (optionally add search)
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
-    ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
-    : `${BASE_URL}/api/properties`;
+    ? `${BASE_URL}/properties?search=${encodeURIComponent(searchQuery)}`
+    : `${BASE_URL}/properties`;
   const res = await fetch(url);
   return await res.json();
 };
 
 // Get properties by category
 export const getPropertiesByCategory = async (category) => {
-  const url = `${BASE_URL}/api/properties-by-category?category=${encodeURIComponent(category)}`;
+  const url = `${BASE_URL}/properties-by-category?category=${encodeURIComponent(category)}`;
   const res = await fetch(url);
   return await res.json();
 };
 
 // Get properties of the current logged-in user
 export const getMyProperties = async (token) => {
-  const res = await fetch(`${BASE_URL}/api/my-properties`, {
+  const res = await fetch(`${BASE_URL}/my-properties`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return await res.json();
