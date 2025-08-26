@@ -1,5 +1,6 @@
+// src/pages/AddPropertyForm.jsx
 import React, { useState } from "react";
-import API from "../API"; // adjust the path if needed
+import { addProperty } from "../api/PropertyAPI"; // use the function we wrote
 
 export default function AddPropertyForm() {
   const [file, setFile] = useState(null);
@@ -30,25 +31,60 @@ export default function AddPropertyForm() {
       data.append("location", formData.location);
       data.append("image", file);
 
-      const res = await API.post("/api/add-property", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // get token from localStorage (after login)
+      const token = localStorage.getItem("token");
 
-      console.log(res.data);
+      const res = await addProperty(data, token);
+
+      console.log(res);
       alert("Property added successfully!");
     } catch (err) {
-      console.error(err.response?.data || err.message);
+      console.error(err);
       alert("Failed to add property");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleChange} required />
-      <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} required />
-      <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleChange} required />
-      <input type="text" name="category" placeholder="Category" value={formData.category} onChange={handleChange} required />
-      <input type="text" name="location" placeholder="Location" value={formData.location} onChange={handleChange} required />
+      <input
+        type="text"
+        name="title"
+        placeholder="Title"
+        value={formData.title}
+        onChange={handleChange}
+        required
+      />
+      <textarea
+        name="description"
+        placeholder="Description"
+        value={formData.description}
+        onChange={handleChange}
+        required
+      />
+      <input
+        type="number"
+        name="price"
+        placeholder="Price"
+        value={formData.price}
+        onChange={handleChange}
+        required
+      />
+      <input
+        type="text"
+        name="category"
+        placeholder="Category"
+        value={formData.category}
+        onChange={handleChange}
+        required
+      />
+      <input
+        type="text"
+        name="location"
+        placeholder="Location"
+        value={formData.location}
+        onChange={handleChange}
+        required
+      />
       <input type="file" name="image" onChange={handleFileChange} required />
       <button type="submit">Add Property</button>
     </form>

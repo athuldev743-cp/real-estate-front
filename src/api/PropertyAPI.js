@@ -5,7 +5,7 @@ const BASE_URL = process.env.REACT_APP_API_URL;
 
 // Login user
 export const loginUser = async (data) => {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
+  const res = await fetch(`${BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -15,7 +15,7 @@ export const loginUser = async (data) => {
 
 // Register user
 export const registerUser = async (data) => {
-  const res = await fetch(`${BASE_URL}/auth/register`, {
+  const res = await fetch(`${BASE_URL}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -23,9 +23,9 @@ export const registerUser = async (data) => {
   return await res.json();
 };
 
-// Get current logged-in user (for dashboard/profile)
+// Get current logged-in user
 export const getCurrentUser = async (token) => {
-  const res = await fetch(`${BASE_URL}/auth/me`, {
+  const res = await fetch(`${BASE_URL}/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return await res.json();
@@ -33,7 +33,7 @@ export const getCurrentUser = async (token) => {
 
 // -------------------- Properties --------------------
 
-// Add a property (only for logged-in users)
+// Add a property (only logged-in users)
 export const addProperty = async (formData, token) => {
   const res = await fetch(`${BASE_URL}/add-property`, {
     method: "POST",
@@ -52,11 +52,19 @@ export const getProperties = async (searchQuery = "") => {
   return await res.json();
 };
 
-// Get properties by category (optional search query)
+// Get properties by category (with optional search query)
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   const url = `${BASE_URL}/category/${encodeURIComponent(category)}${
     searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
   }`;
   const res = await fetch(url);
+  return await res.json();
+};
+
+// Get current user's properties
+export const getMyProperties = async (token) => {
+  const res = await fetch(`${BASE_URL}/my-properties`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return await res.json();
 };

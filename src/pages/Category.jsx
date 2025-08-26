@@ -1,48 +1,55 @@
+// src/pages/Category.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPropertiesByCategory } from "../api/PropertyAPI";
 import "./Category.css";
 
 export default function Category() {
-  const { category } = useParams(); // from /category/:category
+  const { category } = useParams();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const fetchCategoryProperties = async () => {
+    async function fetchData() {
       try {
         setLoading(true);
-        // fetch from backend
-        const data = await getPropertiesByCategory(category);
-        console.log("Fetched properties:", data);
-        setProperties(data);
-      } catch (err) {
-        console.error(err);
+        // ✅ Ensure lowercase category is passed to backend
+        const response = await getPropertiesByCategory(category.toLowerCase(), search);
+        setProperties(response);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
       } finally {
         setLoading(false);
       }
-    };
-    fetchCategoryProperties();
-  }, [category]);
+    }
+    fetchData();
+  }, [category, search]);
 
   return (
     <div className="category-page">
-      <h2>{category.charAt(0).toUpperCase() + category.slice(1)}</h2>
+      <h2 className="category-title">{category}</h2>
+
+      {/* Search bar */}
+      <input
+        type="text"
+        placeholder="Search properties..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="search-input"
+      />
+
       {loading ? (
-        <p>Loading...</p>
+        <p>Loading properties...</p>
       ) : properties.length > 0 ? (
         <div className="properties-grid">
-          {properties.map((prop) => (
-            <div key={prop._id} className="property-card">
-              <img
-                src={prop.image_url || prop.image}
-                alt={prop.title}
-                className="property-image"
-              />
-              <h3>{prop.title}</h3>
-              <p>{prop.description}</p>
-              <p>Price: ₹{prop.price}</p>
-              <p>Location: {prop.location}</p>
+          {properties.map((property) => (
+            <div key={property._id} className="property-card">
+              <img src={property.image_url} alt={property.title} />
+              <h3>{property.title}</h3>
+              <p>{property.description}</p>
+              <p><strong>₹{property.price}</strong></p>
+              <p>{property.location}</p>
             </div>
           ))}
         </div>
