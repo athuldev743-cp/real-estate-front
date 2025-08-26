@@ -6,9 +6,8 @@ import "./Search.css";
 export default function Search() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const query = new URLSearchParams(useLocation().search).get("query") || "";
-  const navigate = useNavigate(); // ✅ add this
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -34,25 +33,24 @@ export default function Search() {
         <div className="properties-grid">
           {properties.map((prop) => (
             <div key={prop._id || prop.title} className="property-card">
-              <div className="property-image-container">
-                <img
-                  src={prop.image || "/image/placeholder.jpg"}
-                  alt={prop.title}
-                  className="property-image"
-                />
-                <button
-                  className="view-details-btn"
-                  onClick={() => navigate(`/property/${prop._id}`)}
-                >
-                  View Details
-                </button>
-              </div>
-              <div className="property-card-content">
-                <h3>{prop.title}</h3>
-                <p>{prop.description}</p>
-                <p className="price">Price: ₹{prop.price}</p>
-                <p className="location">Location: {prop.location}</p>
-              </div>
+              <img
+                src={prop.image || "/image/placeholder.jpg"}
+                alt={prop.title}
+                className="property-image"
+              />
+              <h3>{prop.title}</h3>
+              <p>{prop.description}</p>
+              <p className="price">Price: ₹{prop.price}</p>
+              <p className="location">Location: {prop.location}</p>
+              <button
+                className="view-details-btn"
+                onClick={() => {
+                  if (prop._id) navigate(`/property/${prop._id}`);
+                  else console.error("Property ID missing!", prop);
+                }}
+              >
+                View Details
+              </button>
             </div>
           ))}
         </div>
@@ -62,4 +60,3 @@ export default function Search() {
     </div>
   );
 }
-

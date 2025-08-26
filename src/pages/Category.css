@@ -69,3 +69,24 @@
     grid-template-columns: 1fr;
   }
 }
+/* ---------- View Details Button ---------- */
+.view-details-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #2a9d8f; /* Matches category title color */
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  width: 100%; /* Full width of card */
+  text-align: center;
+}
+
+.view-details-btn:hover {
+  background-color: #21867a;
+  transform: translateY(-2px);
+}

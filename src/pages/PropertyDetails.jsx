@@ -1,35 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPropertiesByCategory, getProperties } from "../api/PropertyAPI";
-import "./PropertyDetails.css"; // Create a CSS file if you want custom styling
+import { getPropertyById } from "../api/PropertyAPI";
+import "./PropertyDetails.css";
 
 export default function PropertyDetails() {
-  const { id } = useParams(); // property _id
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchProperty() {
+    const fetchProperty = async () => {
       setLoading(true);
       try {
-        // Option 1: Fetch all properties and find by id
-        const allProps = await getProperties(""); // get all
-        const found = allProps.find((p) => p._id === id);
-        if (found) setProperty(found);
-        else console.error("Property not found");
+        const data = await getPropertyById(id);
+        setProperty(data);
       } catch (err) {
-        console.error("Error fetching property:", err);
+        console.error("Error fetching property details:", err);
       } finally {
         setLoading(false);
       }
-    }
-
+    };
     fetchProperty();
   }, [id]);
 
-  if (loading) return <p>Loading property...</p>;
-  if (!property) return <p>Property not found.</p>;
+  if (loading) return <p className="center-text">Loading property...</p>;
+  if (!property) return <p className="center-text">Property not found.</p>;
 
   return (
     <div className="property-details-page">
@@ -37,26 +33,38 @@ export default function PropertyDetails() {
         ← Back
       </button>
 
-      <div className="property-details-card">
-        <img
-          src={property.image_url || "/image/default-property.jpeg"}
-          alt={property.title}
-          className="property-image"
-        />
-        <h2>{property.title}</h2>
-        <p>{property.description}</p>
+      <div className="property-header">
+        <h1>{property.title || "Untitled Property"}</h1>
         <p>
-          <strong>Price:</strong> ₹{property.price}
+          {property.category?.toUpperCase() || "N/A"} • {property.location || "Unknown"}
         </p>
-        <p>
-          <strong>Location:</strong> {property.location}
-        </p>
-        <p>
-          <strong>Category:</strong> {property.category}
-        </p>
-        <p>
-          <strong>Owner:</strong> {property.owner || "N/A"}
-        </p>
+      </div>
+
+      <div className="property-main">
+        <div className="property-image-container">
+          <img
+            src={property.image_url || "/image/default-property.jpeg"}
+            alt={property.title}
+            className="property-image"
+          />
+        </div>
+
+        <div className="property-info">
+          <h2>Property Details</h2>
+          <p>{property.description || "No description available."}</p>
+          <p className="price">
+            <strong>Price:</strong> ₹{property.price || "N/A"}
+          </p>
+          <p>
+            <strong>Location:</strong> {property.location || "Unknown"}
+          </p>
+          <p>
+            <strong>Category:</strong> {property.category || "N/A"}
+          </p>
+          <p>
+            <strong>Owner:</strong> {property.owner || "N/A"}
+          </p>
+        </div>
       </div>
     </div>
   );
