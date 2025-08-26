@@ -1,122 +1,60 @@
-// src/pages/AddProperty.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { addProperty } from "../api/PropertyAPI";
-import "./AddProperty.css";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getPropertyById } from "../api/PropertyAPI";
+import "./PropertyDetails.css";
 
-export default function AddProperty() {
+export default function PropertyDetails() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    price: "",
-    location: "",
-    category: "",
-    image: null,
-  });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.image) {
-      setMessage("Please upload an image.");
-      return;
-    }
-
-    const data = new FormData();
-    for (let key in formData) {
-      data.append(key, formData[key]);
-    }
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token"); // Ensure user is logged in
-      const res = await addProperty(data, token);
-
-      if (res.message) {
-        setMessage(res.message);
-        navigate(`/category/${formData.category.toLowerCase()}`);
-      } else {
-        setMessage("Error adding property.");
+  useEffect(() => {
+    const fetchProperty = async () => {
+      setLoading(true);
+      try {
+        const data = await getPropertyById(id);
+        setProperty(data);
+      } catch (err) {
+        console.error("Error fetching property details:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      setMessage("Failed to add property.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchProperty();
+  }, [id]);
+
+  if (loading) {
+    return <p style={{ textAlign: "center", marginTop: "50px" }}>Loading property...</p>;
+  }
+
+  if (!property) {
+    return <p style={{ textAlign: "center", marginTop: "50px" }}>Property not found.</p>;
+  }
 
   return (
-    <div className="add-property-page">
-      <h2>Add New Property</h2>
-      {message && <p className="message">{message}</p>}
-      <form onSubmit={handleSubmit} className="property-form">
-        <input
-          type="text"
-          name="title"
-          placeholder="Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="location"
-          placeholder="Location"
-          value={formData.location}
-          onChange={handleChange}
-          required
-        />
-        <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Category</option>
-          <option value="plots">Plots</option>
-          <option value="buildings">Buildings</option>
-          <option value="houses">Houses</option>
-          <option value="apartments">Apartments</option>
-          <option value="villas">Villas</option>
-          <option value="farmlands">Farmlands</option>
-        </select>
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={handleChange}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Adding..." : "Add Property"}
-        </button>
-      </form>
+    <div className="property-details-page">
+      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
+
+      <div className="property-header">
+        <h1>{property.title}</h1>
+        <p>{property.category?.toUpperCase()} • {property.location}</p>
+      </div>
+
+      <div className="property-main">
+        <div className="property-image-container">
+          <img src={property.image_url || "/image/default-property.jpeg"} alt={property.title} />
+        </div>
+
+        <div className="property-info">
+          <h2>Property Details</h2>
+          <p>{property.description}</p>
+          <p className="price">Price: ₹{property.price}</p>
+          <p className="location">Location: {property.location}</p>
+          <p>Category: {property.category}</p>
+          <p>Owner: {property.owner}</p>
+        </div>
+      </div>
     </div>
   );
 }
