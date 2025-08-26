@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookF, faInstagram, faTwitter, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
+import "./Home.css";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,7 +34,6 @@ export default function Home() {
     navigate(`${link}?search=${encodeURIComponent(searchQuery)}`);
   };
 
-  // Handle search button click
   const handleSearch = () => {
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
   };

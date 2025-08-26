@@ -3,6 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { addProperty } from "../api/PropertyAPI";
 import "./AddProperty.css";
 
+const categories = [
+  "plots",
+  "buildings",
+  "houses",
+  "apartments",
+  "villas",
+  "farmlands",
+];
+
 export default function AddProperty() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
@@ -21,7 +30,6 @@ export default function AddProperty() {
     }
 
     try {
-      // Prepare FormData for multipart/form-data
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
@@ -30,8 +38,7 @@ export default function AddProperty() {
       formData.append("category", category.toLowerCase());
       formData.append("image", imageFile);
 
-      // Add property
-      await addProperty(formData); // If your backend requires token, pass it as second arg
+      await addProperty(formData); // Pass token here if your backend requires it
 
       alert("Property added successfully!");
       navigate(`/category/${category.toLowerCase()}`);
@@ -49,12 +56,9 @@ export default function AddProperty() {
         <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
         <input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} required />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="plots">Plots</option>
-          <option value="buildings">Buildings</option>
-          <option value="houses">Houses</option>
-          <option value="apartments">Apartments</option>
-          <option value="villas">Villas</option>
-          <option value="farmlands">Farmlands</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+          ))}
         </select>
         <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} required />
         <button type="submit">Add Property</button>
