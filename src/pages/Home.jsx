@@ -25,7 +25,6 @@ export default function Home() {
     return () => window.removeEventListener("scroll", controlNavbar);
   }, []);
 
-  // Categories (always lowercase for images & API consistency)
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
     { id: 2, name: "Buildings", link: "/category/buildings" },
@@ -43,6 +42,10 @@ export default function Home() {
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
+  const handleTopDeals = () => {
+    navigate("/top-deals");
+  };
+
   return (
     <div className="home">
       {/* Navbar */}
@@ -57,7 +60,7 @@ export default function Home() {
             />
           </div>
           <ul className="nav-links">
-            <li onClick={() => navigate("/top-deals")}>Top Deals</li>
+            <li onClick={handleTopDeals}>Top Deals</li>
             {categories.map((cat) => (
               <li key={cat.id} onClick={() => goToCategory(cat.link)}>
                 {cat.name}
@@ -96,7 +99,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section with fallback */}
+      {/* Hero Section */}
       <section
         className="hero"
         style={{
@@ -106,10 +109,7 @@ export default function Home() {
         <h1>Find Your Dream Property</h1>
         <p>Plots • Houses • Villas • Apartments</p>
         <div>
-          <button
-            className="view-deals-btn"
-            onClick={() => navigate("/top-deals")}
-          >
+          <button className="view-deals-btn" onClick={handleTopDeals}>
             View Top Deals
           </button>
           <button
@@ -126,27 +126,24 @@ export default function Home() {
       <section className="categories">
         <h2>Categories</h2>
         <div className="categories-grid">
-          {categories.map((cat) => {
-            const imgPath = `/image/${cat.name.toLowerCase()}.jpeg`;
-            return (
-              <div
-                key={cat.id}
-                className="category-card"
-                onClick={() => goToCategory(cat.link)}
-              >
-                <img
-                  src={imgPath}
-                  alt={cat.name}
-                  onError={(e) => (e.target.src = "/image/default-category.jpeg")}
-                />
-                <div>{cat.name}</div>
-              </div>
-            );
-          })}
+          {categories.map((cat) => (
+            <div
+              key={cat.id}
+              className="category-card"
+              onClick={() => goToCategory(cat.link)}
+            >
+              <img
+                src={`/image/${cat.name.toLowerCase()}.jpeg`}
+                alt={cat.name}
+                onError={(e) => (e.target.src = "/image/default-category.jpeg")}
+              />
+              <div>{cat.name}</div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* About Section with fallback */}
+      {/* About Section */}
       <section
         className="about"
         style={{
