@@ -1,7 +1,13 @@
+// src/pages/Home.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebookF, faInstagram, faTwitter, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
+import {
+  faFacebookF,
+  faInstagram,
+  faTwitter,
+  faLinkedinIn,
+} from "@fortawesome/free-brands-svg-icons";
 import "./Home.css";
 
 export default function Home() {
@@ -20,14 +26,14 @@ export default function Home() {
     return () => window.removeEventListener("scroll", controlNavbar);
   }, []);
 
-  // Categories
+  // Categories (always lowercase for images & API consistency)
   const categories = [
-    { id: 1, name: "Plots", link: "/category/Plots" },
-    { id: 2, name: "Buildings", link: "/category/Buildings" },
-    { id: 3, name: "Houses", link: "/category/Houses" },
-    { id: 4, name: "Apartments", link: "/category/Apartments" },
-    { id: 5, name: "Villas", link: "/category/Villas" },
-    { id: 6, name: "Farmlands", link: "/category/Farmlands" },
+    { id: 1, name: "Plots", link: "/category/plots" },
+    { id: 2, name: "Buildings", link: "/category/buildings" },
+    { id: 3, name: "Houses", link: "/category/houses" },
+    { id: 4, name: "Apartments", link: "/category/apartments" },
+    { id: 5, name: "Villas", link: "/category/villas" },
+    { id: 6, name: "Farmlands", link: "/category/farmlands" },
   ];
 
   const goToCategory = (link) => {
@@ -54,12 +60,18 @@ export default function Home() {
               </li>
             ))}
             <li>
-              <button className="register-btn" onClick={() => navigate("/register")}>
+              <button
+                className="register-btn"
+                onClick={() => navigate("/register")}
+              >
                 Register
               </button>
             </li>
             <li>
-              <button className="add-property-btn" onClick={() => navigate("/add-property")}>
+              <button
+                className="add-property-btn"
+                onClick={() => navigate("/add-property")}
+              >
                 + Add Property
               </button>
             </li>
@@ -72,18 +84,28 @@ export default function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-            <button onClick={handleSearch} className="search-btn">Search</button>
+            <button onClick={handleSearch} className="search-btn">
+              Search
+            </button>
           </div>
           <div className="mobile-menu">☰</div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="hero" style={{ backgroundImage: 'url("/image/backr.jpeg")' }}>
+      <section
+        className="hero"
+        style={{ backgroundImage: 'url("/image/backr.jpeg")' }}
+      >
         <h1>Find Your Dream Property</h1>
         <p>Plots • Houses • Villas • Apartments</p>
         <div>
-          <button className="view-deals-btn" onClick={() => navigate("/top-deals")}>View Top Deals</button>
+          <button
+            className="view-deals-btn"
+            onClick={() => navigate("/top-deals")}
+          >
+            View Top Deals
+          </button>
           <button
             className="view-deals-btn"
             style={{ marginLeft: "20px", backgroundColor: "#28a745" }}
@@ -99,8 +121,16 @@ export default function Home() {
         <h2>Categories</h2>
         <div className="categories-grid">
           {categories.map((cat) => (
-            <div key={cat.id} className="category-card" onClick={() => goToCategory(cat.link)}>
-              <img src={`/image/${cat.name.toLowerCase()}.jpeg`} alt={cat.name} />
+            <div
+              key={cat.id}
+              className="category-card"
+              onClick={() => goToCategory(cat.link)}
+            >
+              {/* Images must exist in public/image/ and be lowercase: plots.jpeg, houses.jpeg, etc. */}
+              <img
+                src={`/image/${cat.name.toLowerCase()}.jpeg`}
+                alt={cat.name}
+              />
               <div>{cat.name}</div>
             </div>
           ))}
@@ -108,11 +138,22 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section className="about" style={{ backgroundImage: 'url("/image/about-bg.jpeg")' }}>
+      <section
+        className="about"
+        style={{ backgroundImage: 'url("/image/about-bg.jpeg")' }}
+      >
         <h2>About Us</h2>
-        <p style={{ maxWidth: "800px", margin: "20px auto", fontSize: "1.2rem", lineHeight: "1.6" }}>
-          At Estateuro, we believe a home is where love grows, trust is nurtured, and families thrive.
-          Our mission is to help you find properties that bring comfort, joy, and lasting memories.
+        <p
+          style={{
+            maxWidth: "800px",
+            margin: "20px auto",
+            fontSize: "1.2rem",
+            lineHeight: "1.6",
+          }}
+        >
+          At Estateuro, we believe a home is where love grows, trust is nurtured,
+          and families thrive. Our mission is to help you find properties that
+          bring comfort, joy, and lasting memories.
         </p>
       </section>
 
@@ -125,10 +166,26 @@ export default function Home() {
         <div className="social-media">
           <h3>Follow Us</h3>
           <div className="social-icons">
-            <FontAwesomeIcon icon={faFacebookF} className="social-icon" onClick={() => window.open('https://facebook.com','_blank')} />
-            <FontAwesomeIcon icon={faInstagram} className="social-icon" onClick={() => window.open('https://instagram.com','_blank')} />
-            <FontAwesomeIcon icon={faTwitter} className="social-icon" onClick={() => window.open('https://twitter.com','_blank')} />
-            <FontAwesomeIcon icon={faLinkedinIn} className="social-icon" onClick={() => window.open('https://linkedin.com','_blank')} />
+            <FontAwesomeIcon
+              icon={faFacebookF}
+              className="social-icon"
+              onClick={() => window.open("https://facebook.com", "_blank")}
+            />
+            <FontAwesomeIcon
+              icon={faInstagram}
+              className="social-icon"
+              onClick={() => window.open("https://instagram.com", "_blank")}
+            />
+            <FontAwesomeIcon
+              icon={faTwitter}
+              className="social-icon"
+              onClick={() => window.open("https://twitter.com", "_blank")}
+            />
+            <FontAwesomeIcon
+              icon={faLinkedinIn}
+              className="social-icon"
+              onClick={() => window.open("https://linkedin.com", "_blank")}
+            />
           </div>
         </div>
       </section>
