@@ -1,18 +1,23 @@
-/* Navbar */
+/* ---------- Navbar ---------- */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 15px 0px;
+  padding: 15px 0;
   background: black;
   color: white;
   z-index: 1000;
   transition: transform 0.3s ease, background 0.3s ease;
 }
 
-.navbar-hide { transform: translateY(-100%); }
-.navbar-show { transform: translateY(0); }
+.navbar-hide {
+  transform: translateY(-100%);
+}
+
+.navbar-show {
+  transform: translateY(0);
+}
 
 .nav-content {
   display: flex;
@@ -20,7 +25,12 @@
   align-items: center;
 }
 
-.logo-img { width: 150px; height: 120px; transition: all 0.3s ease; }
+.logo-img {
+  width: 150px;
+  height: 120px;
+  object-fit: contain;
+  transition: width 0.3s ease, height 0.3s ease;
+}
 
 .nav-links {
   display: flex;
@@ -28,31 +38,24 @@
   list-style: none;
   font-weight: 500;
 }
-.nav-links li { cursor: pointer; transition: color 0.2s ease; }
-.nav-links li:hover { color: #ffcc66; }
 
-.add-property-btn, .register-btn, .view-deals-btn {
-  padding: 8px 16px;
-  font-weight: bold;
-  border-radius: 6px;
-  border: none;
+.nav-links li {
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-.add-property-btn { background-color: #2a9d8f; color: white; }
-.add-property-btn:hover { background-color: #21867a; }
+.nav-links li:hover {
+  color: #ffcc66;
+}
 
-.register-btn { background-color: #007bff; color: white; margin-right: 10px; }
-.register-btn:hover { background-color: #0069d9; }
-
-.view-deals-btn { background-color: #0077b6; color: white; }
-.view-deals-btn:hover { background-color: #005f99; transform: translateY(-3px); }
+.mobile-menu {
+  display: none;
+}
 
 .nav-search {
-  margin-left: 20px;
   display: flex;
   align-items: center;
+  margin-left: 20px;
 }
 
 .search-input {
@@ -62,13 +65,56 @@
   outline: none;
   width: 200px;
   transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
+
 .search-input:focus {
   border-color: #ff6600;
   box-shadow: 0 0 8px rgba(255, 102, 0, 0.5);
 }
 
-/* Hero Section */
+/* ---------- Buttons ---------- */
+.add-property-btn,
+.register-btn,
+.view-deals-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.add-property-btn {
+  background-color: #2a9d8f;
+  color: white;
+}
+
+.add-property-btn:hover {
+  background-color: #21867a;
+}
+
+.register-btn {
+  background-color: #007bff;
+  color: white;
+  margin-right: 10px;
+}
+
+.register-btn:hover {
+  background-color: #0069d9;
+}
+
+.view-deals-btn {
+  background-color: #0077b6;
+  color: white;
+}
+
+.view-deals-btn:hover {
+  background-color: #005f99;
+  transform: translateY(-3px);
+}
+
+/* ---------- Hero Section ---------- */
 .hero {
   background-size: cover;
   background-position: center;
@@ -77,31 +123,99 @@
   text-align: left;
   padding: 120px 20px 80px 40px;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
 }
-.hero h1 { font-size: 3rem; text-shadow: 2px 2px 6px rgba(0,0,0,0.7); }
-.hero p { margin-top: 10px; font-size: 1.3rem; }
 
-/* Categories Section */
-.categories { padding: 60px 20px; text-align: center; }
-.categories h2 { font-size: 2rem; margin-bottom: 20px; color: #2a9d8f; }
+.hero h1 {
+  font-size: 3rem;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.hero p {
+  margin-top: 10px;
+  font-size: 1.3rem;
+}
+
+/* ---------- Categories Section ---------- */
+.categories {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.categories h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #2a9d8f;
+}
 
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
+
 .category-card {
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   height: 400px;
+  background-color: #f0f0f0;
 }
-.category-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
-.category-card img { width: 100%; height: 350px; object-fit: cover; }
-.category-card div { padding: 10px; font-weight: bold; font-size: 1.2rem; }
 
-/* About Section */
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.category-card img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+}
+
+.category-card div {
+  padding: 10px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #333;
+  text-align: center;
+}
+
+/* ---------- Property Cards ---------- */
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.property-card {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.property-card img.property-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+  background-color: #e0e0e0;
+}
+
+/* ---------- About Section ---------- */
 .about {
   position: relative;
   background-size: cover;
@@ -114,43 +228,123 @@
   justify-content: center;
   min-height: 60vh;
 }
+
 .about::before {
   content: "";
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.55);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
   z-index: 1;
 }
-.about h2, .about p { position: relative; z-index: 2; }
 
-/* Contact Section */
-.contact { text-align: center; padding: 60px 20px; background-color: #f8f4f0; }
-.contact h2 { font-size: 2rem; color: #2a9d8f; margin-bottom: 20px; }
-.contact p { font-size: 1.1rem; margin: 5px 0; }
-.social-icons { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
+.about h2,
+.about p {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------- Contact Section ---------- */
+.contact {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #f8f4f0;
+}
+
+.contact h2 {
+  font-size: 2rem;
+  color: #2a9d8f;
+  margin-bottom: 20px;
+}
+
+.contact p {
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
 .social-icon {
-  width: 80px; height: 80px;
-  display: flex; justify-content: center; align-items: center;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: linear-gradient(135deg, #2a9d8f, #0077b6);
-  color: white; font-size: 1.5rem;
+  color: white;
+  font-size: 1.5rem;
   border-radius: 50%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-.social-icon:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  background: linear-gradient(135deg, #005f99, #006655);
 }
 
-/* Responsive */
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  .nav-links { display: none; }
-  .mobile-menu { display: block; cursor: pointer; font-size: 1.5rem; }
-  .hero { padding: 100px 20px 60px 20px; text-align: center; }
-  .categories-grid { grid-template-columns: 1fr 1fr; }
-  .logo-img { width: 70px; height: 70px; }
+  .nav-links {
+    display: none;
+  }
+  .mobile-menu {
+    display: block;
+    cursor: pointer;
+    font-size: 1.5rem;
+  }
+
+  .hero {
+    padding: 100px 20px 60px 20px;
+    text-align: center;
+  }
+
+  .categories-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .about h2 {
+    font-size: 2.5rem;
+  }
+
+  .about p {
+    font-size: 1rem;
+  }
+
+  .logo-img {
+    width: 70px;
+    height: 70px;
+  }
 }
 
-@media (max-width: 480px) { .categories-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about h2 {
+    font-size: 2rem;
+  }
+
+  .about p {
+    font-size: 0.95rem;
+  }
+
+  .contact h2 {
+    font-size: 1.8rem;
+  }
+
+  .contact p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Accessibility focus styles */
+.view-deals-btn:focus,
+.add-property-btn:focus {
+  outline: 3px solid #ffcc00;
+  outline-offset: 2px;
+}

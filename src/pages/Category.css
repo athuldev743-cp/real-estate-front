@@ -1,62 +1,71 @@
+/* ---------- Category Page ---------- */
 .category-page {
-  padding: 20px;
+  padding: 80px 20px 40px 20px;
+  text-align: center;
 }
 
 .category-title {
-  text-align: center;
-  font-size: 2rem;
+  font-size: 2.5rem;
+  color: #2a9d8f;
   margin-bottom: 20px;
 }
 
-.category-search-bar {
-  display: block;
-  margin: 0 auto 30px auto;
-  padding: 10px 15px;
-  width: 300px;
-  font-size: 1rem;
-  border-radius: 5px;
+/* ---------- Search Input ---------- */
+.search-input {
+  padding: 8px 12px;
+  border-radius: 20px;
   border: 1px solid #ccc;
+  outline: none;
+  width: 250px;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
 }
 
+.search-input:focus {
+  border-color: #ff6600;
+  box-shadow: 0 0 8px rgba(255, 102, 0, 0.5);
+}
+
+/* ---------- Properties Grid ---------- */
 .properties-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
+  padding: 20px 0;
 }
 
 .property-card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-  background-color: #fff;
-  transition: transform 0.2s;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .property-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-.property-image {
+.property-card img.property-image {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
+  border-radius: 6px;
+  background-color: #e0e0e0;
 }
 
-.property-details {
-  padding: 15px;
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .properties-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.property-details h3 {
-  margin: 0 0 10px 0;
-}
-
-.property-price {
-  font-weight: bold;
-  color: #2a9d8f;
-}
-
-.property-location {
-  color: #555;
-  font-size: 0.9rem;
+@media (max-width: 480px) {
+  .properties-grid {
+    grid-template-columns: 1fr;
+  }
 }

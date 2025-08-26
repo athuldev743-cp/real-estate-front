@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -26,7 +25,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", controlNavbar);
   }, []);
 
-  // Categories (lowercase for images & API consistency)
+  // Categories (always lowercase for images & API consistency)
   const categories = [
     { id: 1, name: "Plots", link: "/category/plots" },
     { id: 2, name: "Buildings", link: "/category/buildings" },
@@ -54,7 +53,7 @@ export default function Home() {
               src="/image/logo.jpeg"
               alt="Logo"
               className="logo-img"
-              onError={(e) => { e.target.src = "/image/default-category.jpeg"; }}
+              onError={(e) => (e.target.src = "/image/default-category.jpeg")}
             />
           </div>
           <ul className="nav-links">
@@ -97,11 +96,12 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with fallback */}
       <section
         className="hero"
-        style={{ backgroundImage: 'url("/image/backr.jpeg")' }}
-        onError={(e) => { e.target.style.backgroundImage = 'url("/image/default-category.jpeg")'; }}
+        style={{
+          backgroundImage: `url("/image/backr.jpeg"), url("/image/default-category.jpeg")`,
+        }}
       >
         <h1>Find Your Dream Property</h1>
         <p>Plots • Houses • Villas • Apartments</p>
@@ -137,7 +137,7 @@ export default function Home() {
                 <img
                   src={imgPath}
                   alt={cat.name}
-                  onError={(e) => { e.target.src = "/image/default-category.jpeg"; }}
+                  onError={(e) => (e.target.src = "/image/default-category.jpeg")}
                 />
                 <div>{cat.name}</div>
               </div>
@@ -146,10 +146,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Section */}
+      {/* About Section with fallback */}
       <section
         className="about"
-        style={{ backgroundImage: 'url("/image/about-bg.jpeg")' }}
+        style={{
+          backgroundImage: `url("/image/about-bg.jpeg"), url("/image/default-category.jpeg")`,
+        }}
       >
         <h2>About Us</h2>
         <p>
