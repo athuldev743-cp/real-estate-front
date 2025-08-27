@@ -19,7 +19,15 @@ export const registerUser = async (data) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  return await res.json();
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    // Throw the backend error message
+    throw new Error(result.detail || "Registration failed");
+  }
+
+  return result;
 };
 
 // Get current logged-in user
