@@ -11,28 +11,25 @@ export default function Category() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      try {
-        let data;
-        if (!category || category.toLowerCase() === "all") {
-          // Fetch all properties
-          data = await getProperties(searchQuery);
-        } else {
-          // Fetch properties by category
-          data = await getPropertiesByCategory(category.toLowerCase(), searchQuery);
-        }
-        setProperties(data);
-      } catch (err) {
-        console.error("Error fetching properties:", err);
-        setProperties([]);
-      } finally {
-        setLoading(false);
+  async function fetchData() {
+    setLoading(true);
+    try {
+      let data;
+      if (category === "all") {
+        data = await getProperties(searchQuery);
+      } else {
+        data = await getPropertiesByCategory(category, searchQuery); // category value already matches backend
       }
+      setProperties(data);
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+    } finally {
+      setLoading(false);
     }
+  }
+  fetchData();
+}, [category, searchQuery]);
 
-    fetchData();
-  }, [category, searchQuery]);
 
   return (
     <div className="category-page">

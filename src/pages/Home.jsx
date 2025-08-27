@@ -32,37 +32,39 @@ export default function Home() {
   const categories = [
   { id: 1, name: "Plots", value: "plots" },
   { id: 2, name: "Buildings", value: "buildings" },
-  { id: 3, name: "House", value: "house" },
+  { id: 3, name: "House", value: "house" },       // singular, matches backend
   { id: 4, name: "Apartment", value: "apartment" },
   { id: 5, name: "Villa", value: "villa" },
   { id: 6, name: "Farmland", value: "farmland" },
 ];
 
-  const fetchCategory = async (category) => {
-    setSelectedCategory(category);
-    setLoading(true);
-    try {
-      const data = await getPropertiesByCategory(category.toLowerCase(), searchQuery);
-      setProperties(data);
-    } catch (err) {
-      console.error("Error fetching properties:", err);
-      setProperties([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+const goToCategory = (value) => {
+  navigate(`/category/${value}?search=${encodeURIComponent(searchQuery)}`);
+};
 
-  const handleSearch = () => {
-    if (selectedCategory) {
-      fetchCategory(selectedCategory);
-    } else {
-      navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+// Usage in JSX
+{categories.map((cat) => (
+  <li key={cat.id} onClick={() => goToCategory(cat.value)}>
+    {cat.name}
+  </li>
+))}
 
-  const handleTopDeals = () => {
-    navigate("/top-deals");
-  };
+// Same for category cards
+{categories.map((cat) => (
+  <div
+    key={cat.id}
+    className="category-card"
+    onClick={() => goToCategory(cat.value)}
+  >
+    <img
+      src={`/image/${cat.name.toLowerCase()}.jpeg`}
+      alt={cat.name}
+      onError={(e) => (e.target.src = "/image/default-category.jpeg")}
+    />
+    <div>{cat.name}</div>
+  </div>
+))}
+
 
   return (
     <div className="home">
