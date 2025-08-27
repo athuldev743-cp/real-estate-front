@@ -5,7 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FFF8F2; /* warm ivory */
+  background-color: black; /* warm ivory */
   color: #333; /* optional: default text color for contrast */
 }
 
