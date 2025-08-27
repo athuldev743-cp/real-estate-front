@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, verifyOTP } from "../api/PropertyAPI";
-import "./Register.css";
+import "./Register.css"; // includes your modal styles
 
 export default function Register() {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ export default function Register() {
   const [error, setError] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
 
-  // Step 1: register and get OTP
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -23,7 +22,7 @@ export default function Register() {
       const res = await registerUser({ email, password });
       setMessage(res.message);
       setStep(2);
-      setShowOtpModal(true); // show OTP popup
+      setShowOtpModal(true); // show OTP modal
     } catch (err) {
       setError(err.message || "Registration failed");
     } finally {
@@ -31,7 +30,6 @@ export default function Register() {
     }
   };
 
-  // Step 2: verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -40,8 +38,8 @@ export default function Register() {
       const res = await verifyOTP({ email, otp });
       setMessage(res.message);
       setStep(1);
-      setShowOtpModal(false); // close OTP popup
-      navigate("/login");
+      setShowOtpModal(false);
+      navigate("/login"); // redirect after successful OTP
     } catch (err) {
       setError(err.message || "OTP verification failed");
     } finally {
@@ -83,18 +81,16 @@ export default function Register() {
         <div className="otp-modal">
           <div className="otp-content">
             <h3>Enter OTP</h3>
-            <form onSubmit={handleVerifyOtp}>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-              />
-              <button type="submit" disabled={loading}>
-                {loading ? "Verifying..." : "Verify OTP"}
-              </button>
-            </form>
+            <input
+              type="text"
+              placeholder="OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              required
+            />
+            <button onClick={handleVerifyOtp} disabled={loading}>
+              {loading ? "Verifying..." : "Verify OTP"}
+            </button>
             <button
               className="close-btn"
               onClick={() => setShowOtpModal(false)}

@@ -1,62 +1,68 @@
 .add-property-page {
-  max-width: 600px;
-  margin: 80px auto 50px;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 20px;
+  background: linear-gradient(135deg, #f1f8e9, #dcedc8);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .add-property-page h2 {
+  color: #33691e;
+  font-size: 2rem;
+  margin-bottom: 30px;
   text-align: center;
+}
+
+.property-form-container {
+  background-color: #ffffff;
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.property-form-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.property-form-container input,
+.property-form-container select,
+.property-form-container textarea {
+  width: 100%;
+  padding: 12px 15px;
   margin-bottom: 20px;
-  font-size: 28px;
-}
-
-.property-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.property-form input,
-.property-form select,
-.property-form textarea {
-  padding: 10px;
-  border-radius: 6px;
+  border-radius: 10px;
   border: 1px solid #ccc;
-  font-size: 16px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.property-form textarea {
-  resize: vertical;
-  min-height: 100px;
+.property-form-container input:focus,
+.property-form-container select:focus,
+.property-form-container textarea:focus {
+  border-color: #33691e;
+  box-shadow: 0 0 8px rgba(51, 105, 30, 0.3);
 }
 
-.property-form button {
-  padding: 12px;
+.property-form-container button {
+  width: 100%;
+  padding: 14px;
+  background-color: #33691e;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
   border: none;
-  border-radius: 6px;
-  background-color: #28a745;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.property-form button:hover {
-  background-color: #218838;
-}
-
-.property-form button:disabled {
-  background-color: #94d3a2;
-  cursor: not-allowed;
-}
-
-.message {
-  margin-bottom: 15px;
-  color: red;
-  text-align: center;
-  font-weight: 500;
+.property-form-container button:hover {
+  background-color: #1b5e20;
+  transform: translateY(-2px);
 }
