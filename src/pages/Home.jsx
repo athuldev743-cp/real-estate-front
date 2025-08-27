@@ -111,7 +111,7 @@ export default function Home() {
       <section
         className="hero"
         style={{
-          backgroundImage: `url("/image/backr.jpeg"), url("/image/default-category.jpeg")`,
+          backgroundImage: `url("/image/bgo3.jpeg"), url("/image/default-category.jpeg")`,
         }}
       >
         <h1>Find Your Dream Property</h1>
@@ -131,25 +131,22 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
+      
       <section className="categories">
-        <h2>Categories</h2>
-        <div className="categories-grid">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="category-card"
-              onClick={() => goToCategory(cat.value)}
-            >
-              <img
-                src={`/image/${cat.name.toLowerCase()}.jpeg`}
-                alt={cat.name}
-                onError={(e) => (e.target.src = "/image/default-category.jpeg")}
-              />
-              <div>{cat.name}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <h2>Categories</h2>
+      <div className="categories-grid">
+       {categories.map((cat) => (
+      <div
+        key={cat.id}
+        className={`category-card ${cat.value}`} // Add category class for CSS background
+        onClick={() => goToCategory(cat.value)}
+      >
+        <div>{cat.name}</div>
+      </div>
+    ))}
+  </div>
+</section>
+
 
       {/* About Section */}
       <section
