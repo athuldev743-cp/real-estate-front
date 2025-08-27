@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Category from "./pages/Category";
@@ -13,7 +13,6 @@ import { getCurrentUser } from "./api/PropertyAPI";
 export default function App() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -22,19 +21,12 @@ export default function App() {
         .then((data) => setUser(data))
         .catch((err) => {
           console.error("Failed to fetch user:", err);
-          localStorage.removeItem("token"); 
+          localStorage.removeItem("token"); // remove invalid token
           setUser(null);
-          if (location.pathname !== "/login" && location.pathname !== "/register") {
-            navigate("/login");
-          }
         });
-    } else {
-      // Only redirect to login if not already there
-      if (location.pathname !== "/login" && location.pathname !== "/register") {
-        navigate("/login");
-      }
     }
-  }, [navigate, location]);
+    // No token? just let them see Home page
+  }, []);
 
   return (
     <Routes>
@@ -47,6 +39,8 @@ export default function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/property/:id" element={<PropertyDetails user={user} />} />
       <Route path="/account" element={<Account user={user} />} />
+      {/* Redirect unknown routes to Home */}
+      <Route path="*" element={<Home user={user} />} />
     </Routes>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser, verifyOTP } from "../api/PropertyAPI";
+import { registerUser, verifyOTP, resendOTP } from "../api/PropertyAPI"; // ✅ add resendOTP
 import "./Register.css";
 
 export default function Register() {
@@ -13,39 +13,70 @@ export default function Register() {
   const [message, setMessage] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
 
-  // Step 1: Register
+  // ---------------- Step 1: Register ----------------
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!email || !password) return setError("Email and password are required");
 
     setLoading(true);
     setError("");
+    setMessage("");
+
     try {
       const res = await registerUser({ email, password });
-      setMessage(res.message || "OTP sent to your email");
-      setShowOtpModal(true); // show OTP modal
+
+      // Always show OTP modal if backend sends OTP
+      if (res.message.toLowerCase().includes("otp")) {
+        setMessage(res.message);
+        setShowOtpModal(true);
+      } else {
+        setMessage(res.message || "Registration response received");
+      }
+
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Registration failed");
+      if (err.message?.toLowerCase().includes("otp")) {
+        setShowOtpModal(true);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 2: Verify OTP
+  // ---------------- Step 2: Verify OTP ----------------
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp) return setError("Please enter OTP");
 
     setLoading(true);
     setError("");
+    setMessage("");
+
     try {
       const res = await verifyOTP({ email, otp });
+      localStorage.setItem("token", res.token);
       setMessage(res.message || "Registration successful!");
-      localStorage.setItem("token", res.token); // save token
       setShowOtpModal(false);
-      navigate("/account"); // ✅ redirect directly to account (already logged in)
+      navigate("/account");
+
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "OTP verification failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ---------------- Resend OTP ----------------
+  const handleResendOtp = async () => {
+    setLoading(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await resendOTP({ email });
+      setMessage(res.message || "New OTP sent to your email");
+    } catch (err) {
+      setError(err.message || "Failed to resend OTP");
     } finally {
       setLoading(false);
     }
@@ -92,6 +123,9 @@ export default function Register() {
             />
             <button onClick={handleVerifyOtp} disabled={loading}>
               {loading ? "Verifying..." : "Verify OTP"}
+            </button>
+            <button className="resend-btn" onClick={handleResendOtp} disabled={loading}>
+              {loading ? "Resending..." : "Resend OTP"}
             </button>
             <button className="close-btn" onClick={() => setShowOtpModal(false)}>
               Cancel

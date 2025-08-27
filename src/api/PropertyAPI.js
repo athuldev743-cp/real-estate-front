@@ -36,6 +36,23 @@ export const registerUser = async (data) => {
   return await res.json();
 };
 
+// Resend OTP for unverified users
+export const resendOTP = async (data) => {
+  if (!data.email) throw new Error("Email is required");
+
+  const res = await fetch(`${BASE_URL}/auth/resend-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || "Failed to resend OTP");
+  }
+  return await res.json();
+};
+
 // Verify OTP (Step 2)
 export const verifyOTP = async (data) => {
   if (!data.email || !data.otp) throw new Error("Email and OTP are required");
@@ -144,6 +161,7 @@ export const getMyProperties = async (token) => {
   }
   return await res.json();
 };
+
 // -------------------- Chat --------------------
 
 // Send a message to a property owner
@@ -199,4 +217,3 @@ export const getNotifications = async (token) => {
   }
   return await res.json();
 };
-
