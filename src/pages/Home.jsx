@@ -30,13 +30,13 @@ export default function Home() {
   }, []);
 
   const categories = [
-    { id: 1, name: "Plots" },
-    { id: 2, name: "Buildings" },
-    { id: 3, name: "Houses" },
-    { id: 4, name: "Apartments" },
-    { id: 5, name: "Villas" },
-    { id: 6, name: "Farmlands" },
-  ];
+  { id: 1, name: "Plots", value: "plots" },
+  { id: 2, name: "Buildings", value: "buildings" },
+  { id: 3, name: "House", value: "house" },
+  { id: 4, name: "Apartment", value: "apartment" },
+  { id: 5, name: "Villa", value: "villa" },
+  { id: 6, name: "Farmland", value: "farmland" },
+];
 
   const fetchCategory = async (category) => {
     setSelectedCategory(category);
