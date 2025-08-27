@@ -1,4 +1,3 @@
-// src/components/AddPropertyForm.jsx
 import React, { useState } from "react";
 import { addProperty } from "../api/PropertyAPI";
 import "../pages/AddProperty.css";
@@ -13,8 +12,8 @@ export default function AddPropertyForm() {
     location: "",
   });
   const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  // Frontend display vs backend values
   const categories = [
     { label: "House", value: "house" },
     { label: "Villa", value: "villa" },
@@ -36,33 +35,36 @@ export default function AddPropertyForm() {
     e.preventDefault();
     setMessage("");
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to add a property.");
+      return;
+    }
+
     if (!file) {
       setMessage("Please select an image for the property.");
       return;
     }
 
     const data = new FormData();
-    data.append("title", formData.title);
-    data.append("description", formData.description);
-    data.append("price", formData.price);
-    data.append("category", formData.category); // already matches backend
-    data.append("location", formData.location);
+    Object.keys(formData).forEach((key) => data.append(key, formData[key]));
     data.append("image", file);
 
+    setSubmitting(true);
     try {
-      const token = localStorage.getItem("token");
       const res = await addProperty(data, token);
       console.log(res);
-      if (res.detail) {
-        setMessage(res.detail);
-      } else {
-        alert("Property added successfully!");
-        setFormData({ title: "", description: "", price: "", category: "", location: "" });
-        setFile(null);
-      }
+      if (res.detail) setMessage(res.detail);
+      else if (res.message) alert(res.message);
+
+      setFormData({ title: "", description: "", price: "", category: "", location: "" });
+      setFile(null);
+      document.querySelector('input[name="image"]').value = null;
     } catch (err) {
       console.error(err);
       setMessage("Failed to add property. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -116,7 +118,9 @@ export default function AddPropertyForm() {
           required
         />
         <input type="file" name="image" onChange={handleFileChange} required />
-        <button type="submit">Add Property</button>
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Adding..." : "Add Property"}
+        </button>
       </form>
     </div>
   );

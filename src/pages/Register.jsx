@@ -1,63 +1,61 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../api/PropertyAPI";
-import "./Register.css";
+import { registerUser } from "../api/PropertyAPI"; // make sure this import points to your API
 
 export default function Register() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Simple email regex
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
-
-    // Frontend validation
-    if (!emailRegex.test(email)) {
-      setMessage("Please enter a valid email.");
-      return;
-    }
-    if (password.length < 6) {
-      setMessage("Password must be at least 6 characters long.");
-      return;
-    }
-
+    setLoading(true);
+    setError("");
     try {
-      await registerUser({ email, password });
-      alert("Registration successful! Please login.");
+      const res = await registerUser({ name, email, password });
+      console.log(res.message); // "User registered successfully"
+      // Redirect to login page
       navigate("/login");
     } catch (err) {
-      setMessage(err.message);
+      setError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="register-page">
-      <div className="register-card">
-        <h2>Register</h2>
-        {message && <div className="error-message">{message}</div>}
-        <form onSubmit={handleRegister}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit">Register</button>
-        </form>
-      </div>
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit} className="register-form">
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
+        {error && <p className="error">{error}</p>}
+      </form>
     </div>
   );
 }
