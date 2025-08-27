@@ -21,12 +21,9 @@ export const registerUser = async (data) => {
   });
 
   const result = await res.json();
-
   if (!res.ok) {
-    // Throw the backend error message
     throw new Error(result.detail || "Registration failed");
   }
-
   return result;
 };
 
@@ -42,7 +39,7 @@ export const getCurrentUser = async (token) => {
 
 // Add a property (only for logged-in users)
 export const addProperty = async (formData, token) => {
-  const res = await fetch(`${BASE_URL}/api/add-property`, { // <-- /api added
+  const res = await fetch(`${BASE_URL}/api/add-property`, { // ✅ /api added
     method: "POST",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData, // FormData handles multipart/form-data automatically
@@ -53,31 +50,31 @@ export const addProperty = async (formData, token) => {
 // Get all properties (optional search query)
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
-    ? `${BASE_URL}/properties?search=${encodeURIComponent(searchQuery)}`
-    : `${BASE_URL}/properties`;
+    ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}` // ✅ /api added
+    : `${BASE_URL}/api/properties`; // ✅ /api added
   const res = await fetch(url);
   return await res.json();
 };
 
 // Get properties by category (optional search query)
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
-  const url = `${BASE_URL}/category/${encodeURIComponent(category)}${
+  const url = `${BASE_URL}/api/category/${encodeURIComponent(category)}${
     searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
-  }`;
+  }`; // ✅ /api added
   const res = await fetch(url);
   return await res.json();
 };
 
 // Get a single property by ID
 export const getPropertyById = async (id) => {
-  const res = await fetch(`${BASE_URL}/property/${id}`);
+  const res = await fetch(`${BASE_URL}/api/property/${id}`); // ✅ /api added
   if (!res.ok) throw new Error("Failed to fetch property");
   return await res.json();
 };
 
 // Get current user's properties
 export const getMyProperties = async (token) => {
-  const res = await fetch(`${BASE_URL}/my-properties`, {
+  const res = await fetch(`${BASE_URL}/api/my-properties`, { // ✅ /api added
     headers: { Authorization: `Bearer ${token}` },
   });
   return await res.json();

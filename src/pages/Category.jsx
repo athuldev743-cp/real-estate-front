@@ -15,24 +15,31 @@ export default function Category() {
       setLoading(true);
       try {
         let data;
-        if (category === "all") {
+        if (!category || category.toLowerCase() === "all") {
+          // Fetch all properties
           data = await getProperties(searchQuery);
         } else {
-          data = await getPropertiesByCategory(category, searchQuery);
+          // Fetch properties by category
+          data = await getPropertiesByCategory(category.toLowerCase(), searchQuery);
         }
         setProperties(data);
       } catch (err) {
         console.error("Error fetching properties:", err);
+        setProperties([]);
       } finally {
         setLoading(false);
       }
     }
+
     fetchData();
   }, [category, searchQuery]);
 
   return (
     <div className="category-page">
-      <h2 className="category-title">{category === "all" ? "Top Deals" : category}</h2>
+      <h2 className="category-title">
+        {category && category.toLowerCase() !== "all" ? category : "Top Deals"}
+      </h2>
+
       {loading ? (
         <p>Loading properties...</p>
       ) : properties.length > 0 ? (
