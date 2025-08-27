@@ -21,27 +21,26 @@ export default function App() {
         .then((data) => setUser(data))
         .catch((err) => {
           console.error("Failed to fetch user:", err);
-          // Token invalid or expired → remove it
-          localStorage.removeItem("token");
+          localStorage.removeItem("token"); // remove invalid token
           setUser(null);
+          navigate("/login"); // redirect to login if token invalid
         });
+    } else {
+      navigate("/login"); // no token, redirect to login
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/search" element={<Search />} />
-      <Route path="/category/:category" element={<Category />} />
-      <Route path="/top-deals" element={<Category />} />
-      <Route path="/add-property" element={<AddProperty />} />
+      <Route path="/" element={<Home user={user} />} />
+      <Route path="/search" element={<Search user={user} />} />
+      <Route path="/category/:category" element={<Category user={user} />} />
+      <Route path="/top-deals" element={<Category user={user} />} />
+      <Route path="/add-property" element={<AddProperty user={user} />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/property/:id" element={<PropertyDetails />} />
-      <Route
-        path="/account"
-        element={<Account user={user} />}
-      />
+      <Route path="/property/:id" element={<PropertyDetails user={user} />} />
+      <Route path="/account" element={<Account user={user} />} />
     </Routes>
   );
 }

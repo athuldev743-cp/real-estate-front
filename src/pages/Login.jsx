@@ -7,29 +7,23 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    if (!email || !password) return setError("Email and password are required");
 
+    setLoading(true);
+    setError("");
     try {
       const res = await loginUser({ email, password });
-
-      // Save token to localStorage
-      localStorage.setItem("token", res.access_token);
-
-      alert("Login successful!");
-      navigate("/"); // redirect to home
+      localStorage.setItem("token", res.token); // save token
+      navigate("/account"); // redirect to account page
     } catch (err) {
-      // Handle unverified email separately
-      if (err.message.includes("Email not verified")) {
-        setError(
-          "Your email is not verified. Please check your inbox for the OTP."
-        );
-      } else {
-        setError("Login failed: Invalid email or password");
-      }
+      setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,6 +32,7 @@ export default function Login() {
       <div className="login-card">
         <h2>Login</h2>
         {error && <p className="error">{error}</p>}
+
         <form onSubmit={handleLogin}>
           <input
             type="email"
@@ -53,12 +48,10 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit">Login</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
-        <div className="register-link">
-          Don't have an account?{" "}
-          <span onClick={() => navigate("/register")}>Register here</span>
-        </div>
       </div>
     </div>
   );

@@ -5,28 +5,27 @@ import "./Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
-  const [name, setName] = useState(""); // optional if backend supports
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(1); // 1: register, 2: OTP verification
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
 
   // Step 1: Register
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!email || !password) return setError("Email and password are required");
+    
     setLoading(true);
     setError("");
     try {
-      const res = await registerUser({ name, email, password });
+      const res = await registerUser({ email, password });
       setMessage(res.message || "OTP sent to your email");
-      setStep(2);
-      setShowOtpModal(true);
+      setShowOtpModal(true); // show OTP modal
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -35,18 +34,18 @@ export default function Register() {
   // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    if (!otp) return setError("Please enter OTP");
+
     setLoading(true);
     setError("");
     try {
       const res = await verifyOTP({ email, otp });
-      // Save token returned by backend
-      if (res.token) localStorage.setItem("token", res.token);
-      setMessage(res.message || "OTP verified successfully");
-      setStep(1);
+      setMessage(res.message || "Registration successful!");
+      localStorage.setItem("token", res.token); // save token
       setShowOtpModal(false);
-      navigate("/"); // redirect to home after successful OTP
+      navigate("/login"); // redirect to login
     } catch (err) {
-      setError(err.message || "OTP verification failed");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -59,36 +58,27 @@ export default function Register() {
         {message && <p className="success">{message}</p>}
         {error && <p className="error">{error}</p>}
 
-        {step === 1 && (
-          <form onSubmit={handleRegister}>
-            <input
-              type="text"
-              placeholder="Full Name (optional)"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button type="submit" disabled={loading}>
-              {loading ? "Registering..." : "Register"}
-            </button>
-          </form>
-        )}
+        <form onSubmit={handleRegister}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
       </div>
 
-      {/* OTP Modal */}
       {showOtpModal && (
         <div className="otp-modal">
           <div className="otp-content">
@@ -103,10 +93,7 @@ export default function Register() {
             <button onClick={handleVerifyOtp} disabled={loading}>
               {loading ? "Verifying..." : "Verify OTP"}
             </button>
-            <button
-              className="close-btn"
-              onClick={() => setShowOtpModal(false)}
-            >
+            <button className="close-btn" onClick={() => setShowOtpModal(false)}>
               Cancel
             </button>
           </div>
