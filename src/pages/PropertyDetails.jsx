@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPropertyById } from "../api/PropertyAPI";
+import Chat from "./Chat"; // WebSocket chat component
 import "./PropertyDetails.css";
 
-export default function PropertyDetails() {
+export default function PropertyDetails({ userId }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -67,8 +69,20 @@ export default function PropertyDetails() {
           <p>
             <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
           </p>
+
+          {/* Chat Icon/Button */}
+          <button className="chat-btn" onClick={() => setChatOpen(!chatOpen)}>
+            💬 Chat with Seller
+          </button>
         </div>
       </div>
+
+      {/* Chat Modal */}
+      {chatOpen && (
+        <div className="chat-modal">
+          <Chat chatId={property._id} userId={userId} />
+        </div>
+      )}
     </div>
   );
 }
