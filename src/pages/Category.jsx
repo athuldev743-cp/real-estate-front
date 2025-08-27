@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { getPropertiesByCategory, getProperties } from "../api/PropertyAPI";
-import { FaCommentDots } from "react-icons/fa"; // ✅ chat icon
+import { FaCommentDots, FaHome, FaBuilding, FaLandmark } from "react-icons/fa"; // ✅ combined icons
 import "./Category.css";
+
 
 export default function Category() {
   const { category } = useParams();
