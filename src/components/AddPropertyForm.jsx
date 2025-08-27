@@ -1,3 +1,4 @@
+// src/components/AddPropertyForm.jsx
 import React, { useState } from "react";
 import { addProperty } from "../api/PropertyAPI";
 import "../pages/AddProperty.css";
@@ -13,7 +14,15 @@ export default function AddPropertyForm() {
   });
   const [message, setMessage] = useState("");
 
-  const categories = ["Plots", "Buildings", "Houses", "Apartments", "Villas", "Farmlands"];
+  // Frontend display vs backend values
+  const categories = [
+    { label: "House", value: "house" },
+    { label: "Villa", value: "villa" },
+    { label: "Apartment", value: "apartment" },
+    { label: "Farmlands", value: "farmlands" },
+    { label: "Plots", value: "plots" },
+    { label: "Buildings", value: "buildings" },
+  ];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,7 +45,7 @@ export default function AddPropertyForm() {
     data.append("title", formData.title);
     data.append("description", formData.description);
     data.append("price", formData.price);
-    data.append("category", formData.category);
+    data.append("category", formData.category); // already matches backend
     data.append("location", formData.location);
     data.append("image", file);
 
@@ -44,9 +53,13 @@ export default function AddPropertyForm() {
       const token = localStorage.getItem("token");
       const res = await addProperty(data, token);
       console.log(res);
-      alert("Property added successfully!");
-      setFormData({ title: "", description: "", price: "", category: "", location: "" });
-      setFile(null);
+      if (res.detail) {
+        setMessage(res.detail);
+      } else {
+        alert("Property added successfully!");
+        setFormData({ title: "", description: "", price: "", category: "", location: "" });
+        setFile(null);
+      }
     } catch (err) {
       console.error(err);
       setMessage("Failed to add property. Please try again.");
@@ -89,8 +102,8 @@ export default function AddPropertyForm() {
         >
           <option value="">Select Category</option>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+            <option key={cat.value} value={cat.value}>
+              {cat.label}
             </option>
           ))}
         </select>
