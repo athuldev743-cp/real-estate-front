@@ -10,32 +10,39 @@ export default function Category() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Fetch properties based on category or "all"
   useEffect(() => {
-  async function fetchData() {
-    setLoading(true);
-    try {
-      let data;
-      if (category === "all") {
-        data = await getProperties(searchQuery);
-      } else {
-        data = await getPropertiesByCategory(category, searchQuery); // category value already matches backend
+    async function fetchData() {
+      setLoading(true);
+      try {
+        let data;
+        if (category === "all") {
+          data = await getProperties(searchQuery);
+        } else {
+          // Ensure category value matches backend VALID_CATEGORIES
+          const backendCategory = category.toLowerCase(); 
+          data = await getPropertiesByCategory(backendCategory, searchQuery);
+        }
+        setProperties(data);
+      } catch (err) {
+        console.error("Error fetching properties:", err);
+      } finally {
+        setLoading(false);
       }
-      setProperties(data);
-    } catch (err) {
-      console.error("Error fetching properties:", err);
-    } finally {
-      setLoading(false);
     }
-  }
-  fetchData();
-}, [category, searchQuery]);
+    fetchData();
+  }, [category, searchQuery]);
 
+  // Display name formatting
+  const displayCategoryName = (cat) => {
+    if (!cat || cat.toLowerCase() === "all") return "Top Deals";
+    // Capitalize first letter
+    return cat.charAt(0).toUpperCase() + cat.slice(1);
+  };
 
   return (
     <div className="category-page">
-      <h2 className="category-title">
-        {category && category.toLowerCase() !== "all" ? category : "Top Deals"}
-      </h2>
+      <h2 className="category-title">{displayCategoryName(category)}</h2>
 
       {loading ? (
         <p>Loading properties...</p>

@@ -7,14 +7,10 @@ import {
   faTwitter,
   faLinkedinIn,
 } from "@fortawesome/free-brands-svg-icons";
-import { getPropertiesByCategory } from "../api/PropertyAPI";
 import "./Home.css";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollYRef = useRef(0);
   const navigate = useNavigate();
@@ -29,42 +25,28 @@ export default function Home() {
     return () => window.removeEventListener("scroll", controlNavbar);
   }, []);
 
+  // ---------------- Category Data ----------------
   const categories = [
-  { id: 1, name: "Plots", value: "plots" },
-  { id: 2, name: "Buildings", value: "buildings" },
-  { id: 3, name: "House", value: "house" },       // singular, matches backend
-  { id: 4, name: "Apartment", value: "apartment" },
-  { id: 5, name: "Villa", value: "villa" },
-  { id: 6, name: "Farmland", value: "farmland" },
-];
+    { id: 1, name: "Plots", value: "plots" },
+    { id: 2, name: "Buildings", value: "buildings" },
+    { id: 3, name: "House", value: "house" },
+    { id: 4, name: "Apartment", value: "apartment" },
+    { id: 5, name: "Villa", value: "villa" },
+    { id: 6, name: "Farmland", value: "farmland" },
+  ];
 
-const goToCategory = (value) => {
-  navigate(`/category/${value}?search=${encodeURIComponent(searchQuery)}`);
-};
+  // ---------------- Handlers ----------------
+  const goToCategory = (value) => {
+    navigate(`/category/${value}?search=${encodeURIComponent(searchQuery)}`);
+  };
 
-// Usage in JSX
-{categories.map((cat) => (
-  <li key={cat.id} onClick={() => goToCategory(cat.value)}>
-    {cat.name}
-  </li>
-))}
+  const handleSearch = () => {
+    navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+  };
 
-// Same for category cards
-{categories.map((cat) => (
-  <div
-    key={cat.id}
-    className="category-card"
-    onClick={() => goToCategory(cat.value)}
-  >
-    <img
-      src={`/image/${cat.name.toLowerCase()}.jpeg`}
-      alt={cat.name}
-      onError={(e) => (e.target.src = "/image/default-category.jpeg")}
-    />
-    <div>{cat.name}</div>
-  </div>
-))}
-
+  const handleTopDeals = () => {
+    navigate("/category/all"); // "Top Deals" page
+  };
 
   return (
     <div className="home">
@@ -82,7 +64,7 @@ const goToCategory = (value) => {
           <ul className="nav-links">
             <li onClick={handleTopDeals}>Top Deals</li>
             {categories.map((cat) => (
-              <li key={cat.id} onClick={() => fetchCategory(cat.name)}>
+              <li key={cat.id} onClick={() => goToCategory(cat.value)}>
                 {cat.name}
               </li>
             ))}
@@ -115,6 +97,7 @@ const goToCategory = (value) => {
               Search
             </button>
           </div>
+          <div className="mobile-menu">☰</div>
         </div>
       </nav>
 
@@ -149,7 +132,7 @@ const goToCategory = (value) => {
             <div
               key={cat.id}
               className="category-card"
-              onClick={() => fetchCategory(cat.name)}
+              onClick={() => goToCategory(cat.value)}
             >
               <img
                 src={`/image/${cat.name.toLowerCase()}.jpeg`}
@@ -161,34 +144,6 @@ const goToCategory = (value) => {
           ))}
         </div>
       </section>
-
-      {/* Properties Section */}
-      {selectedCategory && (
-        <section className="properties">
-          <h2>{selectedCategory} Properties</h2>
-          {loading ? (
-            <p>Loading properties...</p>
-          ) : properties.length > 0 ? (
-            <div className="properties-grid">
-              {properties.map((p) => (
-                <div key={p._id || p.title} className="property-card">
-                  <img
-                    src={p.image_url || "/image/default-property.jpeg"}
-                    alt={p.title}
-                    className="property-image"
-                  />
-                  <h3>{p.title}</h3>
-                  <p>{p.description}</p>
-                  <p><strong>₹{p.price}</strong></p>
-                  <p>{p.location}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No properties found.</p>
-          )}
-        </section>
-      )}
 
       {/* About Section */}
       <section

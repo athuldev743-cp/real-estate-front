@@ -47,28 +47,33 @@ export const addProperty = async (formData, token) => {
   return await res.json();
 };
 
+
 // Get all properties (optional search query)
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
-    ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}` // ✅ /api added
-    : `${BASE_URL}/api/properties`; // ✅ /api added
+    ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
+    : `${BASE_URL}/api/properties`;
   const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch properties: ${res.status}`);
   return await res.json();
 };
 
 // Get properties by category (optional search query)
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
-  const url = `${BASE_URL}/api/category/${encodeURIComponent(category)}${
+  // Ensure category is lowercase to match backend VALID_CATEGORIES
+  const backendCategory = category.toLowerCase();
+  const url = `${BASE_URL}/api/category/${encodeURIComponent(backendCategory)}${
     searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
-  }`; // ✅ /api added
+  }`;
   const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch properties: ${res.status}`);
   return await res.json();
 };
 
 // Get a single property by ID
 export const getPropertyById = async (id) => {
-  const res = await fetch(`${BASE_URL}/api/property/${id}`); // ✅ /api added
-  if (!res.ok) throw new Error("Failed to fetch property");
+  const res = await fetch(`${BASE_URL}/api/property/${id}`);
+  if (!res.ok) throw new Error(`Failed to fetch property: ${res.status}`);
   return await res.json();
 };
 
