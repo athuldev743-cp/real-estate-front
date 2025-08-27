@@ -66,6 +66,18 @@ body {
   color: #fff;
   border-radius: 4px;
 }
+.my-account-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.my-account-btn:hover {
+  background-color: #0056b3;
+}
 
 .register-btn:hover,
 .add-property-btn:hover,

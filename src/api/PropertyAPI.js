@@ -12,7 +12,7 @@ export const loginUser = async (data) => {
   return await res.json();
 };
 
-// Register user
+// Register user (Step 1: sends email & password, backend sends OTP)
 export const registerUser = async (data) => {
   const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
@@ -23,6 +23,21 @@ export const registerUser = async (data) => {
   const result = await res.json();
   if (!res.ok) {
     throw new Error(result.detail || "Registration failed");
+  }
+  return result;
+};
+
+// Verify OTP (Step 2: user enters OTP)
+export const verifyOTP = async (data) => {
+  const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  const result = await res.json();
+  if (!res.ok) {
+    throw new Error(result.detail || "OTP verification failed");
   }
   return result;
 };
@@ -39,14 +54,13 @@ export const getCurrentUser = async (token) => {
 
 // Add a property (only for logged-in users)
 export const addProperty = async (formData, token) => {
-  const res = await fetch(`${BASE_URL}/api/add-property`, { // ✅ /api added
+  const res = await fetch(`${BASE_URL}/api/add-property`, {
     method: "POST",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body: formData, // FormData handles multipart/form-data automatically
+    body: formData,
   });
   return await res.json();
 };
-
 
 // Get all properties (optional search query)
 export const getProperties = async (searchQuery = "") => {
@@ -60,11 +74,10 @@ export const getProperties = async (searchQuery = "") => {
 
 // Get properties by category (optional search query)
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
-  // Ensure category is lowercase to match backend VALID_CATEGORIES
   const backendCategory = category.toLowerCase();
-  const url = `${BASE_URL}/api/category/${encodeURIComponent(backendCategory)}${
-    searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
-  }`;
+  const url = `${BASE_URL}/api/category/${encodeURIComponent(
+    backendCategory
+  )}${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch properties: ${res.status}`);
   return await res.json();
@@ -79,7 +92,7 @@ export const getPropertyById = async (id) => {
 
 // Get current user's properties
 export const getMyProperties = async (token) => {
-  const res = await fetch(`${BASE_URL}/api/my-properties`, { // ✅ /api added
+  const res = await fetch(`${BASE_URL}/api/my-properties`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return await res.json();

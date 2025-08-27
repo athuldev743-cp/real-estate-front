@@ -19,10 +19,8 @@ export default function Home() {
   useEffect(() => {
     const controlNavbar = () => {
       if (window.scrollY > lastScrollYRef.current) {
-        // scrolling down → hide navbar
         setShowNavbar(false);
       } else {
-        // scrolling up → show navbar
         setShowNavbar(true);
       }
       lastScrollYRef.current = window.scrollY;
@@ -31,7 +29,6 @@ export default function Home() {
     return () => window.removeEventListener("scroll", controlNavbar);
   }, []);
 
-  // ---------------- Category Data ----------------
   const categories = [
     { id: 1, name: "Plots", value: "plots" },
     { id: 2, name: "Buildings", value: "buildings" },
@@ -41,7 +38,6 @@ export default function Home() {
     { id: 6, name: "Farmland", value: "farmlands" },
   ];
 
-  // ---------------- Handlers ----------------
   const goToCategory = (value) => {
     navigate(`/category/${value}?search=${encodeURIComponent(searchQuery)}`);
   };
@@ -51,7 +47,18 @@ export default function Home() {
   };
 
   const handleTopDeals = () => {
-    navigate("/category/all"); // "Top Deals" page
+    navigate("/category/all");
+  };
+
+  const handleAddProperty = () => {
+    // Pass token implicitly via localStorage
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to add a property.");
+      navigate("/login");
+      return;
+    }
+    navigate("/add-property");
   };
 
   return (
@@ -85,7 +92,7 @@ export default function Home() {
             <li>
               <button
                 className="add-property-btn"
-                onClick={() => navigate("/add-property")}
+                onClick={handleAddProperty} // updated handler
               >
                 + Add Property
               </button>
@@ -99,16 +106,20 @@ export default function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
+            
             <button onClick={handleSearch} className="search-btn">
               Search
             </button>
+            <button
+          className="my-account-btn"
+          onClick={() => navigate("/account")}
+        >
+          My Account
+        </button>
           </div>
           <div className="mobile-menu">☰</div>
         </div>
-        <button className="my-account-btn" onClick={() => navigate("/account")}>
-  My Account
-</button>
-
+        
       </nav>
 
       {/* Hero Section */}
@@ -135,22 +146,20 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      
       <section className="categories">
-      <h2>Categories</h2>
-      <div className="categories-grid">
-       {categories.map((cat) => (
-      <div
-        key={cat.id}
-        className={`category-card ${cat.value}`} // Add category class for CSS background
-        onClick={() => goToCategory(cat.value)}
-      >
-        <div>{cat.name}</div>
-      </div>
-    ))}
-  </div>
-</section>
-
+        <h2>Categories</h2>
+        <div className="categories-grid">
+          {categories.map((cat) => (
+            <div
+              key={cat.id}
+              className={`category-card ${cat.value}`}
+              onClick={() => goToCategory(cat.value)}
+            >
+              <div>{cat.name}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* About Section */}
       <section
