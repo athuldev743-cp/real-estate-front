@@ -1,55 +1,60 @@
 import React, { useState } from "react";
-import { registerUser, loginUser, addProperty } from "../api/PropertyAPI"; // updated import
+import { registerUser, loginUser, addProperty } from "../api/PropertyAPI";
 
 function AuthTest() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
     try {
-      await registerUser({ username, password });
-      alert("User registered!");
+      await registerUser({ email, password });
+      alert("User registered! Check email for OTP.");
     } catch (error) {
       console.error("Register error:", error);
-      alert("Registration failed.");
+      alert(error.message || "Registration failed.");
     }
   };
 
   const handleLogin = async () => {
     try {
-      const params = new URLSearchParams();
-      params.append("username", username);
-      params.append("password", password);
-      const res = await loginUser(params);
-      localStorage.setItem("token", res.data.access_token);
+      const res = await loginUser({ email, password });
+      localStorage.setItem("token", res.token); // or res.access_token
       alert("Logged in!");
     } catch (error) {
       console.error("Login error:", error);
-      alert("Login failed.");
+      alert(error.message || "Login failed.");
     }
   };
 
   const handleAddProperty = async () => {
     try {
-      await addProperty({
-        title: "Luxury Villa",
-        description: "5 BHK near beach",
-        price: 12000000,
-        category: "villa",
-        location: "Goa",
-      });
+      const token = localStorage.getItem("token");
+      if (!token) return alert("Login first!");
+
+      const formData = new FormData();
+      formData.append("title", "Luxury Villa");
+      formData.append("description", "5 BHK near beach");
+      formData.append("price", 12000000);
+      formData.append("category", "villa");
+      formData.append("location", "Goa");
+
+      await addProperty(formData, token);
       alert("Property added!");
     } catch (error) {
       console.error("Add property error:", error);
-      alert("Failed to add property.");
+      alert(error.message || "Failed to add property.");
     }
   };
 
   return (
     <div>
       <h1>Auth Test</h1>
-      <input placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
+      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+      <input
+        placeholder="Password"
+        type="password"
+        onChange={(e) => setPassword(e.target.value)}
+      />
       <button onClick={handleRegister}>Register</button>
       <button onClick={handleLogin}>Login</button>
       <button onClick={handleAddProperty}>Add Property</button>

@@ -18,8 +18,18 @@ export default function Login() {
     setError("");
     try {
       const res = await loginUser({ email, password });
-      localStorage.setItem("token", res.token); // save token
-      navigate("/account"); // redirect to account page
+
+      if (!res || !res.token) {
+        throw new Error(res?.error || "Login failed");
+      }
+
+      // Save token and user info
+      localStorage.setItem("token", res.token);
+      if (res.user) {
+        localStorage.setItem("user", JSON.stringify(res.user));
+      }
+
+      navigate("/account"); // ✅ go to account page
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {

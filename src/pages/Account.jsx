@@ -1,23 +1,51 @@
 import React, { useEffect, useState } from "react";
-import { getMyProperties } from "../api/PropertyAPI"; // fixed import
+import { getMyProperties, getNotifications } from "../api/PropertyAPI"; 
 import Chat from "./Chat";
 import "./Account.css";
 
 export default function Account({ userId }) {
   const [properties, setProperties] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
+  // fetch properties
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const data = await getMyProperties(); // fetch current user's properties
+        const data = await getMyProperties(); 
         setProperties(data);
       } catch (err) {
         console.error("Error fetching user properties:", err);
       }
     };
     fetchProperties();
-  }, []); // no need for userId in dependencies
+  }, []);
+
+  // fetch notifications
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      try {
+        const token = localStorage.getItem("token"); // assuming you store JWT in localStorage
+        if (token) {
+          const data = await getNotifications(token);
+          setNotifications(data); // should be array of { propertyId, unreadCount }
+        }
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    };
+
+    fetchNotifs();
+
+    // poll every 10s for updates
+    const interval = setInterval(fetchNotifs, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const unreadCountFor = (propId) => {
+    const notif = notifications.find((n) => n.propertyId === propId);
+    return notif ? notif.unreadCount : 0;
+  };
 
   return (
     <div className="account-page">
@@ -30,7 +58,7 @@ export default function Account({ userId }) {
             <p>Category: {prop.category}</p>
             <p>Location: {prop.location}</p>
 
-            {/* Chat icon for this property */}
+            {/* Chat button with notification badge */}
             <button
               className="chat-btn"
               onClick={() =>
@@ -38,6 +66,9 @@ export default function Account({ userId }) {
               }
             >
               💬 Chat
+              {unreadCountFor(prop._id) > 0 && (
+                <span className="notif-badge">{unreadCountFor(prop._id)}</span>
+              )}
             </button>
 
             {/* Chat modal */}

@@ -76,3 +76,11 @@
 .chat-close-btn:hover {
   color: #000;
 }
+.notif-badge {
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  margin-left: 6px;
+  font-size: 12px;
+}

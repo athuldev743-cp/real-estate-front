@@ -144,3 +144,59 @@ export const getMyProperties = async (token) => {
   }
   return await res.json();
 };
+// -------------------- Chat --------------------
+
+// Send a message to a property owner
+export const sendMessage = async (propertyId, message, token) => {
+  if (!token) throw new Error("Authentication required");
+  if (!propertyId || !message) throw new Error("Property ID and message are required");
+
+  const res = await fetch(`${BASE_URL}/api/chat/${propertyId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ message }),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || "Failed to send message");
+  }
+  return await res.json();
+};
+
+// Get chat messages for a property
+export const getMessages = async (propertyId, token) => {
+  if (!token) throw new Error("Authentication required");
+  if (!propertyId) throw new Error("Property ID is required");
+
+  const res = await fetch(`${BASE_URL}/api/chat/${propertyId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || "Failed to fetch messages");
+  }
+  return await res.json();
+};
+
+// -------------------- Notifications --------------------
+
+// Get unread message notifications for "My Account"
+export const getNotifications = async (token) => {
+  if (!token) throw new Error("Authentication required");
+
+  const res = await fetch(`${BASE_URL}/api/notifications`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || "Failed to fetch notifications");
+  }
+  return await res.json();
+};
+

@@ -17,7 +17,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!email || !password) return setError("Email and password are required");
-    
+
     setLoading(true);
     setError("");
     try {
@@ -43,7 +43,7 @@ export default function Register() {
       setMessage(res.message || "Registration successful!");
       localStorage.setItem("token", res.token); // save token
       setShowOtpModal(false);
-      navigate("/login"); // redirect to login
+      navigate("/account"); // ✅ redirect directly to account (already logged in)
     } catch (err) {
       setError(err.message);
     } finally {

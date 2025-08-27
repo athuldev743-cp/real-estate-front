@@ -5,13 +5,22 @@ export default function Chat({ chatId, userId }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const ws = useRef(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     // Connect to backend WebSocket
-    ws.current = new WebSocket(`wss://back-end-lybr.onrender.com/ws/${chatId}/${userId}`);
+    ws.current = new WebSocket(
+      `wss://back-end-lybr.onrender.com/ws/${chatId}/${userId}`
+    );
 
     ws.current.onmessage = (event) => {
-      setMessages((prev) => [...prev, event.data]);
+      try {
+        const data = JSON.parse(event.data); // expect { sender, text }
+        setMessages((prev) => [...prev, data]);
+      } catch {
+        // fallback if plain text
+        setMessages((prev) => [...prev, { sender: "Server", text: event.data }]);
+      }
     };
 
     ws.current.onclose = () => {
@@ -25,20 +34,36 @@ export default function Chat({ chatId, userId }) {
     return () => ws.current.close();
   }, [chatId, userId]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const sendMessage = () => {
-    if (!input) return;
-    ws.current.send(input);
-    setMessages((prev) => [...prev, `You: ${input}`]);
+    if (!input.trim()) return;
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      const msg = { sender: userId, text: input };
+      ws.current.send(JSON.stringify(msg));
+      setMessages((prev) => [...prev, msg]);
+    } else {
+      console.error("WebSocket not open.");
+    }
     setInput("");
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="chat-container">
       {/* Messages area */}
       <div className="messages">
         {messages.map((msg, idx) => (
-          <div key={idx}>{msg}</div>
+          <div
+            key={idx}
+            className={`message ${msg.sender === userId ? "own" : "other"}`}
+          >
+            <strong>{msg.sender === userId ? "You" : msg.sender}:</strong>{" "}
+            {msg.text}
+          </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input + Send button */}
