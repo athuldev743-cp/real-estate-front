@@ -1,60 +1,56 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getPropertyById } from "../api/PropertyAPI";
-import "./PropertyDetails.css";
+import React, { useState } from "react";
+import { addProperty } from "../api/PropertyAPI";
+import "./AddProperty.css";
 
-export default function PropertyDetails() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [property, setProperty] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function AddPropertyForm() {
+  const [file, setFile] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    price: "",
+    category: "",
+    location: "",
+  });
 
-  useEffect(() => {
-    const fetchProperty = async () => {
-      setLoading(true);
-      try {
-        const data = await getPropertyById(id);
-        setProperty(data);
-      } catch (err) {
-        console.error("Error fetching property details:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProperty();
-  }, [id]);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  if (loading) {
-    return <p style={{ textAlign: "center", marginTop: "50px" }}>Loading property...</p>;
-  }
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
-  if (!property) {
-    return <p style={{ textAlign: "center", marginTop: "50px" }}>Property not found.</p>;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("description", formData.description);
+    data.append("price", formData.price);
+    data.append("category", formData.category);
+    data.append("location", formData.location);
+    data.append("image", file);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await addProperty(data, token);
+      console.log(res);
+      alert("Property added successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add property");
+    }
+  };
 
   return (
-    <div className="property-details-page">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
-
-      <div className="property-header">
-        <h1>{property.title}</h1>
-        <p>{property.category?.toUpperCase()} • {property.location}</p>
-      </div>
-
-      <div className="property-main">
-        <div className="property-image-container">
-          <img src={property.image_url || "/image/default-property.jpeg"} alt={property.title} />
-        </div>
-
-        <div className="property-info">
-          <h2>Property Details</h2>
-          <p>{property.description}</p>
-          <p className="price">Price: ₹{property.price}</p>
-          <p className="location">Location: {property.location}</p>
-          <p>Category: {property.category}</p>
-          <p>Owner: {property.owner}</p>
-        </div>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input type="text" name="title" placeholder="Title" onChange={handleChange} required />
+      <textarea name="description" placeholder="Description" onChange={handleChange} required />
+      <input type="number" name="price" placeholder="Price" onChange={handleChange} required />
+      <input type="text" name="category" placeholder="Category" onChange={handleChange} required />
+      <input type="text" name="location" placeholder="Location" onChange={handleChange} required />
+      <input type="file" name="image" onChange={handleFileChange} required />
+      <button type="submit">Add Property</button>
+    </form>
   );
 }
