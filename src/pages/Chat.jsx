@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import "./Chat.css";
 
 export default function Chat({ chatId, userId }) {
   const [messages, setMessages] = useState([]);
@@ -6,7 +7,7 @@ export default function Chat({ chatId, userId }) {
   const ws = useRef(null);
 
   useEffect(() => {
-    // Correct WebSocket URL: wss:// + /ws/ path
+    // Connect to backend WebSocket
     ws.current = new WebSocket(`wss://back-end-lybr.onrender.com/ws/${chatId}/${userId}`);
 
     ws.current.onmessage = (event) => {
@@ -33,42 +34,23 @@ export default function Chat({ chatId, userId }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div
-        style={{
-          flex: 1,
-          padding: "10px",
-          overflowY: "auto",
-          borderBottom: "1px solid #ccc",
-        }}
-      >
+      {/* Messages area */}
+      <div className="messages">
         {messages.map((msg, idx) => (
-          <div key={idx} style={{ margin: "5px 0" }}>
-            {msg}
-          </div>
+          <div key={idx}>{msg}</div>
         ))}
       </div>
-      <div style={{ display: "flex", padding: "10px", gap: "5px" }}>
+
+      {/* Input + Send button */}
+      <div className="chat-input-container">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          style={{ flex: 1, padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }}
           placeholder="Type a message..."
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
-        <button
-          onClick={sendMessage}
-          style={{
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            padding: "8px 12px",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Send
-        </button>
+        <button onClick={sendMessage}>Send</button>
       </div>
     </div>
   );
