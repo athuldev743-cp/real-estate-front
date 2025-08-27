@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, verifyOTP } from "../api/PropertyAPI";
-import "./Register.css"; // includes your modal styles
+import "./Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(1); // 1: registration, 2: OTP verification
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -22,7 +22,7 @@ export default function Register() {
       const res = await registerUser({ email, password });
       setMessage(res.message);
       setStep(2);
-      setShowOtpModal(true); // show OTP modal
+      setShowOtpModal(true); // show OTP popup
     } catch (err) {
       setError(err.message || "Registration failed");
     } finally {
@@ -39,7 +39,7 @@ export default function Register() {
       setMessage(res.message);
       setStep(1);
       setShowOtpModal(false);
-      navigate("/login"); // redirect after successful OTP
+      navigate("/login");
     } catch (err) {
       setError(err.message || "OTP verification failed");
     } finally {
@@ -83,17 +83,19 @@ export default function Register() {
             <h3>Enter OTP</h3>
             <input
               type="text"
-              placeholder="OTP"
+              placeholder="6-digit OTP"
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/, ""))}
+              maxLength={6}
               required
+              autoFocus
             />
             <button onClick={handleVerifyOtp} disabled={loading}>
               {loading ? "Verifying..." : "Verify OTP"}
             </button>
             <button
               className="close-btn"
-              onClick={() => setShowOtpModal(false)}
+              onClick={() => !loading && setShowOtpModal(false)}
             >
               Cancel
             </button>
