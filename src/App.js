@@ -7,6 +7,7 @@ import AddProperty from "./pages/AddProperty";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PropertyDetails from "./pages/PropertyDetails";
+import Account from "./pages/Account";
 
 export default function App() {
   return (
@@ -19,6 +20,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/property/:id" element={<PropertyDetails />} />
+      <Route path="/account" element={<Account userId={userId} />} />
+
     </Routes>
   );
 }

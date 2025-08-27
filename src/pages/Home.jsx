@@ -105,6 +105,10 @@ export default function Home() {
           </div>
           <div className="mobile-menu">☰</div>
         </div>
+        <button className="my-account-btn" onClick={() => navigate("/account")}>
+  My Account
+</button>
+
       </nav>
 
       {/* Hero Section */}
