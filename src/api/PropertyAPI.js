@@ -1,7 +1,5 @@
 const BASE_URL = process.env.REACT_APP_API_URL;
 
-
-
 // -------------------- Auth --------------------
 
 // Login user
@@ -36,14 +34,13 @@ export const getCurrentUser = async (token) => {
 
 // Add a property (only for logged-in users)
 export const addProperty = async (formData, token) => {
-  const res = await fetch(`${BASE_URL}/api/add-property`, { // added /api
+  const res = await fetch(`${BASE_URL}/api/add-property`, { // <-- /api added
     method: "POST",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData, // FormData handles multipart/form-data automatically
   });
   return await res.json();
 };
-
 
 // Get all properties (optional search query)
 export const getProperties = async (searchQuery = "") => {
