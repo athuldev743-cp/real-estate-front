@@ -10,6 +10,7 @@ export default function AddPropertyForm() {
     price: "",
     category: "",
     location: "",
+    mobile: "", // ✅ added mobile
   });
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -47,7 +48,7 @@ export default function AddPropertyForm() {
     }
 
     const data = new FormData();
-    Object.keys(formData).forEach((key) => data.append(key, formData[key]));
+    Object.keys(formData).forEach((key) => data.append(key === "mobile" ? "mobileNO" : key, formData[key]));
     data.append("image", file);
 
     setSubmitting(true);
@@ -57,7 +58,7 @@ export default function AddPropertyForm() {
       if (res.detail) setMessage(res.detail);
       else if (res.message) alert(res.message);
 
-      setFormData({ title: "", description: "", price: "", category: "", location: "" });
+      setFormData({ title: "", description: "", price: "", category: "", location: "", mobile: "" });
       setFile(null);
       document.querySelector('input[name="image"]').value = null;
     } catch (err) {
@@ -114,6 +115,14 @@ export default function AddPropertyForm() {
           name="location"
           placeholder="Location"
           value={formData.location}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="text"
+          name="mobile"
+          placeholder="Contact Mobile"
+          value={formData.mobile}
           onChange={handleChange}
           required
         />

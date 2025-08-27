@@ -64,6 +64,9 @@ export default function PropertyDetails() {
           <p>
             <strong>Owner:</strong> {property.owner || "N/A"}
           </p>
+          <p>
+            <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
+          </p>
         </div>
       </div>
     </div>
