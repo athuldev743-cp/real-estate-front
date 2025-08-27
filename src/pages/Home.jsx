@@ -15,10 +15,16 @@ export default function Home() {
   const lastScrollYRef = useRef(0);
   const navigate = useNavigate();
 
-  // Navbar hide/show on scroll
+  // Navbar hide/show on scroll with smooth animation
   useEffect(() => {
     const controlNavbar = () => {
-      setShowNavbar(window.scrollY <= lastScrollYRef.current);
+      if (window.scrollY > lastScrollYRef.current) {
+        // scrolling down → hide navbar
+        setShowNavbar(false);
+      } else {
+        // scrolling up → show navbar
+        setShowNavbar(true);
+      }
       lastScrollYRef.current = window.scrollY;
     };
     window.addEventListener("scroll", controlNavbar);
