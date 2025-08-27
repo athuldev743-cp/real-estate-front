@@ -5,24 +5,26 @@ import "./Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
+  const [name, setName] = useState(""); // optional if backend supports
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(1); // 1: register, 2: OTP verification
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
 
+  // Step 1: Register
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      const res = await registerUser({ email, password });
-      setMessage(res.message);
+      const res = await registerUser({ name, email, password });
+      setMessage(res.message || "OTP sent to your email");
       setStep(2);
-      setShowOtpModal(true); // show OTP popup
+      setShowOtpModal(true);
     } catch (err) {
       setError(err.message || "Registration failed");
     } finally {
@@ -30,16 +32,19 @@ export default function Register() {
     }
   };
 
+  // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
       const res = await verifyOTP({ email, otp });
-      setMessage(res.message);
+      // Save token returned by backend
+      if (res.token) localStorage.setItem("token", res.token);
+      setMessage(res.message || "OTP verified successfully");
       setStep(1);
       setShowOtpModal(false);
-      navigate("/login");
+      navigate("/"); // redirect to home after successful OTP
     } catch (err) {
       setError(err.message || "OTP verification failed");
     } finally {
@@ -56,6 +61,12 @@ export default function Register() {
 
         {step === 1 && (
           <form onSubmit={handleRegister}>
+            <input
+              type="text"
+              placeholder="Full Name (optional)"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
             <input
               type="email"
               placeholder="Email"
@@ -77,25 +88,24 @@ export default function Register() {
         )}
       </div>
 
+      {/* OTP Modal */}
       {showOtpModal && (
         <div className="otp-modal">
           <div className="otp-content">
             <h3>Enter OTP</h3>
             <input
               type="text"
-              placeholder="6-digit OTP"
+              placeholder="OTP"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/, ""))}
-              maxLength={6}
+              onChange={(e) => setOtp(e.target.value)}
               required
-              autoFocus
             />
             <button onClick={handleVerifyOtp} disabled={loading}>
               {loading ? "Verifying..." : "Verify OTP"}
             </button>
             <button
               className="close-btn"
-              onClick={() => !loading && setShowOtpModal(false)}
+              onClick={() => setShowOtpModal(false)}
             >
               Cancel
             </button>
