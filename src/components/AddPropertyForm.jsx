@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { addProperty } from "../api/PropertyAPI";
-import "./AddProperty.css";
+import "./pages/AddProperty.css";
 
 export default function AddPropertyForm() {
   const [file, setFile] = useState(null);
