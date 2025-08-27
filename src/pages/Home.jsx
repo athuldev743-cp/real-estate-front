@@ -32,7 +32,7 @@ export default function Home() {
     { id: 3, name: "House", value: "house" },
     { id: 4, name: "Apartment", value: "apartment" },
     { id: 5, name: "Villa", value: "villa" },
-    { id: 6, name: "Farmland", value: "farmland" },
+    { id: 6, name: "Farmland", value: "farmlands" },
   ];
 
   // ---------------- Handlers ----------------
