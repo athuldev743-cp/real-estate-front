@@ -3,22 +3,31 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #A8BCA1, #00cc88); /* matches theme */
+  background: linear-gradient(135deg, #A8BCA1, #00cc88);
   font-family: 'Arial', sans-serif;
+  padding: 20px;
 }
 
 .login-card {
-  background: white;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-  width: 350px;
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 400px;
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 .login-card h2 {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   color: #0066cc;
+  font-size: 2rem;
 }
 
 .login-card form {
@@ -28,34 +37,49 @@
 }
 
 .login-card input {
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px;
+  border-radius: 12px;
   border: 1px solid #ccc;
   font-size: 1rem;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card input:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+  outline: none;
 }
 
 .login-card button {
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 8px;
-  background-color: #28a745;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #28a745, #1e7e34);
   color: white;
   font-weight: bold;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .login-card button:hover {
-  background-color: #218838;
+  background: linear-gradient(90deg, #218838, #1c7430);
+  transform: scale(1.05);
 }
 
 .register-link {
-  margin-top: 15px;
+  margin-top: 20px;
   font-size: 0.9rem;
+  color: #555;
 }
 
 .register-link span {
   color: #0066cc;
   cursor: pointer;
   text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.register-link span:hover {
+  color: #004080;
 }
