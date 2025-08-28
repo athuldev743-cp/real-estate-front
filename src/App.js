@@ -10,7 +10,8 @@ import AddProperty from "./pages/AddProperty";
 import Category from "./pages/Category";
 import PropertyDetails from "./pages/PropertyDetails";
 import Search from "./pages/Search";
-import OwnerDashboard from "../components/OwnerDashboard"; // <-- import inbox/chat dashboard
+import OwnerDashboard from "./components/OwnerDashboard";
+// <-- import inbox/chat dashboard
 
 // API
 import { getCurrentUser } from "./api/PropertyAPI";
