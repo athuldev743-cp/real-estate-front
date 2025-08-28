@@ -14,10 +14,10 @@ export default function PropertyDetails({ user }) {
   // Get user info from prop or localStorage
   const currentUser = user || {
     fullName: localStorage.getItem("fullName"),
-    email: localStorage.getItem("email"),
+    email: localStorage.getItem("email"), // ensure email is stored in localStorage
   };
 
-  const userId = currentUser?.email || null;
+  const userId = currentUser?.email; // removed || null
 
   // Redirect if not logged in
   useEffect(() => {
@@ -31,6 +31,9 @@ export default function PropertyDetails({ user }) {
       try {
         const data = await getPropertyById(id);
         setProperty(data);
+
+        // Debugging: check owner vs current user
+        console.log("Property owner:", data.owner, "Current user:", userId);
       } catch (err) {
         console.error("Error fetching property details:", err);
       } finally {
@@ -38,7 +41,7 @@ export default function PropertyDetails({ user }) {
       }
     };
     fetchProperty();
-  }, [id]);
+  }, [id, userId]);
 
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
@@ -86,7 +89,6 @@ export default function PropertyDetails({ user }) {
             <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
           </p>
 
-          {/* Chat button visible only if current user is not the owner */}
           {!isOwner && (
             <button className="chat-btn" onClick={() => setChatOpen(!chatOpen)}>
               💬 Chat with Seller
@@ -96,7 +98,6 @@ export default function PropertyDetails({ user }) {
         </div>
       </div>
 
-      {/* Chat Modal */}
       {chatOpen && !isOwner && (
         <div className="chat-modal">
           <Chat chatId={property._id} userId={userId} />
