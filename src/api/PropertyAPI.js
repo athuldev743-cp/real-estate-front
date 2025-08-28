@@ -200,3 +200,25 @@ export const getNotifications = async (token) => {
 
   return await res.json();
 };
+
+// -------------------- Mark messages as read --------------------
+export const markMessagesAsRead = async (chatId) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Authentication required");
+
+  const res = await fetch(`${BASE_URL}/user/mark-read/${chatId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Mark read error response:", errorText);
+    throw new Error("Failed to mark messages as read");
+  }
+
+  return await res.json(); // { status: "ok" }
+};
