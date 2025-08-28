@@ -183,15 +183,20 @@ export const getMessages = async (propertyId) => {
 // -------------------- Notifications --------------------
 
 // Get unread notifications for logged-in user
-export const getNotifications = async (ownerId) => {
-  const token = localStorage.getItem("token");
-  if (!token) throw new Error("Authentication required");
-  if (!ownerId) throw new Error("Owner ID required");
-
-  const res = await fetch(`${BASE_URL}/user/notifications/${ownerId}`, {
-    headers: { Authorization: `Bearer ${token}` },
+export const getNotifications = async (token) => {
+  const res = await fetch(`${BASE_URL}/user/notifications`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
   });
 
-  if (!res.ok) throw new Error("Failed to fetch notifications");
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Notification fetch error response:", errorText);
+    throw new Error("Failed to fetch notifications");
+  }
+
   return await res.json();
 };
