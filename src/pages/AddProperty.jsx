@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { addProperty } from "../api/PropertyAPI";
-import "./AddProperty";
+import "./AddProperty.css";
 
 export default function AddProperty({ user }) {
   const navigate = useNavigate();
@@ -14,11 +14,18 @@ export default function AddProperty({ user }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Redirect if user not logged in
+  const categories = [
+    "plots",
+    "buildings",
+    "house",
+    "apartment",
+    "villa",
+    "farmlands",
+  ];
+
+  // Redirect if not logged in
   useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
+    if (!user) navigate("/login");
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
@@ -36,12 +43,13 @@ export default function AddProperty({ user }) {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("price", price);
+      formData.append("price", price.toString());
       formData.append("category", category);
       formData.append("image", image);
 
       const token = localStorage.getItem("token");
       const res = await addProperty(formData, token);
+
       setSuccess(res.message || "Property added successfully!");
       setTitle("");
       setDescription("");
@@ -60,6 +68,7 @@ export default function AddProperty({ user }) {
       <h2>Add Property</h2>
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -81,19 +90,27 @@ export default function AddProperty({ user }) {
           onChange={(e) => setPrice(e.target.value)}
           required
         />
-        <input
-          type="text"
-          placeholder="Category"
+
+        <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           required
-        />
+        >
+          <option value="">Select Category</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </option>
+          ))}
+        </select>
+
         <input
           type="file"
           onChange={(e) => setImage(e.target.files[0])}
           accept="image/*"
           required
         />
+
         <button type="submit" disabled={loading}>
           {loading ? "Adding..." : "Add Property"}
         </button>
