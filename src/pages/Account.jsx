@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // <-- for navigation
 import { getMyProperties, getNotifications } from "../api/PropertyAPI"; 
 import Chat from "./Chat";
 import "./Account.css";
 
-export default function Account({ user, setUser }) { // <-- added setUser
+export default function Account({ user, setUser }) {
   const [properties, setProperties] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const navigate = useNavigate(); // <-- hook
 
   // fetch properties
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return; // not logged in
+        if (!token) return;
         const data = await getMyProperties(token); 
         setProperties(data);
       } catch (err) {
@@ -27,19 +29,16 @@ export default function Account({ user, setUser }) { // <-- added setUser
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
-        const token = localStorage.getItem("token"); // JWT from storage
+        const token = localStorage.getItem("token");
         if (token) {
           const data = await getNotifications(token);
-          setNotifications(data); // array of { propertyId, unreadCount }
+          setNotifications(data);
         }
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
     };
-
     fetchNotifs();
-
-    // poll every 10s
     const interval = setInterval(fetchNotifs, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -49,10 +48,9 @@ export default function Account({ user, setUser }) { // <-- added setUser
     return notif ? notif.unreadCount : 0;
   };
 
-  // read full name from localStorage
   const fullName = localStorage.getItem("fullName");
 
-  // ✅ Logout function
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("fullName");
@@ -61,10 +59,22 @@ export default function Account({ user, setUser }) { // <-- added setUser
 
   return (
     <div className="account-page">
-      <h1>{fullName || "My Account"}</h1>
-      <button className="logout-btn" onClick={handleLogout}>
-        Logout
-      </button>
+      <div className="account-header">
+        <h1>{fullName || "My Account"}</h1>
+
+        {/* Inbox Icon */}
+        <button
+          className="inbox-btn"
+          title="Go to Inbox"
+          onClick={() => navigate("/inbox")}
+        >
+          📥
+        </button>
+
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
 
       <div className="user-properties">
         {properties.map((prop) => (

@@ -10,6 +10,7 @@ import AddProperty from "./pages/AddProperty";
 import Category from "./pages/Category";
 import PropertyDetails from "./pages/PropertyDetails";
 import Search from "./pages/Search";
+import OwnerDashboard from "./pages/OwnerDashboard"; // <-- import inbox/chat dashboard
 
 // API
 import { getCurrentUser } from "./api/PropertyAPI";
@@ -23,7 +24,9 @@ function App() {
     const token = localStorage.getItem("token");
     if (token) {
       getCurrentUser(token)
-        .then((res) => setUser({ fullName: res.fullName, email: res.email, _id: res._id }))
+        .then((res) =>
+          setUser({ fullName: res.fullName, email: res.email, _id: res._id })
+        )
         .catch(() => localStorage.removeItem("token"))
         .finally(() => setLoading(false));
     } else {
@@ -60,6 +63,13 @@ function App() {
       <Route path="/category/:category" element={<Category />} />
       <Route path="/property/:id" element={<PropertyDetails user={user} />} />
       <Route path="/search" element={<Search />} />
+
+      {/* ---------------- Owner Inbox / Chat Dashboard ---------------- */}
+      <Route
+        path="/inbox"
+        element={user ? <OwnerDashboard /> : <Navigate to="/login" />}
+      />
+
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
