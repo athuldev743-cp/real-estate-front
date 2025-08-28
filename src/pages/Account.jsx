@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // <-- for navigation
+import { useNavigate } from "react-router-dom";
 import { getMyProperties, getNotifications } from "../api/PropertyAPI"; 
 import Chat from "./Chat";
 import "./Account.css";
@@ -8,7 +8,7 @@ export default function Account({ user, setUser }) {
   const [properties, setProperties] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  const navigate = useNavigate(); // <-- hook
+  const navigate = useNavigate();
 
   // fetch properties
   useEffect(() => {
@@ -32,7 +32,8 @@ export default function Account({ user, setUser }) {
         const token = localStorage.getItem("token");
         if (token) {
           const data = await getNotifications(token);
-          setNotifications(data);
+          // ✅ use inner array
+          setNotifications(data.notifications || []);
         }
       } catch (err) {
         console.error("Error fetching notifications:", err);
@@ -43,9 +44,10 @@ export default function Account({ user, setUser }) {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ match backend field names
   const unreadCountFor = (propId) => {
-    const notif = notifications.find((n) => n.propertyId === propId);
-    return notif ? notif.unreadCount : 0;
+    const notif = notifications.find((n) => n.property_id === propId);
+    return notif ? notif.unread_count : 0;
   };
 
   const fullName = localStorage.getItem("fullName");
@@ -92,7 +94,9 @@ export default function Account({ user, setUser }) {
             >
               💬 Chat
               {unreadCountFor(prop._id) > 0 && (
-                <span className="notif-badge">{unreadCountFor(prop._id)}</span>
+                <span className="notif-badge">
+                  {unreadCountFor(prop._id)}
+                </span>
               )}
             </button>
 
@@ -105,6 +109,7 @@ export default function Account({ user, setUser }) {
                 >
                   ✖
                 </button>
+                {/* ✅ for now use property _id as chatId */}
                 <Chat chatId={prop._id} userId={user._id} />
               </div>
             )}

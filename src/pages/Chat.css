@@ -39,11 +39,33 @@
   padding: 10px;
   overflow-y: auto;
   border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Individual message */
-.chat-modal .messages div {
-  margin: 5px 0;
+/* Message bubbles */
+.message {
+  max-width: 75%;
+  padding: 8px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Own message (right side, green bubble) */
+.message.own {
+  align-self: flex-end;
+  background-color: #dcf8c6; /* WhatsApp green */
+  border-bottom-right-radius: 5px;
+}
+
+/* Other message (left side, gray bubble) */
+.message.other {
+  align-self: flex-start;
+  background-color: #f1f0f0;
+  border-bottom-left-radius: 5px;
 }
 
 /* Input and send button container */
@@ -58,8 +80,9 @@
 .chat-modal .chat-input-container input {
   flex: 1;
   padding: 8px;
-  border-radius: 5px;
+  border-radius: 20px;
   border: 1px solid #ccc;
+  outline: none;
 }
 
 /* Send button */
@@ -68,8 +91,9 @@
   color: #fff;
   border: none;
   padding: 8px 12px;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .chat-modal .chat-input-container button:hover {
