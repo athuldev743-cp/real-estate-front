@@ -1,0 +1,33 @@
+.owner-dashboard {
+  display: flex;
+  height: 90vh;
+  gap: 10px;
+  padding: 10px;
+}
+
+.inbox-panel {
+  width: 30%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  padding: 10px;
+}
+
+.chat-panel {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.chat-placeholder {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #888;
+  font-size: 1.1rem;
+}

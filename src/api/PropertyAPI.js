@@ -12,20 +12,17 @@ export const loginUser = async (data) => {
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.detail || "Login failed");
-  }
+  const result = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(result.detail || "Login failed");
 
-  const result = await res.json();
   localStorage.setItem("token", result.access_token);
   localStorage.setItem("fullName", result.fullName);
   return result;
 };
 
-// Register user (Step 1)
+// Register user
 export const registerUser = async (data) => {
-  if (!data.fullName || !data.email || !data.password) 
+  if (!data.fullName || !data.email || !data.password)
     throw new Error("Full name, email, and password are required");
 
   const res = await fetch(`${BASE_URL}/auth/register`, {
@@ -34,12 +31,10 @@ export const registerUser = async (data) => {
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.detail || "Registration failed");
-  }
+  const result = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(result.detail || "Registration failed");
 
-  return await res.json(); // { message }
+  return result; // { message }
 };
 
 // Verify OTP and auto-login
@@ -52,18 +47,15 @@ export const verifyOTP = async ({ email, otp }) => {
     body: JSON.stringify({ email, otp }),
   });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.detail || "OTP verification failed");
-  }
+  const result = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(result.detail || "OTP verification failed");
 
-  const result = await res.json();
-  localStorage.setItem("token", result.token);
+  localStorage.setItem("token", result.access_token || result.token);
   localStorage.setItem("fullName", result.fullName);
   return result;
 };
 
-// Get current user (requires token)
+// Get current logged-in user
 export const getCurrentUser = async () => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No token found");
@@ -72,34 +64,30 @@ export const getCurrentUser = async () => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.detail || "Failed to fetch user");
-  }
-  return await res.json();
+  const result = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(result.detail || "Failed to fetch user");
+  return result;
 };
 
 // -------------------- Properties --------------------
 
-// Add property (FormData, requires login)
+// Add property
 export const addProperty = async (formData) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
   const res = await fetch(`${BASE_URL}/api/add-property`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` }, // no content-type for FormData
+    headers: { Authorization: `Bearer ${token}` }, // Do NOT set Content-Type for FormData
     body: formData,
   });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.detail || "Failed to add property");
-  }
-  return await res.json();
+  const result = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(result.detail || "Failed to add property");
+  return result;
 };
 
-// Get all properties (with optional search)
+// Get all properties
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
     ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
@@ -147,7 +135,7 @@ export const getMyProperties = async () => {
 
 // -------------------- Chat --------------------
 
-// Send a chat message (backup REST method)
+// Send a chat message (backup REST)
 export const sendMessage = async (propertyId, message) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
@@ -155,10 +143,7 @@ export const sendMessage = async (propertyId, message) => {
 
   const res = await fetch(`${BASE_URL}/api/chat/${propertyId}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ message }),
   });
 
@@ -166,7 +151,7 @@ export const sendMessage = async (propertyId, message) => {
   return await res.json();
 };
 
-// Get chat messages (backup REST method)
+// Get chat messages (backup REST)
 export const getMessages = async (propertyId) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
@@ -180,16 +165,44 @@ export const getMessages = async (propertyId) => {
   return await res.json();
 };
 
+// -------------------- Owner Inbox --------------------
+
+// Get all chats for owner (inbox)
+export const getOwnerInbox = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Authentication required");
+
+  const res = await fetch(`${BASE_URL}/chat/inbox`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch inbox");
+  return await res.json();
+};
+
+// Get all messages of a specific chat
+export const getOwnerChatMessages = async (chatId) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Authentication required");
+  if (!chatId) throw new Error("Chat ID is required");
+
+  const res = await fetch(`${BASE_URL}/chat/${chatId}/messages`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch chat messages");
+  return await res.json(); // { messages: [...] }
+};
+
 // -------------------- Notifications --------------------
 
-// Get unread notifications for logged-in user
-export const getNotifications = async (token) => {
+export const getNotifications = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Authentication required");
+
   const res = await fetch(`${BASE_URL}/user/notifications`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   });
 
   if (!res.ok) {
@@ -202,16 +215,14 @@ export const getNotifications = async (token) => {
 };
 
 // -------------------- Mark messages as read --------------------
+
 export const markMessagesAsRead = async (chatId) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
   const res = await fetch(`${BASE_URL}/user/mark-read/${chatId}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   });
 
   if (!res.ok) {

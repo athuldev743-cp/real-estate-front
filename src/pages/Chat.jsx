@@ -8,7 +8,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
   const messageQueue = useRef([]); // queue for messages before WS opens
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token"); // make sure this matches API
 
   useEffect(() => {
     if (!chatId || !userId || !token) return;
@@ -19,8 +19,8 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     ws.current.onopen = () => {
       console.log("WebSocket connected");
 
-      // flush queued messages
-      messageQueue.current.forEach(msg => ws.current.send(JSON.stringify(msg)));
+      // flush queued messages only if WS is open
+      messageQueue.current.forEach((msg) => ws.current.send(JSON.stringify(msg)));
       messageQueue.current = [];
     };
 
@@ -32,7 +32,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
         const [sender, ...textParts] = event.data.split(": ");
         data = { sender, text: textParts.join(": ") };
       }
-      setMessages(prev => [...prev, data]);
+      setMessages((prev) => [...prev, data]);
     };
 
     ws.current.onclose = () => console.log("WebSocket disconnected");
@@ -41,6 +41,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     return () => ws.current?.close();
   }, [chatId, userId, propertyId, token]);
 
+  // scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -49,23 +50,27 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     if (!input.trim()) return;
 
     const msg = { sender: userId, text: input };
-    
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+
+    if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(msg));
     } else {
-      // queue message if WS not ready
       messageQueue.current.push(msg);
+      console.warn("Message queued, WebSocket not open yet.");
     }
 
-    setMessages(prev => [...prev, msg]);
+    setMessages((prev) => [...prev, msg]);
     setInput("");
   };
 
+  // mark messages as read only if user is owner
   useEffect(() => {
     const markRead = async () => {
-      if (userId === ownerId && chatId) {
-        try { await markMessagesAsRead(chatId); } 
-        catch (err) { console.error("Failed to mark messages as read:", err); }
+      if (userId === ownerId && chatId && messages.length > 0) {
+        try {
+          await markMessagesAsRead(chatId);
+        } catch (err) {
+          console.error("Failed to mark messages as read:", err);
+        }
       }
     };
     markRead();
