@@ -14,15 +14,15 @@ export default function PropertyDetails({ user }) {
   // Get user info from prop or localStorage
   const currentUser = user || {
     fullName: localStorage.getItem("fullName"),
-    email: localStorage.getItem("email"), // ensure email is stored in localStorage
+    email: localStorage.getItem("email"),
   };
 
-  const userId = currentUser?.email; // removed || null
+  const userEmail = currentUser?.email?.trim().toLowerCase() || null;
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!userId) navigate("/login");
-  }, [userId, navigate]);
+    if (!userEmail) navigate("/login");
+  }, [userEmail, navigate]);
 
   // Fetch property details
   useEffect(() => {
@@ -31,9 +31,6 @@ export default function PropertyDetails({ user }) {
       try {
         const data = await getPropertyById(id);
         setProperty(data);
-
-        // Debugging: check owner vs current user
-        console.log("Property owner:", data.owner, "Current user:", userId);
       } catch (err) {
         console.error("Error fetching property details:", err);
       } finally {
@@ -41,12 +38,13 @@ export default function PropertyDetails({ user }) {
       }
     };
     fetchProperty();
-  }, [id, userId]);
+  }, [id]);
 
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
 
-  const isOwner = userId === property.owner;
+  // Compare emails in lowercase to avoid mismatch
+  const isOwner = userEmail === property.owner?.trim().toLowerCase();
 
   return (
     <div className="property-details-page">
@@ -89,6 +87,7 @@ export default function PropertyDetails({ user }) {
             <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
           </p>
 
+          {/* Chat button visible only if current user is not the owner */}
           {!isOwner && (
             <button className="chat-btn" onClick={() => setChatOpen(!chatOpen)}>
               💬 Chat with Seller
@@ -98,9 +97,10 @@ export default function PropertyDetails({ user }) {
         </div>
       </div>
 
+      {/* Chat Modal */}
       {chatOpen && !isOwner && (
         <div className="chat-modal">
-          <Chat chatId={property._id} userId={userId} />
+          <Chat chatId={property._id} userId={userEmail} />
         </div>
       )}
     </div>
