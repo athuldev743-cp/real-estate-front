@@ -5,23 +5,19 @@ import "./AddProperty.css";
 
 export default function AddProperty({ user }) {
   const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [location, setLocation] = useState("");
   const [category, setCategory] = useState("");
+  const [mobileNO, setMobileNO] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const categories = [
-    "plots",
-    "buildings",
-    "house",
-    "apartment",
-    "villa",
-    "farmlands",
-  ];
+  const categories = ["house", "villa", "apartment", "farmlands", "plots", "buildings"];
 
   // Redirect if not logged in
   useEffect(() => {
@@ -30,8 +26,13 @@ export default function AddProperty({ user }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !price || !category || !image) {
+    if (!title || !description || !price || !category || !location || !mobileNO || !image) {
       setError("All fields are required!");
+      return;
+    }
+
+    if (!categories.includes(category.toLowerCase())) {
+      setError(`Category must be one of: ${categories.join(", ")}`);
       return;
     }
 
@@ -43,18 +44,23 @@ export default function AddProperty({ user }) {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("price", price.toString());
-      formData.append("category", category);
+      formData.append("price", Number(price));
+      formData.append("category", category.toLowerCase());
+      formData.append("location", location);
+      formData.append("mobileNO", mobileNO);
       formData.append("image", image);
 
       const token = localStorage.getItem("token");
       const res = await addProperty(formData, token);
 
       setSuccess(res.message || "Property added successfully!");
+      // Reset form
       setTitle("");
       setDescription("");
       setPrice("");
+      setLocation("");
       setCategory("");
+      setMobileNO("");
       setImage(null);
     } catch (err) {
       setError(err.message || "Failed to add property");
@@ -68,7 +74,6 @@ export default function AddProperty({ user }) {
       <h2>Add Property</h2>
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
-
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -90,27 +95,32 @@ export default function AddProperty({ user }) {
           onChange={(e) => setPrice(e.target.value)}
           required
         />
-
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-        >
-          <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </option>
-          ))}
-        </select>
-
         <input
-          type="file"
-          onChange={(e) => setImage(e.target.files[0])}
-          accept="image/*"
+          type="text"
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
           required
         />
-
+        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+          <option value="">Select Category</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+          ))}
+        </select>
+        <input
+          type="text"
+          placeholder="Mobile Number"
+          value={mobileNO}
+          onChange={(e) => setMobileNO(e.target.value)}
+          required
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files[0])}
+          required
+        />
         <button type="submit" disabled={loading}>
           {loading ? "Adding..." : "Add Property"}
         </button>

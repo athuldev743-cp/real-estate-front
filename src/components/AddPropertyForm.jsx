@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { addProperty } from "../api/PropertyAPI"; // your API file
+import "./pages/AddProperty.css";
 
 export default function AddPropertyForm() {
   const [title, setTitle] = useState("");

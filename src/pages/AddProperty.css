@@ -1,68 +1,126 @@
+/* AddProperty.css */
+
 .add-property-page {
   min-height: 100vh;
+  background: #121212; /* Dark background */
+  color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 50px 20px;
-  background: linear-gradient(135deg, #f1f8e9, #dcedc8);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .add-property-page h2 {
-  color: #33691e;
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin-bottom: 30px;
-  text-align: center;
+  color: #00ffcc;
+  text-shadow: 0 0 10px #00ffcc;
+  animation: fadeInDown 1s ease forwards;
 }
 
-.property-form-container {
-  background-color: #ffffff;
-  padding: 40px 30px;
-  border-radius: 16px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+form {
+  background: #1e1e1e;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
   width: 100%;
   max-width: 500px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeInUp 1s ease forwards;
 }
 
-.property-form-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-}
-
-.property-form-container input,
-.property-form-container select,
-.property-form-container textarea {
-  width: 100%;
+input, textarea, select {
   padding: 12px 15px;
-  margin-bottom: 20px;
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: none;
+  outline: none;
+  background: #2a2a2a;
+  color: #fff;
   font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.property-form-container input:focus,
-.property-form-container select:focus,
-.property-form-container textarea:focus {
-  border-color: #33691e;
-  box-shadow: 0 0 8px rgba(51, 105, 30, 0.3);
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 0 8px #00ffcc;
+  background: #333;
 }
 
-.property-form-container button {
-  width: 100%;
-  padding: 14px;
-  background-color: #33691e;
-  color: white;
-  font-weight: bold;
-  font-size: 1rem;
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button {
+  background: #00ffcc;
+  color: #121212;
+  padding: 12px;
   border: none;
   border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
 }
 
-.property-form-container button:hover {
-  background-color: #1b5e20;
-  transform: translateY(-2px);
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 20px #00ffcc;
+}
+
+.error {
+  color: #ff4c4c;
+  font-weight: bold;
+  animation: shake 0.5s;
+}
+
+.success {
+  color: #00ffcc;
+  font-weight: bold;
+  animation: fadeIn 1s ease;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  form {
+    padding: 20px;
+  }
 }
