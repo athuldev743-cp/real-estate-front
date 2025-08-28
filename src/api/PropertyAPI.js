@@ -2,7 +2,7 @@ const BASE_URL = process.env.REACT_APP_API_URL;
 
 // -------------------- Auth --------------------
 
-// Login user
+
 export const loginUser = async (data) => {
   if (!data.email || !data.password) throw new Error("Email and password are required");
 
@@ -16,10 +16,10 @@ export const loginUser = async (data) => {
     const errData = await res.json().catch(() => ({}));
     throw new Error(errData.detail || "Login failed");
   }
-  return await res.json();
+  return await res.json(); // { access_token, fullName }
 };
 
-// Register user (Step 1: sends email & password, backend sends OTP)
+// Register user (Step 1)
 export const registerUser = async (data) => {
   if (!data.email || !data.password) throw new Error("Email and password are required");
 
@@ -33,27 +33,10 @@ export const registerUser = async (data) => {
     const errData = await res.json().catch(() => ({}));
     throw new Error(errData.detail || "Registration failed");
   }
-  return await res.json();
+  return await res.json(); // { message }
 };
 
-// Resend OTP for unverified users
-export const resendOTP = async (data) => {
-  if (!data.email) throw new Error("Email is required");
-
-  const res = await fetch(`${BASE_URL}/auth/resend-otp`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.detail || "Failed to resend OTP");
-  }
-  return await res.json();
-};
-
-// Verify OTP (Step 2)
+// Verify OTP
 export const verifyOTP = async (data) => {
   if (!data.email || !data.otp) throw new Error("Email and OTP are required");
 
@@ -67,10 +50,10 @@ export const verifyOTP = async (data) => {
     const errData = await res.json().catch(() => ({}));
     throw new Error(errData.detail || "OTP verification failed");
   }
-  return await res.json();
+  return await res.json(); // { message, token, fullName }
 };
 
-// Get current logged-in user
+// Get current user
 export const getCurrentUser = async (token) => {
   if (!token) throw new Error("No token provided");
 

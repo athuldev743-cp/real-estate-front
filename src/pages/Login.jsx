@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/PropertyAPI";
 import "./Login.css";
 
-export default function Login() {
+export default function Login({ setUser }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,17 +19,16 @@ export default function Login() {
     try {
       const res = await loginUser({ email, password });
 
-      if (!res || !res.token) {
-        throw new Error(res?.error || "Login failed");
-      }
+      if (!res || !res.access_token) throw new Error(res?.detail || "Login failed");
 
-      // Save token and user info
-      localStorage.setItem("token", res.token);
-      if (res.user) {
-        localStorage.setItem("user", JSON.stringify(res.user));
-      }
+      // ✅ Save token and fullName
+      localStorage.setItem("token", res.access_token);
+      localStorage.setItem("fullName", res.fullName);
 
-      navigate("/account"); // ✅ go to account page
+      // ✅ Update app state
+      setUser({ fullName: res.fullName, email });
+
+      navigate("/account");
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
@@ -42,25 +41,10 @@ export default function Login() {
       <div className="login-card">
         <h2>Login</h2>
         {error && <p className="error">{error}</p>}
-
         <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <button type="submit" disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
         </form>
       </div>
     </div>
