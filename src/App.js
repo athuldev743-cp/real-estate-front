@@ -1,46 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
-import Search from "./pages/Search";
-import Category from "./pages/Category";
-import AddProperty from "./pages/AddProperty";
-import Login from "./pages/Login";
 import Register from "./pages/Register";
-import PropertyDetails from "./pages/PropertyDetails";
 import Account from "./pages/Account";
 import { getCurrentUser } from "./api/PropertyAPI";
 
-export default function App() {
+function App() {
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
+  // ✅ Auto-login on app load
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       getCurrentUser(token)
-        .then((data) => setUser(data))
-        .catch((err) => {
-          console.error("Failed to fetch user:", err);
-          localStorage.removeItem("token"); // remove invalid token
-          setUser(null);
-        });
+        .then((res) => setUser(res))
+        .catch(() => localStorage.removeItem("token"))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
-    // No token? just let them see Home page
   }, []);
 
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <Routes>
-      <Route path="/" element={<Home user={user} />} />
-      <Route path="/search" element={<Search user={user} />} />
-      <Route path="/category/:category" element={<Category user={user} />} />
-      <Route path="/top-deals" element={<Category user={user} />} />
-      <Route path="/add-property" element={<AddProperty user={user} />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/property/:id" element={<PropertyDetails user={user} />} />
-      <Route path="/account" element={<Account user={user} />} />
-      {/* Redirect unknown routes to Home */}
-      <Route path="*" element={<Home user={user} />} />
-    </Routes>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home user={user} />} />
+        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route path="/account" element={user ? <Account user={user} /> : <Navigate to="/register" />} />
+      </Routes>
+    </Router>
   );
 }
+
+export default App;

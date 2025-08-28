@@ -12,7 +12,9 @@ export default function Account({ userId }) {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const data = await getMyProperties(); 
+        const token = localStorage.getItem("token");
+        if (!token) return; // not logged in
+        const data = await getMyProperties(token); 
         setProperties(data);
       } catch (err) {
         console.error("Error fetching user properties:", err);
@@ -25,10 +27,10 @@ export default function Account({ userId }) {
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
-        const token = localStorage.getItem("token"); // assuming you store JWT in localStorage
+        const token = localStorage.getItem("token"); // JWT from storage
         if (token) {
           const data = await getNotifications(token);
-          setNotifications(data); // should be array of { propertyId, unreadCount }
+          setNotifications(data); // array of { propertyId, unreadCount }
         }
       } catch (err) {
         console.error("Error fetching notifications:", err);
@@ -37,7 +39,7 @@ export default function Account({ userId }) {
 
     fetchNotifs();
 
-    // poll every 10s for updates
+    // poll every 10s
     const interval = setInterval(fetchNotifs, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -47,9 +49,12 @@ export default function Account({ userId }) {
     return notif ? notif.unreadCount : 0;
   };
 
+  // read full name from localStorage
+  const fullName = localStorage.getItem("fullName");
+
   return (
     <div className="account-page">
-      <h1>My Account</h1>
+      <h1>{fullName || "My Account"}</h1>
 
       <div className="user-properties">
         {properties.map((prop) => (
