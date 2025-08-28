@@ -8,12 +8,16 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
 
+  // Get token from localStorage
+  const token = localStorage.getItem("token");
+
   // ---------------- Connect WebSocket ----------------
   useEffect(() => {
-    if (!chatId || !userId || !propertyId || !ownerId) return;
+    if (!chatId || !userId || !propertyId || !token) return;
 
+    // Use query param for JWT token
     ws.current = new WebSocket(
-      `wss://back-end-lybr.onrender.com/ws/${chatId}/${userId}/${propertyId}/${ownerId}`
+      `wss://back-end-lybr.onrender.com/ws/${chatId}/${propertyId}?token=${token}`
     );
 
     ws.current.onopen = () => console.log("WebSocket connected");
@@ -33,7 +37,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     ws.current.onerror = (err) => console.error("WebSocket error:", err);
 
     return () => ws.current?.close();
-  }, [chatId, userId, propertyId, ownerId]);
+  }, [chatId, userId, propertyId, token]);
 
   // ---------------- Auto scroll to bottom ----------------
   useEffect(() => {
