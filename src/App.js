@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
 import Home from "./pages/Home";
+import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Account from "./pages/Account";
 import AddProperty from "./pages/AddProperty";
@@ -35,24 +36,36 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home user={user} />} />
+
+      {/* Login/Register routes */}
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" /> : <Login setUser={setUser} />}
+      />
       <Route
         path="/register"
         element={user ? <Navigate to="/" /> : <Register setUser={setUser} />}
       />
+
+      {/* Protected routes */}
       <Route
         path="/account"
-        element={user ? <Account user={user} /> : <Navigate to="/register" />}
+        element={user ? <Account user={user} /> : <Navigate to="/login" />}
       />
       <Route
         path="/add-property"
-        element={user ? <AddProperty user={user} /> : <Navigate to="/register" />}
+        element={user ? <AddProperty user={user} /> : <Navigate to="/login" />}
       />
+
+      {/* Public routes */}
       <Route path="/category/:category" element={<Category />} />
       <Route
         path="/property/:id"
         element={<PropertyDetails userId={user?._id} />}
       />
       <Route path="/search" element={<Search />} />
+
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
