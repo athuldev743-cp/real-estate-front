@@ -1,5 +1,6 @@
+// App.js
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Account from "./pages/Account";
@@ -9,7 +10,6 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Auto-login on app load
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -25,13 +25,17 @@ function App() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home user={user} />} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-        <Route path="/account" element={user ? <Account user={user} /> : <Navigate to="/register" />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Home user={user} />} />
+      <Route
+        path="/register"
+        element={user ? <Navigate to="/" /> : <Register />}
+      />
+      <Route
+        path="/account"
+        element={user ? <Account user={user} /> : <Navigate to="/register" />}
+      />
+    </Routes>
   );
 }
 
