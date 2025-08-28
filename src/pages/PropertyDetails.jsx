@@ -4,13 +4,27 @@ import { getPropertyById } from "../api/PropertyAPI";
 import Chat from "./Chat"; // WebSocket chat component
 import "./PropertyDetails.css";
 
-export default function PropertyDetails({ userId }) {
+export default function PropertyDetails({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
 
+  // Get user info from prop or localStorage
+  const currentUser = user || {
+    fullName: localStorage.getItem("fullName"),
+    email: localStorage.getItem("email"),
+  };
+
+  const userId = currentUser?.email || null;
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!userId) navigate("/login");
+  }, [userId, navigate]);
+
+  // Fetch property details
   useEffect(() => {
     const fetchProperty = async () => {
       setLoading(true);
@@ -28,6 +42,8 @@ export default function PropertyDetails({ userId }) {
 
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
+
+  const isOwner = userId === property.owner;
 
   return (
     <div className="property-details-page">
@@ -70,15 +86,18 @@ export default function PropertyDetails({ userId }) {
             <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
           </p>
 
-          {/* Chat Icon/Button */}
-          <button className="chat-btn" onClick={() => setChatOpen(!chatOpen)}>
-            💬 Chat with Seller
-          </button>
+          {/* Chat button visible only if current user is not the owner */}
+          {!isOwner && (
+            <button className="chat-btn" onClick={() => setChatOpen(!chatOpen)}>
+              💬 Chat with Seller
+            </button>
+          )}
+          {isOwner && <p className="owner-label">You are the owner of this property</p>}
         </div>
       </div>
 
       {/* Chat Modal */}
-      {chatOpen && (
+      {chatOpen && !isOwner && (
         <div className="chat-modal">
           <Chat chatId={property._id} userId={userId} />
         </div>
