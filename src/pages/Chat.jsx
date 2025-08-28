@@ -1,58 +1,79 @@
 import React, { useState, useEffect, useRef } from "react";
+import { getCurrentUser, markMessagesAsRead } from "../api/PropertyAPI";
 import "./Chat.css";
 
-export default function Chat({ chatId, userId }) {
+export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
 
+  // ---------------- Connect WebSocket ----------------
   useEffect(() => {
-    // Connect to backend WebSocket
+    if (!chatId || !userId) return;
+
     ws.current = new WebSocket(
-      `wss://back-end-lybr.onrender.com/ws/${chatId}/${userId}`
+      `wss://back-end-lybr.onrender.com/ws/${chatId}/${userId}/${propertyId}/${ownerId}`
     );
 
+    ws.current.onopen = () => console.log("WebSocket connected");
+
     ws.current.onmessage = (event) => {
+      let data;
       try {
-        const data = JSON.parse(event.data); // expect { sender, text }
-        setMessages((prev) => [...prev, data]);
+        data = JSON.parse(event.data); // Try parsing JSON
       } catch {
-        // fallback if plain text
-        setMessages((prev) => [...prev, { sender: "Server", text: event.data }]);
+        // Fallback for plain text
+        const [sender, ...textParts] = event.data.split(": ");
+        data = { sender, text: textParts.join(": ") };
       }
+      setMessages((prev) => [...prev, data]);
     };
 
-    ws.current.onclose = () => {
-      console.log("WebSocket disconnected");
-    };
+    ws.current.onclose = () => console.log("WebSocket disconnected");
+    ws.current.onerror = (err) => console.error("WebSocket error:", err);
 
-    ws.current.onerror = (err) => {
-      console.error("WebSocket error:", err);
-    };
+    return () => ws.current?.close();
+  }, [chatId, userId, propertyId, ownerId]);
 
-    return () => ws.current.close();
-  }, [chatId, userId]);
-
+  // ---------------- Auto scroll to bottom ----------------
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // ---------------- Send message ----------------
   const sendMessage = () => {
     if (!input.trim()) return;
+
+    const msg = { sender: userId, text: input };
+
+    // Send JSON
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      const msg = { sender: userId, text: input };
       ws.current.send(JSON.stringify(msg));
       setMessages((prev) => [...prev, msg]);
     } else {
       console.error("WebSocket not open.");
     }
+
     setInput("");
   };
 
+  // ---------------- Mark messages as read (owner) ----------------
+  useEffect(() => {
+    const markRead = async () => {
+      if (userId === ownerId && chatId) {
+        try {
+          await markMessagesAsRead(chatId);
+        } catch (err) {
+          console.error("Failed to mark messages as read:", err);
+        }
+      }
+    };
+    markRead();
+  }, [messages, chatId, userId, ownerId]);
+
   return (
     <div className="chat-container">
-      {/* Messages area */}
       <div className="messages">
         {messages.map((msg, idx) => (
           <div
@@ -66,7 +87,6 @@ export default function Chat({ chatId, userId }) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input + Send button */}
       <div className="chat-input-container">
         <input
           type="text"
