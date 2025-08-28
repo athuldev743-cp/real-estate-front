@@ -58,7 +58,7 @@ function App() {
       />
 
       <Route path="/category/:category" element={<Category />} />
-      <Route path="/property/:id" element={<PropertyDetails userId={user?._id} />} />
+      <Route path="/property/:id" element={<PropertyDetails user={user} />} />
       <Route path="/search" element={<Search />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
