@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./OwnerInbox.css";
+import "./Inbox.css";
 
 export default function Inbox({ onSelectChat }) {
   const [chats, setChats] = useState([]);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Inbox from "./Inbox";
+import Inbox from "../pages/Inbox";
 import Chat from "../pages/Chat";
 import "./OwnerDashboard.css";
 
