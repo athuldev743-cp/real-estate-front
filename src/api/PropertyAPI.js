@@ -19,14 +19,16 @@ export const loginUser = async (data) => {
   return await res.json(); // { access_token, fullName }
 };
 
+
 // Register user (Step 1)
 export const registerUser = async (data) => {
-  if (!data.email || !data.password) throw new Error("Email and password are required");
+  if (!data.fullName || !data.email || !data.password) 
+    throw new Error("Full name, email, and password are required");
 
   const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify(data), // send fullName, email, password
   });
 
   if (!res.ok) {
@@ -35,6 +37,7 @@ export const registerUser = async (data) => {
   }
   return await res.json(); // { message }
 };
+
 
 // Verify OTP
 export const verifyOTP = async (data) => {

@@ -15,24 +15,24 @@ export default function Register({ setUser }) {
   const [showOtpModal, setShowOtpModal] = useState(false);
 
   // Step 1: Register
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (!fullName || !email || !password)
-      return setError("Full name, email, and password are required");
+const handleRegister = async (e) => {
+  e.preventDefault();
+  if (!fullName || !email || !password)
+    return setError("Full name, email, and password are required");
 
-    setLoading(true);
-    setError("");
-    try {
-      // ✅ Send fullName, email, password to backend
-      const res = await registerUser({ fullName, email, password });
-      setMessage(res.message || "OTP sent to your email");
-      setShowOtpModal(true);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  setError("");
+  try {
+    // Send fullName as well
+    const res = await registerUser({ fullName, email, password });
+    setMessage(res.message || "OTP sent to your email");
+    setShowOtpModal(true);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {

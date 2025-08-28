@@ -3,7 +3,7 @@ import { getMyProperties, getNotifications } from "../api/PropertyAPI";
 import Chat from "./Chat";
 import "./Account.css";
 
-export default function Account({ userId }) {
+export default function Account({ user, setUser }) { // <-- added setUser
   const [properties, setProperties] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -52,9 +52,19 @@ export default function Account({ userId }) {
   // read full name from localStorage
   const fullName = localStorage.getItem("fullName");
 
+  // ✅ Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("fullName");
+    setUser(null);
+  };
+
   return (
     <div className="account-page">
       <h1>{fullName || "My Account"}</h1>
+      <button className="logout-btn" onClick={handleLogout}>
+        Logout
+      </button>
 
       <div className="user-properties">
         {properties.map((prop) => (
@@ -85,7 +95,7 @@ export default function Account({ userId }) {
                 >
                   ✖
                 </button>
-                <Chat chatId={prop._id} userId={userId} />
+                <Chat chatId={prop._id} userId={user._id} />
               </div>
             )}
           </div>
