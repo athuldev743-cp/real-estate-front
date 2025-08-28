@@ -5,14 +5,11 @@ import "./Chat.css";
 export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [connected, setConnected] = useState(false);
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
-
-  // ---------------- Get JWT token from localStorage ----------------
+  const messageQueue = useRef([]); // queue for messages before WS opens
   const token = localStorage.getItem("access_token");
 
-  // ---------------- Connect WebSocket ----------------
   useEffect(() => {
     if (!chatId || !userId || !token) return;
 
@@ -21,64 +18,54 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
     ws.current.onopen = () => {
       console.log("WebSocket connected");
-      setConnected(true);
+
+      // flush queued messages
+      messageQueue.current.forEach(msg => ws.current.send(JSON.stringify(msg)));
+      messageQueue.current = [];
     };
 
     ws.current.onmessage = (event) => {
       let data;
       try {
-        data = JSON.parse(event.data); // Expect JSON {sender, text, read}
+        data = JSON.parse(event.data);
       } catch {
-        // Fallback for plain text
         const [sender, ...textParts] = event.data.split(": ");
         data = { sender, text: textParts.join(": ") };
       }
-      setMessages((prev) => [...prev, data]);
+      setMessages(prev => [...prev, data]);
     };
 
-    ws.current.onclose = () => {
-      console.log("WebSocket disconnected");
-      setConnected(false);
-    };
-
-    ws.current.onerror = (err) => {
-      console.error("WebSocket error:", err);
-      setConnected(false);
-    };
+    ws.current.onclose = () => console.log("WebSocket disconnected");
+    ws.current.onerror = (err) => console.error("WebSocket error:", err);
 
     return () => ws.current?.close();
   }, [chatId, userId, propertyId, token]);
 
-  // ---------------- Auto scroll to bottom ----------------
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ---------------- Send message ----------------
   const sendMessage = () => {
     if (!input.trim()) return;
 
     const msg = { sender: userId, text: input };
-
+    
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(msg));
-      setMessages((prev) => [...prev, msg]);
     } else {
-      console.error("WebSocket not open yet. Message not sent.");
+      // queue message if WS not ready
+      messageQueue.current.push(msg);
     }
 
+    setMessages(prev => [...prev, msg]);
     setInput("");
   };
 
-  // ---------------- Mark messages as read (owner) ----------------
   useEffect(() => {
     const markRead = async () => {
       if (userId === ownerId && chatId) {
-        try {
-          await markMessagesAsRead(chatId);
-        } catch (err) {
-          console.error("Failed to mark messages as read:", err);
-        }
+        try { await markMessagesAsRead(chatId); } 
+        catch (err) { console.error("Failed to mark messages as read:", err); }
       }
     };
     markRead();
@@ -86,16 +73,10 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
   return (
     <div className="chat-container">
-      {!connected && <p className="chat-status">Connecting to chat...</p>}
-
       <div className="messages">
         {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`message ${msg.sender === userId ? "own" : "other"}`}
-          >
-            <strong>{msg.sender === userId ? "You" : msg.sender}:</strong>{" "}
-            {msg.text}
+          <div key={idx} className={`message ${msg.sender === userId ? "own" : "other"}`}>
+            <strong>{msg.sender === userId ? "You" : msg.sender}:</strong> {msg.text}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -108,11 +89,8 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          disabled={!connected}
         />
-        <button onClick={sendMessage} disabled={!connected}>
-          Send
-        </button>
+        <button onClick={sendMessage}>Send</button>
       </div>
     </div>
   );
