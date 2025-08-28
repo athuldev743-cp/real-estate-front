@@ -16,7 +16,6 @@ export default function PropertyDetails({ user }) {
     fullName: localStorage.getItem("fullName"),
     email: localStorage.getItem("email"),
   };
-
   const userEmail = currentUser?.email?.trim().toLowerCase() || null;
 
   // Redirect if not logged in
@@ -43,7 +42,6 @@ export default function PropertyDetails({ user }) {
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
 
-  // Compare emails in lowercase to avoid mismatch
   const isOwner = userEmail === property.owner?.trim().toLowerCase();
 
   return (
@@ -87,7 +85,6 @@ export default function PropertyDetails({ user }) {
             <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
           </p>
 
-          {/* Chat button visible only if current user is not the owner */}
           {!isOwner && (
             <button className="chat-btn" onClick={() => setChatOpen(!chatOpen)}>
               💬 Chat with Seller
@@ -100,7 +97,12 @@ export default function PropertyDetails({ user }) {
       {/* Chat Modal */}
       {chatOpen && !isOwner && (
         <div className="chat-modal">
-          <Chat chatId={property._id} userId={userEmail} />
+          <Chat
+            chatId={property._id}
+            userId={userEmail}
+            propertyId={property._id}
+            ownerId={property.owner?.trim().toLowerCase()}
+          />
         </div>
       )}
     </div>

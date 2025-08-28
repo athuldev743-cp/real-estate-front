@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getCurrentUser, markMessagesAsRead } from "../api/PropertyAPI";
+import { markMessagesAsRead } from "../api/PropertyAPI";
 import "./Chat.css";
 
 export default function Chat({ chatId, userId, propertyId, ownerId }) {
@@ -10,7 +10,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
   // ---------------- Connect WebSocket ----------------
   useEffect(() => {
-    if (!chatId || !userId) return;
+    if (!chatId || !userId || !propertyId || !ownerId) return;
 
     ws.current = new WebSocket(
       `wss://back-end-lybr.onrender.com/ws/${chatId}/${userId}/${propertyId}/${ownerId}`
@@ -21,9 +21,8 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     ws.current.onmessage = (event) => {
       let data;
       try {
-        data = JSON.parse(event.data); // Try parsing JSON
+        data = JSON.parse(event.data);
       } catch {
-        // Fallback for plain text
         const [sender, ...textParts] = event.data.split(": ");
         data = { sender, text: textParts.join(": ") };
       }
@@ -47,7 +46,6 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
     const msg = { sender: userId, text: input };
 
-    // Send JSON
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(msg));
       setMessages((prev) => [...prev, msg]);
