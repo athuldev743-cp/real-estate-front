@@ -17,6 +17,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check token on app load
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -34,11 +35,23 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home user={user} />} />
-      <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-      <Route path="/account" element={user ? <Account user={user} /> : <Navigate to="/register" />} />
-      <Route path="/add-property" element={user ? <AddProperty user={user} /> : <Navigate to="/register" />} />
+      <Route
+        path="/register"
+        element={user ? <Navigate to="/" /> : <Register setUser={setUser} />}
+      />
+      <Route
+        path="/account"
+        element={user ? <Account user={user} /> : <Navigate to="/register" />}
+      />
+      <Route
+        path="/add-property"
+        element={user ? <AddProperty user={user} /> : <Navigate to="/register" />}
+      />
       <Route path="/category/:category" element={<Category />} />
-      <Route path="/property/:id" element={<PropertyDetails userId={user?._id} />} />
+      <Route
+        path="/property/:id"
+        element={<PropertyDetails userId={user?._id} />}
+      />
       <Route path="/search" element={<Search />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

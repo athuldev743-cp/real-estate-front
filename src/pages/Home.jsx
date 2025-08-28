@@ -9,20 +9,16 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import "./Home.css";
 
-export default function Home() {
+export default function Home({ user }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollYRef = useRef(0);
   const navigate = useNavigate();
 
-  // Navbar hide/show on scroll with smooth animation
+  // Navbar hide/show on scroll
   useEffect(() => {
     const controlNavbar = () => {
-      if (window.scrollY > lastScrollYRef.current) {
-        setShowNavbar(false);
-      } else {
-        setShowNavbar(true);
-      }
+      setShowNavbar(window.scrollY <= lastScrollYRef.current);
       lastScrollYRef.current = window.scrollY;
     };
     window.addEventListener("scroll", controlNavbar);
@@ -51,14 +47,21 @@ export default function Home() {
   };
 
   const handleAddProperty = () => {
-    // Pass token implicitly via localStorage
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!user) {
       alert("You must be logged in to add a property.");
-      navigate("/login");
+      navigate("/register");
       return;
     }
     navigate("/add-property");
+  };
+
+  const handleAccount = () => {
+    if (!user) {
+      alert("You must be logged in to view your account.");
+      navigate("/register");
+      return;
+    }
+    navigate("/account");
   };
 
   return (
@@ -74,6 +77,7 @@ export default function Home() {
               onError={(e) => (e.target.src = "/image/default-category.jpeg")}
             />
           </div>
+
           <ul className="nav-links">
             <li onClick={handleTopDeals}>Top Deals</li>
             {categories.map((cat) => (
@@ -81,23 +85,23 @@ export default function Home() {
                 {cat.name}
               </li>
             ))}
+            {!user && (
+              <li>
+                <button
+                  className="register-btn"
+                  onClick={() => navigate("/register")}
+                >
+                  Register
+                </button>
+              </li>
+            )}
             <li>
-              <button
-                className="register-btn"
-                onClick={() => navigate("/register")}
-              >
-                Register
-              </button>
-            </li>
-            <li>
-              <button
-                className="add-property-btn"
-                onClick={handleAddProperty} // updated handler
-              >
+              <button className="add-property-btn" onClick={handleAddProperty}>
                 + Add Property
               </button>
             </li>
           </ul>
+
           <div className="nav-search">
             <input
               type="text"
@@ -106,20 +110,17 @@ export default function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-            
             <button onClick={handleSearch} className="search-btn">
               Search
             </button>
-            <button
-          className="my-account-btn"
-          onClick={() => navigate("/account")}
-        >
-          My Account
-        </button>
+
+            <button className="my-account-btn" onClick={handleAccount}>
+              My Account
+            </button>
           </div>
+
           <div className="mobile-menu">☰</div>
         </div>
-        
       </nav>
 
       {/* Hero Section */}
@@ -135,13 +136,15 @@ export default function Home() {
           <button className="view-deals-btn" onClick={handleTopDeals}>
             View Top Deals
           </button>
-          <button
-            className="view-deals-btn"
-            style={{ marginLeft: "20px", backgroundColor: "#28a745" }}
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
+          {!user && (
+            <button
+              className="view-deals-btn"
+              style={{ marginLeft: "20px", backgroundColor: "#28a745" }}
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </button>
+          )}
         </div>
       </section>
 

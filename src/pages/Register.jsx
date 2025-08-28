@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { registerUser, verifyOTP } from "../api/PropertyAPI";
 import "./Register.css";
 
-export default function Register() {
+export default function Register({ setUser }) {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -33,7 +33,7 @@ export default function Register() {
     }
   };
 
-  // Step 2: Verify OTP and auto-login
+  // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp) return setError("Please enter OTP");
@@ -44,11 +44,14 @@ export default function Register() {
       const res = await verifyOTP({ email, otp });
       setMessage(res.message || "Registration successful!");
 
-      // ✅ Store JWT token for auto-login
+      // ✅ Store token locally
       localStorage.setItem("token", res.token);
 
       // ✅ Store full name locally
       localStorage.setItem("fullName", fullName);
+
+      // ✅ Update App user state so navigation works
+      setUser({ _id: "local", fullName });
 
       setShowOtpModal(false);
       navigate("/"); // redirect to Home
@@ -108,7 +111,10 @@ export default function Register() {
             <button onClick={handleVerifyOtp} disabled={loading}>
               {loading ? "Verifying..." : "Verify OTP"}
             </button>
-            <button className="close-btn" onClick={() => setShowOtpModal(false)}>
+            <button
+              className="close-btn"
+              onClick={() => setShowOtpModal(false)}
+            >
               Cancel
             </button>
           </div>
