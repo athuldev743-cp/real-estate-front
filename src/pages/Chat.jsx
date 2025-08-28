@@ -8,25 +8,25 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
 
-  // Get token from localStorage
-  const token = localStorage.getItem("token");
+  // ---------------- Get JWT token from localStorage ----------------
+  const token = localStorage.getItem("access_token");
 
   // ---------------- Connect WebSocket ----------------
   useEffect(() => {
-    if (!chatId || !userId || !propertyId || !token) return;
+    if (!chatId || !userId || !token) return;
 
-    // Use query param for JWT token
-    ws.current = new WebSocket(
-      `wss://back-end-lybr.onrender.com/ws/${chatId}/${propertyId}?token=${token}`
-    );
+    // Construct URL with query parameter
+    const wsUrl = `wss://back-end-lybr.onrender.com/ws/${chatId}/${propertyId}?token=${token}`;
+    ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => console.log("WebSocket connected");
 
     ws.current.onmessage = (event) => {
       let data;
       try {
-        data = JSON.parse(event.data);
+        data = JSON.parse(event.data); // Expect JSON {sender, text, read}
       } catch {
+        // Fallback for plain text
         const [sender, ...textParts] = event.data.split(": ");
         data = { sender, text: textParts.join(": ") };
       }
