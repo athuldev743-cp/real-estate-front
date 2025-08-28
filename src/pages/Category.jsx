@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { getPropertiesByCategory, getProperties } from "../api/PropertyAPI";
-import { FaCommentDots, FaHome, FaBuilding, FaLandmark } from "react-icons/fa"; // ✅ combined icons
+import { FaCommentDots } from "react-icons/fa";
 import "./Category.css";
-
 
 export default function Category() {
   const { category } = useParams();
@@ -16,6 +15,7 @@ export default function Category() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
+      console.log("Fetching properties for category:", category, "with search:", searchQuery);
       try {
         let data;
         if (category === "all") {
@@ -24,6 +24,7 @@ export default function Category() {
           const backendCategory = category.toLowerCase();
           data = await getPropertiesByCategory(backendCategory, searchQuery);
         }
+        console.log("Fetched properties:", data);
         setProperties(data);
       } catch (err) {
         console.error("Error fetching properties:", err);
@@ -56,7 +57,6 @@ export default function Category() {
                   alt={p.title}
                   className="property-image"
                 />
-                {/* ✅ Chat icon badge if new messages exist */}
                 {p.hasNewMessages && (
                   <div className="chat-badge">
                     <FaCommentDots size={20} />
@@ -70,8 +70,13 @@ export default function Category() {
               <button
                 className="view-details-btn"
                 onClick={() => {
-                  if (p._id) navigate(`/property/${p._id}`);
-                  else console.error("Property ID missing!", p);
+                  if (!p._id) {
+                    console.error("Property ID missing!", p);
+                    alert("Property ID missing, cannot navigate!");
+                    return;
+                  }
+                  console.log("Navigating to property details with ID:", p._id);
+                  navigate(`/property/${p._id}`);
                 }}
               >
                 View Details
