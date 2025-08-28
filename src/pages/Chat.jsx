@@ -5,6 +5,7 @@ import "./Chat.css";
 export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [connected, setConnected] = useState(false);
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -15,11 +16,13 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
   useEffect(() => {
     if (!chatId || !userId || !token) return;
 
-    // Construct URL with query parameter
     const wsUrl = `wss://back-end-lybr.onrender.com/ws/${chatId}/${propertyId}?token=${token}`;
     ws.current = new WebSocket(wsUrl);
 
-    ws.current.onopen = () => console.log("WebSocket connected");
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+      setConnected(true);
+    };
 
     ws.current.onmessage = (event) => {
       let data;
@@ -33,8 +36,15 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
       setMessages((prev) => [...prev, data]);
     };
 
-    ws.current.onclose = () => console.log("WebSocket disconnected");
-    ws.current.onerror = (err) => console.error("WebSocket error:", err);
+    ws.current.onclose = () => {
+      console.log("WebSocket disconnected");
+      setConnected(false);
+    };
+
+    ws.current.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      setConnected(false);
+    };
 
     return () => ws.current?.close();
   }, [chatId, userId, propertyId, token]);
@@ -54,7 +64,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
       ws.current.send(JSON.stringify(msg));
       setMessages((prev) => [...prev, msg]);
     } else {
-      console.error("WebSocket not open.");
+      console.error("WebSocket not open yet. Message not sent.");
     }
 
     setInput("");
@@ -76,6 +86,8 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
   return (
     <div className="chat-container">
+      {!connected && <p className="chat-status">Connecting to chat...</p>}
+
       <div className="messages">
         {messages.map((msg, idx) => (
           <div
@@ -96,8 +108,11 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          disabled={!connected}
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={sendMessage} disabled={!connected}>
+          Send
+        </button>
       </div>
     </div>
   );
