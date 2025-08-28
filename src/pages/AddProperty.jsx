@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AddPropertyForm from "./AddPropertyForm"; // our form component
+import AddPropertyForm from "./components/AddPropertyForm"; 
 import "./AddProperty.css";
 
 export default function AddProperty({ user }) {
