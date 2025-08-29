@@ -1,4 +1,6 @@
 /* Global App styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;700&display=swap');
+
 .App {
   text-align: center;
   min-height: 100vh;
@@ -7,7 +9,7 @@
   align-items: center;
   justify-content: flex-start;
   background: #FFF8F2;  /* warm ivory background */
-  font-family: 'Arial', sans-serif;
+  font-family: 'Roboto', sans-serif;  /* body text */
 }
 
 .main-container {
@@ -18,6 +20,11 @@
   padding: 20px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Poppins', sans-serif;  /* headings */
 }
 
 .App-link {

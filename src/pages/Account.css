@@ -1,86 +1,105 @@
-/* Account Page */
+/* Global account page styles */
 .account-page {
-  max-width: 900px;
-  margin: 50px auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  font-family: 'Roboto', sans-serif; /* body text */
+  color: #333;
+}
+
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.account-header h1 {
+  font-family: 'Poppins', sans-serif; /* headings */
+  font-weight: 600;
+  font-size: 1.8rem;
+}
+
+.logout-btn, .inbox-btn {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #A8BCA1;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.logout-btn:hover, .inbox-btn:hover {
+  background: #92ab8e;
 }
 
 .user-properties {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
-/* Property Card */
 .property-card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 15px;
+  background: #FFF8F2;
+  border-radius: 12px;
+  padding: 16px;
+  flex: 1 1 300px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   position: relative;
-  background-color: #f9f9f9;
 }
 
 .property-card h3 {
-  margin: 0 0 5px 0;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
 }
 
-.property-card p {
-  margin: 2px 0;
-}
-
-/* Chat Button */
 .chat-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
   padding: 6px 12px;
-  border-radius: 5px;
-  cursor: pointer;
   margin-top: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #0066cc;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .chat-btn:hover {
-  background-color: #218838;
+  background: #004499;
 }
 
-/* Chat Modal */
+.notif-badge {
+  background: #ff3b3b;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  margin-left: 6px;
+}
+
 .chat-modal {
   position: absolute;
-  top: 40px;
-  right: 10px;
-  width: 350px;
-  height: 400px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background: #FFF8F2;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-/* Chat Close Button */
 .chat-close-btn {
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 12px;
   background: transparent;
   border: none;
-  font-size: 18px;
+  font-size: 1.2rem;
   cursor: pointer;
-  color: #555;
-  z-index: 10;
-}
-
-.chat-close-btn:hover {
-  color: #000;
-}
-.notif-badge {
-  background: red;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  margin-left: 6px;
-  font-size: 12px;
 }
