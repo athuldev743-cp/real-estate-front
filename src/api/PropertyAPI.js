@@ -172,7 +172,7 @@ export const getOwnerInbox = async () => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
-  const res = await fetch(`${BASE_URL}/chat/inbox`, {
+  const res = await fetch(`${BASE_URL}/api/chat/inbox`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -186,13 +186,14 @@ export const getOwnerChatMessages = async (chatId) => {
   if (!token) throw new Error("Authentication required");
   if (!chatId) throw new Error("Chat ID is required");
 
-  const res = await fetch(`${BASE_URL}/chat/${chatId}/messages`, {
+  const res = await fetch(`${BASE_URL}/api/chat/${chatId}/messages`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
   if (!res.ok) throw new Error("Failed to fetch chat messages");
   return await res.json(); // { messages: [...] }
 };
+
 
 // -------------------- Notifications --------------------
 

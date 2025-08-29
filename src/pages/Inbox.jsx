@@ -27,8 +27,6 @@ export default function Inbox({ onSelectChat }) {
 
   useEffect(() => {
     fetchInbox();
-
-    // Poll inbox every 10 seconds
     const interval = setInterval(fetchInbox, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -46,13 +44,9 @@ export default function Inbox({ onSelectChat }) {
         >
           <div className="chat-info">
             <div className="chat-property">Property ID: {chat.property_id}</div>
-            {chat.last_message && (
-              <div className="chat-last-msg">{chat.last_message.text}</div>
-            )}
+            {chat.last_message && <div className="chat-last-msg">{chat.last_message.text}</div>}
           </div>
-          {chat.unread_count > 0 && (
-            <span className="unread-badge">{chat.unread_count}</span>
-          )}
+          {chat.unread_count > 0 && <span className="unread-badge">{chat.unread_count}</span>}
         </div>
       ))}
     </div>

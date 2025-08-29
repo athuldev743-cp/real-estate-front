@@ -7,8 +7,8 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const [input, setInput] = useState("");
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
-  const messageQueue = useRef([]); // queue for messages before WS opens
-  const token = localStorage.getItem("token"); // make sure this matches API
+  const messageQueue = useRef([]);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (!chatId || !userId || !token) return;
@@ -18,8 +18,6 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
     ws.current.onopen = () => {
       console.log("WebSocket connected");
-
-      // flush queued messages only if WS is open
       messageQueue.current.forEach((msg) => ws.current.send(JSON.stringify(msg)));
       messageQueue.current = [];
     };
@@ -41,12 +39,11 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     return () => ws.current?.close();
   }, [chatId, userId, propertyId, token]);
 
-  // scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!input.trim()) return;
 
     const msg = { sender: userId, text: input };
@@ -58,11 +55,31 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
       console.warn("Message queued, WebSocket not open yet.");
     }
 
+    try {
+      const res = await fetch(
+        `https://back-end-lybr.onrender.com/chat/${chatId}/send`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            sender: userId,
+            property_id: propertyId,
+            text: input,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to save message");
+    } catch (err) {
+      console.error("Error saving message:", err);
+    }
+
     setMessages((prev) => [...prev, msg]);
     setInput("");
   };
 
-  // mark messages as read only if user is owner
   useEffect(() => {
     const markRead = async () => {
       if (userId === ownerId && chatId && messages.length > 0) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyProperties, getNotifications } from "../api/PropertyAPI"; 
+import { getMyProperties, getNotifications } from "../api/PropertyAPI";
 import Chat from "./Chat";
 import "./Account.css";
 
@@ -10,13 +10,12 @@ export default function Account({ user, setUser }) {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
-  // fetch properties
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const data = await getMyProperties(token); 
+        const data = await getMyProperties(token);
         setProperties(data);
       } catch (err) {
         console.error("Error fetching user properties:", err);
@@ -25,14 +24,12 @@ export default function Account({ user, setUser }) {
     fetchProperties();
   }, []);
 
-  // fetch notifications
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
         const token = localStorage.getItem("token");
         if (token) {
           const data = await getNotifications(token);
-          // ✅ use inner array
           setNotifications(data.notifications || []);
         }
       } catch (err) {
@@ -44,7 +41,6 @@ export default function Account({ user, setUser }) {
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ match backend field names
   const unreadCountFor = (propId) => {
     const notif = notifications.find((n) => n.property_id === propId);
     return notif ? notif.unread_count : 0;
@@ -52,7 +48,6 @@ export default function Account({ user, setUser }) {
 
   const fullName = localStorage.getItem("fullName");
 
-  // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("fullName");
@@ -63,16 +58,9 @@ export default function Account({ user, setUser }) {
     <div className="account-page">
       <div className="account-header">
         <h1>{fullName || "My Account"}</h1>
-
-        {/* Inbox Icon */}
-        <button
-          className="inbox-btn"
-          title="Go to Inbox"
-          onClick={() => navigate("/inbox")}
-        >
+        <button className="inbox-btn" title="Go to Inbox" onClick={() => navigate("/inbox")}>
           📥
         </button>
-
         <button className="logout-btn" onClick={handleLogout}>
           Logout
         </button>
@@ -85,32 +73,18 @@ export default function Account({ user, setUser }) {
             <p>Category: {prop.category}</p>
             <p>Location: {prop.location}</p>
 
-            {/* Chat button with notification badge */}
             <button
               className="chat-btn"
-              onClick={() =>
-                setActiveChat(activeChat === prop._id ? null : prop._id)
-              }
+              onClick={() => setActiveChat(activeChat === prop._id ? null : prop._id)}
             >
               💬 Chat
-              {unreadCountFor(prop._id) > 0 && (
-                <span className="notif-badge">
-                  {unreadCountFor(prop._id)}
-                </span>
-              )}
+              {unreadCountFor(prop._id) > 0 && <span className="notif-badge">{unreadCountFor(prop._id)}</span>}
             </button>
 
-            {/* Chat modal */}
             {activeChat === prop._id && (
               <div className="chat-modal">
-                <button
-                  className="chat-close-btn"
-                  onClick={() => setActiveChat(null)}
-                >
-                  ✖
-                </button>
-                {/* ✅ for now use property _id as chatId */}
-                <Chat chatId={prop._id} userId={user._id} />
+                <button className="chat-close-btn" onClick={() => setActiveChat(null)}>✖</button>
+                <Chat chatId={prop._id} userId={user._id} ownerId={user._id} propertyId={prop._id} />
               </div>
             )}
           </div>
