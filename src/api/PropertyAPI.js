@@ -55,18 +55,33 @@ export const verifyOTP = async ({ email, otp }) => {
   return result;
 };
 
-// Get current logged-in user
+// -------------------- Get current logged-in user --------------------
 export const getCurrentUser = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) throw new Error("No token found");
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found. Please log in.");
 
-  const res = await fetch(`${BASE_URL}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+    const res = await fetch(`${BASE_URL}/auth/me`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+    });
 
-  const result = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(result.detail || "Failed to fetch user");
-  return result;
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("getCurrentUser fetch failed:", text);
+      throw new Error(text || "Failed to fetch user data");
+    }
+
+    const data = await res.json().catch(() => ({}));
+    return data;
+  } catch (err) {
+    console.error("getCurrentUser error:", err.message);
+    return null;
+  }
 };
 
 // -------------------- Properties --------------------
