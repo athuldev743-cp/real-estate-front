@@ -14,11 +14,10 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.15.0",
     "react-scripts": "^5.0.1"
-
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && copy public\\_redirects build\\_redirects",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "test": "react-scripts test",
