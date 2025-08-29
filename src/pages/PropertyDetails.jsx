@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPropertyById } from "../api/PropertyAPI";
+import { getPropertyById, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat"; // WebSocket chat component
 import "./PropertyDetails.css";
 
@@ -10,15 +10,14 @@ export default function PropertyDetails({ user }) {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
+  const [chatData, setChatData] = useState(null);
 
-  // Get user info from prop or localStorage
   const currentUser = user || {
     fullName: localStorage.getItem("fullName"),
     email: localStorage.getItem("email"),
   };
   const userEmail = currentUser?.email?.trim().toLowerCase() || null;
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!userEmail) navigate("/login");
   }, [userEmail, navigate]);
@@ -39,22 +38,32 @@ export default function PropertyDetails({ user }) {
     fetchProperty();
   }, [id]);
 
+  const isOwner = userEmail === property?.owner?.trim().toLowerCase();
+
+  const handleChatOpen = async () => {
+    if (!userEmail || !property) return;
+
+    try {
+      // Get or create chat for this property
+      const data = await getMessages(property._id); // Returns { chatId, messages }
+      setChatData(data);
+      setChatOpen(true);
+    } catch (err) {
+      console.error("Failed to open chat:", err);
+      alert("Unable to start chat. Try again later.");
+    }
+  };
+
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
 
-  const isOwner = userEmail === property.owner?.trim().toLowerCase();
-
   return (
     <div className="property-details-page">
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ← Back
-      </button>
+      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
 
       <div className="property-header">
         <h1>{property.title || "Untitled Property"}</h1>
-        <p>
-          {property.category?.toUpperCase() || "N/A"} • {property.location || "Unknown"}
-        </p>
+        <p>{property.category?.toUpperCase() || "N/A"} • {property.location || "Unknown"}</p>
       </div>
 
       <div className="property-main">
@@ -69,24 +78,14 @@ export default function PropertyDetails({ user }) {
         <div className="property-info">
           <h2>Property Details</h2>
           <p>{property.description || "No description available."}</p>
-          <p className="price">
-            <strong>Price:</strong> ₹{property.price || "N/A"}
-          </p>
-          <p>
-            <strong>Location:</strong> {property.location || "Unknown"}
-          </p>
-          <p>
-            <strong>Category:</strong> {property.category || "N/A"}
-          </p>
-          <p>
-            <strong>Owner:</strong> {property.owner || "N/A"}
-          </p>
-          <p>
-            <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
-          </p>
+          <p className="price"><strong>Price:</strong> ₹{property.price || "N/A"}</p>
+          <p><strong>Location:</strong> {property.location || "Unknown"}</p>
+          <p><strong>Category:</strong> {property.category || "N/A"}</p>
+          <p><strong>Owner:</strong> {property.owner || "N/A"}</p>
+          <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
 
           {!isOwner && (
-            <button className="chat-btn" onClick={() => setChatOpen(!chatOpen)}>
+            <button className="chat-btn" onClick={handleChatOpen}>
               💬 Chat with Seller
             </button>
           )}
@@ -95,13 +94,15 @@ export default function PropertyDetails({ user }) {
       </div>
 
       {/* Chat Modal */}
-      {chatOpen && !isOwner && (
+      {chatOpen && chatData && !isOwner && (
         <div className="chat-modal">
           <Chat
-            chatId={property._id}
+            chatId={chatData.chatId}
+            initialMessages={chatData.messages}
             userId={userEmail}
             propertyId={property._id}
             ownerId={property.owner?.trim().toLowerCase()}
+            onClose={() => setChatOpen(false)}
           />
         </div>
       )}

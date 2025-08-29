@@ -150,7 +150,29 @@ export const getMyProperties = async () => {
 
 // -------------------- Chat --------------------
 
-// Send a chat message (backup REST)
+// Get or create chat for a property
+export const getMessages = async (propertyId) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Authentication required");
+  if (!propertyId) throw new Error("Property ID is required");
+
+  // This endpoint should return { chatId, messages: [...] }
+  const res = await fetch(`${BASE_URL}/chat/property/${propertyId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Failed to fetch messages:", errorText);
+    throw new Error("Failed to fetch messages");
+  }
+
+  const result = await res.json();
+  // { chatId, messages }
+  return result;
+};
+
+// Send a chat message
 export const sendMessage = async (chatId, text) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
@@ -162,22 +184,13 @@ export const sendMessage = async (chatId, text) => {
     body: JSON.stringify({ text }),
   });
 
-  if (!res.ok) throw new Error("Failed to send message");
-  return await res.json();
-};
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Failed to send message:", errorText);
+    throw new Error("Failed to send message");
+  }
 
-// Get chat messages (backup REST)
-export const getMessages = async (propertyId) => {
-  const token = localStorage.getItem("token");
-  if (!token) throw new Error("Authentication required");
-  if (!propertyId) throw new Error("Property ID is required");
-
-  const res = await fetch(`${BASE_URL}/api/chat/${propertyId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch messages");
-  return await res.json();
+  return await res.json(); // { status: "ok", message: {...} }
 };
 
 // -------------------- Owner Inbox --------------------
