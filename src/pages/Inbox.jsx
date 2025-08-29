@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
-import "./Inbox.css";
 
 export default function Inbox({ onSelectChat }) {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchInbox = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
+    try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/chat/inbox`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (!res.ok) throw new Error("Failed to fetch inbox");
 
       const data = await res.json();
@@ -44,9 +42,13 @@ export default function Inbox({ onSelectChat }) {
         >
           <div className="chat-info">
             <div className="chat-property">Property ID: {chat.property_id}</div>
-            {chat.last_message && <div className="chat-last-msg">{chat.last_message.text}</div>}
+            {chat.last_message && (
+              <div className="chat-last-msg">{chat.last_message.text}</div>
+            )}
           </div>
-          {chat.unread_count > 0 && <span className="unread-badge">{chat.unread_count}</span>}
+          {chat.unread_count > 0 && (
+            <span className="unread-badge">{chat.unread_count}</span>
+          )}
         </div>
       ))}
     </div>

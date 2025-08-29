@@ -10,32 +10,35 @@ export default function Account({ user, setUser }) {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
+  // Fetch properties
   useEffect(() => {
     const fetchProperties = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
       try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
         const data = await getMyProperties(token);
         setProperties(data);
       } catch (err) {
-        console.error("Error fetching user properties:", err);
+        console.error("Error fetching properties:", err);
       }
     };
     fetchProperties();
   }, []);
 
+  // Fetch notifications (unread messages)
   useEffect(() => {
     const fetchNotifs = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
       try {
-        const token = localStorage.getItem("token");
-        if (token) {
-          const data = await getNotifications(token);
-          setNotifications(data.notifications || []);
-        }
+        const data = await getNotifications(token);
+        setNotifications(data.notifications || []);
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
     };
+
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 10000);
     return () => clearInterval(interval);
@@ -75,16 +78,22 @@ export default function Account({ user, setUser }) {
 
             <button
               className="chat-btn"
-              onClick={() => setActiveChat(activeChat === prop._id ? null : prop._id)}
+              onClick={() =>
+                setActiveChat(activeChat === prop._id ? null : prop._id)
+              }
             >
               💬 Chat
-              {unreadCountFor(prop._id) > 0 && <span className="notif-badge">{unreadCountFor(prop._id)}</span>}
+              {unreadCountFor(prop._id) > 0 && (
+                <span className="notif-badge">{unreadCountFor(prop._id)}</span>
+              )}
             </button>
 
             {activeChat === prop._id && (
               <div className="chat-modal">
-                <button className="chat-close-btn" onClick={() => setActiveChat(null)}>✖</button>
-                <Chat chatId={prop._id} userId={user._id} ownerId={user._id} propertyId={prop._id} />
+                <button className="chat-close-btn" onClick={() => setActiveChat(null)}>
+                  ✖
+                </button>
+                <Chat chatId={prop._id} userId={user._id} />
               </div>
             )}
           </div>

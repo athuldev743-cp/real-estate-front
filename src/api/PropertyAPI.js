@@ -136,15 +136,15 @@ export const getMyProperties = async () => {
 // -------------------- Chat --------------------
 
 // Send a chat message (backup REST)
-export const sendMessage = async (propertyId, message) => {
+export const sendMessage = async (chatId, text) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
-  if (!propertyId || !message) throw new Error("Property ID and message are required");
+  if (!chatId || !text) throw new Error("Chat ID and message text are required");
 
-  const res = await fetch(`${BASE_URL}/api/chat/${propertyId}`, {
+  const res = await fetch(`${BASE_URL}/chat/${chatId}/send`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ text }),
   });
 
   if (!res.ok) throw new Error("Failed to send message");
@@ -172,7 +172,7 @@ export const getOwnerInbox = async () => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
-  const res = await fetch(`${BASE_URL}/api/chat/inbox`, {
+  const res = await fetch(`${BASE_URL}/chat/inbox`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -186,7 +186,7 @@ export const getOwnerChatMessages = async (chatId) => {
   if (!token) throw new Error("Authentication required");
   if (!chatId) throw new Error("Chat ID is required");
 
-  const res = await fetch(`${BASE_URL}/api/chat/${chatId}/messages`, {
+  const res = await fetch(`${BASE_URL}/chat/${chatId}/messages`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -194,41 +194,40 @@ export const getOwnerChatMessages = async (chatId) => {
   return await res.json(); // { messages: [...] }
 };
 
-
 // -------------------- Notifications --------------------
 
+// Get unread notifications
 export const getNotifications = async () => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
-  const res = await fetch(`${BASE_URL}/user/notifications`, {
+  const res = await fetch(`${BASE_URL}/chat/notifications`, {
     method: "GET",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}` },
   });
 
   if (!res.ok) {
     const errorText = await res.text();
-    console.error("Notification fetch error response:", errorText);
+    console.error("Notification fetch error:", errorText);
     throw new Error("Failed to fetch notifications");
   }
 
-  return await res.json();
+  return await res.json(); // { notifications: [...] }
 };
 
-// -------------------- Mark messages as read --------------------
-
+// Mark chat messages as read
 export const markMessagesAsRead = async (chatId) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
-  const res = await fetch(`${BASE_URL}/user/mark-read/${chatId}`, {
+  const res = await fetch(`${BASE_URL}/chat/mark-read/${chatId}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}` },
   });
 
   if (!res.ok) {
     const errorText = await res.text();
-    console.error("Mark read error response:", errorText);
+    console.error("Mark read error:", errorText);
     throw new Error("Failed to mark messages as read");
   }
 
