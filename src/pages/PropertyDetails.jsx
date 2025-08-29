@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPropertyById, getMessages } from "../api/PropertyAPI";
-import Chat from "./Chat"; // WebSocket chat component
+import Chat from "./Chat";
 import "./PropertyDetails.css";
 
 export default function PropertyDetails({ user }) {
@@ -22,7 +22,6 @@ export default function PropertyDetails({ user }) {
     if (!userEmail) navigate("/login");
   }, [userEmail, navigate]);
 
-  // Fetch property details
   useEffect(() => {
     const fetchProperty = async () => {
       setLoading(true);
@@ -42,10 +41,8 @@ export default function PropertyDetails({ user }) {
 
   const handleChatOpen = async () => {
     if (!userEmail || !property) return;
-
     try {
-      // Get or create chat for this property
-      const data = await getMessages(property._id); // Returns { chatId, messages }
+      const data = await getMessages(property._id);
       setChatData(data);
       setChatOpen(true);
     } catch (err) {
@@ -93,16 +90,13 @@ export default function PropertyDetails({ user }) {
         </div>
       </div>
 
-      {/* Chat Modal */}
       {chatOpen && chatData && !isOwner && (
         <div className="chat-modal">
           <Chat
             chatId={chatData.chatId}
-            initialMessages={chatData.messages}
             userId={userEmail}
             propertyId={property._id}
             ownerId={property.owner?.trim().toLowerCase()}
-            onClose={() => setChatOpen(false)}
           />
         </div>
       )}

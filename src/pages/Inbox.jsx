@@ -1,35 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 export default function Inbox({ onSelectChat }) {
   const [chats, setChats] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const ws = useRef(null);
 
-  const fetchInbox = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  const token = localStorage.getItem("token");
 
+  // Function to parse incoming message
+  const handleIncomingMessage = (raw) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/chat/inbox`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const msg = JSON.parse(raw);
+      // Update inbox state: increment unread_count or add new chat
+      setChats((prev) => {
+        const chatIndex = prev.findIndex((c) => c.chat_id === msg.chat_id);
+        if (chatIndex >= 0) {
+          const updated = [...prev];
+          updated[chatIndex] = {
+            ...updated[chatIndex],
+            last_message: msg,
+            unread_count: (updated[chatIndex].unread_count || 0) + 1,
+          };
+          return updated;
+        } else {
+          // If chat not in inbox, add it
+          return [
+            ...prev,
+            {
+              chat_id: msg.chat_id,
+              property_id: msg.property_id,
+              last_message: msg,
+              unread_count: 1,
+            },
+          ];
+        }
       });
-      if (!res.ok) throw new Error("Failed to fetch inbox");
-
-      const data = await res.json();
-      setChats(data.inbox || []);
     } catch (err) {
-      console.error("Error fetching inbox:", err);
-    } finally {
-      setLoading(false);
+      console.error("Failed to parse incoming PieSocket message:", err);
     }
   };
 
   useEffect(() => {
-    fetchInbox();
-    const interval = setInterval(fetchInbox, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!token) return;
 
-  if (loading) return <div>Loading inbox...</div>;
+    // PieSocket free cluster WebSocket
+    const PIE_WS_URL =
+      "wss://free.blr2.piesocket.com/v3/1?api_key=3ZvIvBkQHI9tmmL3ufNwIijE2uEPLuCBML43DuSv&notify_self=1";
+
+    ws.current = new WebSocket(PIE_WS_URL);
+
+    ws.current.onopen = () => {
+      console.log("PieSocket connected");
+    };
+
+    ws.current.onmessage = (event) => {
+      handleIncomingMessage(event.data);
+    };
+
+    ws.current.onerror = (err) => console.error("PieSocket error:", err);
+    ws.current.onclose = () => console.log("PieSocket disconnected");
+
+    return () => ws.current?.close();
+  }, [token]);
+
   if (chats.length === 0) return <div>No chats yet.</div>;
 
   return (
@@ -38,7 +70,15 @@ export default function Inbox({ onSelectChat }) {
         <div
           key={chat.chat_id}
           className="inbox-item"
-          onClick={() => onSelectChat(chat.chat_id, chat.property_id)}
+          onClick={() => {
+            onSelectChat(chat.chat_id, chat.property_id);
+            // Reset unread count on click
+            setChats((prev) =>
+              prev.map((c) =>
+                c.chat_id === chat.chat_id ? { ...c, unread_count: 0 } : c
+              )
+            );
+          }}
         >
           <div className="chat-info">
             <div className="chat-property">Property ID: {chat.property_id}</div>
