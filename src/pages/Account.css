@@ -1,10 +1,11 @@
-/* Global account page styles */
+/* ---------------- Account Page ---------------- */
 .account-page {
   width: 100%;
   max-width: 1200px;
   margin: 20px auto;
-  font-family: 'Roboto', sans-serif; /* body text */
+  font-family: 'Roboto', sans-serif;
   color: #333;
+  position: relative;
 }
 
 .account-header {
@@ -15,12 +16,13 @@
 }
 
 .account-header h1 {
-  font-family: 'Poppins', sans-serif; /* headings */
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
   font-size: 1.8rem;
 }
 
-.logout-btn, .inbox-btn {
+.logout-btn,
+.inbox-btn {
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
   padding: 8px 16px;
@@ -32,7 +34,8 @@
   transition: background 0.3s ease;
 }
 
-.logout-btn:hover, .inbox-btn:hover {
+.logout-btn:hover,
+.inbox-btn:hover {
   background: #92ab8e;
 }
 
@@ -82,16 +85,21 @@
   margin-left: 6px;
 }
 
+/* ---------------- Chat Modal ---------------- */
 .chat-modal {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  z-index: 100;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 360px;
+  max-height: 500px;
+  z-index: 1000;
   background: #FFF8F2;
   border-radius: 12px;
-  padding: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: 40px; /* space for close button */
 }
 
 .chat-close-btn {
@@ -102,4 +110,63 @@
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+/* Messages container */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Individual message */
+.message {
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.message.own {
+  align-self: flex-end;
+  background: #0066cc;
+  color: #fff;
+}
+
+.message.other {
+  align-self: flex-start;
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* Chat input container */
+.chat-input-container {
+  display: flex;
+  padding: 8px;
+  border-top: 1px solid #ccc;
+  gap: 6px;
+}
+
+.chat-input-container input {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.chat-input-container button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #0066cc;
+  color: #fff;
+  cursor: pointer;
+}
+
+.chat-input-container button:hover {
+  background: #004499;
 }

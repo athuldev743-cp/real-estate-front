@@ -92,3 +92,63 @@
   z-index: 999;
   box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
 }
+.chat-modal .messages {
+  height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.chat-modal .message {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.chat-modal .message.own {
+  background-color: #d1ecf1;
+  align-self: flex-end;
+}
+
+.chat-modal .message.other {
+  background-color: #f8d7da;
+  align-self: flex-start;
+}
+
+.chat-modal .chat-input-container {
+  display: flex;
+  gap: 6px;
+  padding: 10px;
+}
+
+.chat-modal .chat-input-container input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.chat-modal .chat-input-container button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+}
+
+.chat-modal .chat-input-container button:hover {
+  background-color: #218838;
+}
+
+.chat-modal .chat-close-btn {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}

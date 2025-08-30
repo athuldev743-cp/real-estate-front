@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyProperties, getNotifications } from "../api/PropertyAPI";
+import { getMyProperties, getNotifications, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat";
 import "./Account.css";
 
 export default function Account({ user, setUser }) {
   const [properties, setProperties] = useState([]);
-  const [activeChat, setActiveChat] = useState(null);
+  const [activeChat, setActiveChat] = useState(null); // { chatId, propertyId, ownerId }
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
+
+  const fullName = localStorage.getItem("fullName");
 
   // Fetch properties
   useEffect(() => {
     const fetchProperties = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
       try {
-        const data = await getMyProperties(token);
+        const data = await getMyProperties();
         setProperties(data);
       } catch (err) {
         console.error("Error fetching properties:", err);
@@ -26,19 +25,16 @@ export default function Account({ user, setUser }) {
     fetchProperties();
   }, []);
 
-  // Fetch notifications (unread messages)
+  // Fetch unread notifications
   useEffect(() => {
     const fetchNotifs = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
       try {
-        const data = await getNotifications(token);
+        const data = await getNotifications();
         setNotifications(data.notifications || []);
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
     };
-
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 10000);
     return () => clearInterval(interval);
@@ -49,13 +45,27 @@ export default function Account({ user, setUser }) {
     return notif ? notif.unread_count : 0;
   };
 
-  const fullName = localStorage.getItem("fullName");
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("fullName");
     setUser(null);
   };
+
+  // Open chat: get or create chatId from backend
+  const openChat = async (property) => {
+    try {
+      const res = await getMessages(property._id); // returns { chatId, messages }
+      setActiveChat({
+        chatId: res.chatId,
+        propertyId: property._id,
+        ownerId: property.ownerId || user._id, // make sure property includes ownerId
+      });
+    } catch (err) {
+      console.error("Failed to open chat:", err);
+    }
+  };
+
+  const closeChat = () => setActiveChat(null);
 
   return (
     <div className="account-page">
@@ -78,27 +88,30 @@ export default function Account({ user, setUser }) {
 
             <button
               className="chat-btn"
-              onClick={() =>
-                setActiveChat(activeChat === prop._id ? null : prop._id)
-              }
+              onClick={() => openChat(prop)}
             >
               💬 Chat
               {unreadCountFor(prop._id) > 0 && (
                 <span className="notif-badge">{unreadCountFor(prop._id)}</span>
               )}
             </button>
-
-            {activeChat === prop._id && (
-              <div className="chat-modal">
-                <button className="chat-close-btn" onClick={() => setActiveChat(null)}>
-                  ✖
-                </button>
-                <Chat chatId={prop._id} userId={user._id} />
-              </div>
-            )}
           </div>
         ))}
       </div>
+
+      {activeChat && (
+        <div className="chat-modal">
+          <button className="chat-close-btn" onClick={closeChat}>
+            ✖
+          </button>
+          <Chat
+            chatId={activeChat.chatId}
+            userId={user._id}
+            propertyId={activeChat.propertyId}
+            ownerId={activeChat.ownerId}
+          />
+        </div>
+      )}
     </div>
   );
-}
+} 

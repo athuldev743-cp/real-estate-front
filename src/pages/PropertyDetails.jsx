@@ -7,6 +7,7 @@ import "./PropertyDetails.css";
 export default function PropertyDetails({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
@@ -18,10 +19,12 @@ export default function PropertyDetails({ user }) {
   };
   const userEmail = currentUser?.email?.trim().toLowerCase() || null;
 
+  // Redirect to login if no user
   useEffect(() => {
     if (!userEmail) navigate("/login");
   }, [userEmail, navigate]);
 
+  // Fetch property details
   useEffect(() => {
     const fetchProperty = async () => {
       setLoading(true);
@@ -39,16 +42,28 @@ export default function PropertyDetails({ user }) {
 
   const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 
+  // Open chat modal
   const handleChatOpen = async () => {
     if (!userEmail || !property) return;
+
     try {
-      const data = await getMessages(property._id);
-      setChatData(data);
+      const data = await getMessages(property._id); // { chatId, messages }
+      setChatData({
+        chatId: data.chatId,
+        propertyId: property._id,
+        ownerId: property.owner?.trim().toLowerCase(),
+      });
       setChatOpen(true);
     } catch (err) {
       console.error("Failed to open chat:", err);
       alert("Unable to start chat. Try again later.");
     }
+  };
+
+  // Close chat modal
+  const handleChatClose = () => {
+    setChatOpen(false);
+    setChatData(null);
   };
 
   if (loading) return <p className="center-text">Loading property...</p>;
@@ -90,13 +105,15 @@ export default function PropertyDetails({ user }) {
         </div>
       </div>
 
-      {chatOpen && chatData && !isOwner && (
+      {/* Chat Modal */}
+      {chatOpen && chatData && (
         <div className="chat-modal">
+          <button className="chat-close-btn" onClick={handleChatClose}>✖</button>
           <Chat
             chatId={chatData.chatId}
-            userId={userEmail}
-            propertyId={property._id}
-            ownerId={property.owner?.trim().toLowerCase()}
+            userId={userEmail} // buyer email
+            propertyId={chatData.propertyId}
+            ownerId={chatData.ownerId} // owner email
           />
         </div>
       )}
