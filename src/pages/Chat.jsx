@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { sendMessage as sendMsgAPI } from "../api/PropertyAPI";
 import "./Chat.css";
 
 export default function Chat({ chatId, userId, propertyId, ownerId }) {
@@ -8,62 +9,43 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const messagesEndRef = useRef(null);
   const messageQueue = useRef([]);
 
-  const PIE_SOCKET_URL =
-    "wss://free.blr2.piesocket.com/v3/1?api_key=3ZvIvBkQHI9tmmL3ufNwIijE2uEPLuCBML43DuSv&notify_self=1";
+  const PIE_SOCKET_URL = process.env.REACT_APP_WS_URL;
 
-  const parseMessage = (raw) => {
-    try {
-      const msg = JSON.parse(raw);
-      return {
-        chatId: msg.chatId || "",
-        sender: msg.sender || "Unknown",
-        text: msg.text || "",
-        timestamp: msg.timestamp || Date.now(),
-      };
-    } catch {
-      return {
-        chatId: "",
-        sender: "Unknown",
-        text: raw,
-        timestamp: Date.now(),
-      };
-    }
-  };
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
+  // ---------------- WebSocket Setup ----------------
   useEffect(() => {
     if (!chatId || !userId) return;
 
     ws.current = new WebSocket(PIE_SOCKET_URL);
 
     ws.current.onopen = () => {
-      console.log("PieSocket WebSocket connected");
-
-      // Subscribe to channel for this chatId
-      ws.current.send(JSON.stringify({ type: "subscribe", channel: chatId }));
-
-      // Send any queued messages
+      console.log("PieSocket connected");
       messageQueue.current.forEach((msg) => ws.current.send(JSON.stringify(msg)));
       messageQueue.current = [];
     };
 
     ws.current.onmessage = (event) => {
-      const msg = parseMessage(event.data);
-      // Only show messages for this property chat
-      if (msg.chatId === chatId) {
-        setMessages((prev) => [...prev, msg]);
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.chatId === chatId) {
+          setMessages((prev) => [...prev, msg]);
+        }
+      } catch (err) {
+        console.error("Failed to parse WebSocket message:", err);
       }
     };
 
-    ws.current.onclose = () => console.log("WebSocket disconnected");
     ws.current.onerror = (err) => console.error("WebSocket error:", err);
+    ws.current.onclose = () => console.log("WebSocket disconnected");
 
     return () => ws.current?.close();
   }, [chatId, userId]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
+  // ---------------- Send Message ----------------
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
@@ -75,23 +57,16 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
       timestamp: Date.now(),
     };
 
-    // Send via PieSocket
+    // Send via WebSocket
     if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(msg));
     } else {
       messageQueue.current.push(msg);
     }
 
-    // Save to backend for persistence
+    // Save to backend
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}/chat/${chatId}/send`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ text: input }),
-      });
+      await sendMsgAPI(chatId, input);
     } catch (err) {
       console.error("Failed to save message:", err);
     }
@@ -100,20 +75,13 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     setInput("");
   };
 
-  const getSenderLabel = (sender) => {
-    if (sender === userId) return "You";
-    if (sender === ownerId) return "Owner";
-    return "Buyer";
-  };
+  const getSenderLabel = (sender) => (sender === userId ? "You" : sender === ownerId ? "Owner" : "Buyer");
 
   return (
     <div className="chat-container">
       <div className="messages">
         {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`message ${msg.sender === userId ? "own" : "other"}`}
-          >
+          <div key={idx} className={`message ${msg.sender === userId ? "own" : "other"}`}>
             <strong>{getSenderLabel(msg.sender)}:</strong> {msg.text}
           </div>
         ))}

@@ -40,28 +40,25 @@ export default function PropertyDetails({ user }) {
     fetchProperty();
   }, [id]);
 
-  const isOwner = userEmail === property?.owner?.trim().toLowerCase();
+  const isOwner = userEmail === property?.owner_email?.trim().toLowerCase();
 
-  // ---------------- Open chat ----------------
-  const handleChatOpen = async () => {
-    if (!userEmail || !property) return;
+  // In handleChatOpen
+const handleChatOpen = async () => {
+  if (!userEmail || !property) return;
 
-    try {
-      // Backend call to get or create chat for this property
-      const data = await getMessages(property._id); // { chatId, messages }
-      if (!data?.chatId) throw new Error("No chat ID returned");
-
-      setChatData({
-        chatId: data.chatId,
-        propertyId: property._id,
-        ownerId: property.owner?.trim().toLowerCase(),
-      });
-      setChatOpen(true);
-    } catch (err) {
-      console.error("Failed to open chat:", err);
-      alert("Unable to start chat. Try again later.");
-    }
-  };
+  try {
+    const data = await getMessages(property._id.toString()); // <-- convert ObjectId to string
+    setChatData({
+      chatId: data.chatId,
+      propertyId: property._id.toString(),
+      ownerId: property.owner_email,
+    });
+    setChatOpen(true);
+  } catch (err) {
+    console.error("Failed to open chat:", err);
+    alert("Unable to start chat. Try again later.");
+  }
+};
 
   const handleChatClose = () => {
     setChatOpen(false);
@@ -95,7 +92,7 @@ export default function PropertyDetails({ user }) {
           <p className="price"><strong>Price:</strong> ₹{property.price || "N/A"}</p>
           <p><strong>Location:</strong> {property.location || "Unknown"}</p>
           <p><strong>Category:</strong> {property.category || "N/A"}</p>
-          <p><strong>Owner:</strong> {property.owner || "N/A"}</p>
+          <p><strong>Owner:</strong> {property.owner_email || "N/A"}</p>
           <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
 
           {!isOwner && (
@@ -107,15 +104,14 @@ export default function PropertyDetails({ user }) {
         </div>
       </div>
 
-      {/* Chat Modal */}
       {chatOpen && chatData && (
         <div className="chat-modal">
           <button className="chat-close-btn" onClick={handleChatClose}>✖</button>
           <Chat
             chatId={chatData.chatId}
-            userId={userEmail} // buyer email
+            userId={userEmail} 
             propertyId={chatData.propertyId}
-            ownerId={chatData.ownerId} // owner email
+            ownerId={chatData.ownerId} 
           />
         </div>
       )}
