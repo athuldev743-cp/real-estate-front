@@ -17,7 +17,7 @@ body {
   min-height: 100vh;
   padding: 0 20px 50px 20px;
   position: relative;
-  background: url('/public/image/luxury-header.jpeg') center/cover no-repeat;
+  background: url('/public/image/account-bg.jpeg') center/cover no-repeat;
 }
 
 /* ---------- Animated Overlay ---------- */
