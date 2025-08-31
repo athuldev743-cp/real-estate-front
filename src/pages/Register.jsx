@@ -15,46 +15,45 @@ export default function Register({ setUser }) {
   const [showOtpModal, setShowOtpModal] = useState(false);
 
   // Step 1: Register
-const handleRegister = async (e) => {
-  e.preventDefault();
-  if (!fullName || !email || !password)
-    return setError("Full name, email, and password are required");
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!fullName || !email || !password) {
+      setError("Full name, email, and password are required");
+      return;
+    }
 
-  setLoading(true);
-  setError("");
-  try {
-    // Send fullName as well
-    const res = await registerUser({ fullName, email, password });
-    setMessage(res.message || "OTP sent to your email");
-    setShowOtpModal(true);
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    setError("");
+    try {
+      const res = await registerUser({ fullName, email, password });
+      setMessage(res.message || "OTP sent to your email");
+      setShowOtpModal(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!otp) return setError("Please enter OTP");
+    if (!otp) {
+      setError("Please enter OTP");
+      return;
+    }
 
     setLoading(true);
     setError("");
     try {
       const res = await verifyOTP({ email, otp });
 
-      // ✅ Store token and fullName locally
       localStorage.setItem("token", res.token);
       localStorage.setItem("fullName", res.fullName);
-
-      // ✅ Update app state
       setUser({ fullName: res.fullName, email });
 
       setMessage(res.message || "Registration successful!");
       setShowOtpModal(false);
-
-      // ✅ Redirect to Home
       navigate("/");
     } catch (err) {
       setError(err.message);
@@ -107,17 +106,21 @@ const handleRegister = async (e) => {
               placeholder="OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
+              autoFocus
+              autoComplete="off"
               required
             />
-            <button onClick={handleVerifyOtp} disabled={loading}>
-              {loading ? "Verifying..." : "Verify OTP"}
-            </button>
-            <button
-              className="close-btn"
-              onClick={() => setShowOtpModal(false)}
-            >
-              Cancel
-            </button>
+            <div className="otp-buttons">
+              <button onClick={handleVerifyOtp} disabled={loading}>
+                {loading ? "Verifying..." : "Verify OTP"}
+              </button>
+              <button
+                className="close-btn"
+                onClick={() => setShowOtpModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
