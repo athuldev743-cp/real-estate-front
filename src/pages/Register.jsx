@@ -29,13 +29,13 @@ export default function Register({ setUser }) {
       setMessage(res.message || "OTP sent to your email");
       setShowOtpModal(true);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 2: Verify OTP
+  // Step 2: Verify OTP & auto-login
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp) {
@@ -48,15 +48,18 @@ export default function Register({ setUser }) {
     try {
       const res = await verifyOTP({ email, otp });
 
+      // ✅ Store token and user info (auto-login)
       localStorage.setItem("token", res.token);
       localStorage.setItem("fullName", res.fullName);
       setUser({ fullName: res.fullName, email });
 
-      setMessage(res.message || "Registration successful!");
+      setMessage(res.message || "Registration & Login successful!");
       setShowOtpModal(false);
-      navigate("/");
+
+      // ✅ Redirect to add property page
+      navigate("/add-property");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "OTP verification failed");
     } finally {
       setLoading(false);
     }
@@ -112,7 +115,7 @@ export default function Register({ setUser }) {
             />
             <div className="otp-buttons">
               <button onClick={handleVerifyOtp} disabled={loading}>
-                {loading ? "Verifying..." : "Verify OTP"}
+                {loading ? "Verifying..." : "Verify & Login"}
               </button>
               <button
                 className="close-btn"
