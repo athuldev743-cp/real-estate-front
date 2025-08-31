@@ -60,42 +60,48 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-const handleSendMessage = async () => {
-  if (!input.trim()) return;
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
 
-  const msg = {
-    chatId,
-    propertyId,
-    sender: userId,
-    text: input,
-    timestamp: Date.now(),
+    const msg = {
+      chatId,
+      propertyId,
+      sender: userId,
+      text: input,
+      timestamp: Date.now(),
+    };
+
+    // Send via PieSocket
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(msg));
+    } else {
+      messageQueue.current.push(msg);
+    }
+
+    // Save to backend for owner inbox
+    try {
+      await fetch(`${process.env.REACT_APP_API_URL}/chat/${chatId}/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ text: input }),
+      });
+    } catch (err) {
+      console.error("Failed to save message:", err);
+    }
+
+    setMessages((prev) => [...prev, msg]);
+    setInput("");
   };
 
-  // Send via PieSocket
-  if (ws.current?.readyState === WebSocket.OPEN) {
-    ws.current.send(JSON.stringify(msg));
-  } else {
-    messageQueue.current.push(msg);
-  }
-
-  // Save to backend for owner inbox
-  try {
-    await fetch(`${process.env.REACT_APP_API_URL}/chat/${chatId}/send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ text: input }),
-    });
-  } catch (err) {
-    console.error("Failed to save message:", err);
-  }
-
-  setMessages((prev) => [...prev, msg]);
-  setInput("");
-};
-
+  // ---------------- Label Helper ----------------
+  const getSenderLabel = (sender) => {
+    if (sender === userId) return "You";
+    if (sender === ownerId) return "Owner";
+    return "Buyer";
+  };
 
   return (
     <div className="chat-container">
@@ -105,7 +111,7 @@ const handleSendMessage = async () => {
             key={idx}
             className={`message ${msg.sender === userId ? "own" : "other"}`}
           >
-            <strong>{msg.sender === userId ? "You" : msg.sender}:</strong> {msg.text}
+            <strong>{getSenderLabel(msg.sender)}:</strong> {msg.text}
           </div>
         ))}
         <div ref={messagesEndRef} />
