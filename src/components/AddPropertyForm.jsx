@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { addProperty } from "../api/PropertyAPI";
+import jwt_decode from "jwt-decode";
 import "../pages/AddProperty.css";
 
 export default function AddPropertyForm() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -21,7 +24,6 @@ export default function AddPropertyForm() {
     setError("");
     setMessage("");
 
-    // Validate required fields
     if (!title || !description || !price || !category || !location || !mobileNO || !image) {
       setError("All fields are required!");
       return;
@@ -36,7 +38,10 @@ export default function AddPropertyForm() {
 
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("You must be logged in to add a property.");
+      if (!token) throw new Error("Session expired. Please login again.");
+
+      const decoded = jwt_decode(token);
+      const ownerId = decoded.id; // Extract owner ID from token
 
       const formData = new FormData();
       formData.append("title", title);
@@ -46,8 +51,9 @@ export default function AddPropertyForm() {
       formData.append("location", location);
       formData.append("mobileNO", mobileNO);
       formData.append("image", image);
+      formData.append("owner", ownerId); // Send owner ID
 
-      const res = await addProperty(formData, token);
+      const res = await addProperty(formData);
       setMessage(res.message || "Property added successfully!");
 
       // Reset form
@@ -59,7 +65,12 @@ export default function AddPropertyForm() {
       setMobileNO("");
       setImage(null);
     } catch (err) {
-      setError(err.message || "Failed to add property.");
+      if (err.message.includes("401")) {
+        localStorage.removeItem("token");
+        navigate("/login"); // Redirect to login if unauthorized
+      } else {
+        setError(err.message || "Failed to add property.");
+      }
     } finally {
       setLoading(false);
     }
