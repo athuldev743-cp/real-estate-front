@@ -42,12 +42,15 @@ export default function PropertyDetails({ user }) {
 
   const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 
-  // Open chat modal
+  // ---------------- Open chat ----------------
   const handleChatOpen = async () => {
     if (!userEmail || !property) return;
 
     try {
+      // Backend call to get or create chat for this property
       const data = await getMessages(property._id); // { chatId, messages }
+      if (!data?.chatId) throw new Error("No chat ID returned");
+
       setChatData({
         chatId: data.chatId,
         propertyId: property._id,
@@ -60,7 +63,6 @@ export default function PropertyDetails({ user }) {
     }
   };
 
-  // Close chat modal
   const handleChatClose = () => {
     setChatOpen(false);
     setChatData(null);

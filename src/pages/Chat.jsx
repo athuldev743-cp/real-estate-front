@@ -30,7 +30,6 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     }
   };
 
-  // ---------------- WebSocket Setup ----------------
   useEffect(() => {
     if (!chatId || !userId) return;
 
@@ -38,12 +37,18 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
     ws.current.onopen = () => {
       console.log("PieSocket WebSocket connected");
+
+      // Subscribe to channel for this chatId
+      ws.current.send(JSON.stringify({ type: "subscribe", channel: chatId }));
+
+      // Send any queued messages
       messageQueue.current.forEach((msg) => ws.current.send(JSON.stringify(msg)));
       messageQueue.current = [];
     };
 
     ws.current.onmessage = (event) => {
       const msg = parseMessage(event.data);
+      // Only show messages for this property chat
       if (msg.chatId === chatId) {
         setMessages((prev) => [...prev, msg]);
       }
@@ -55,7 +60,6 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     return () => ws.current?.close();
   }, [chatId, userId]);
 
-  // ---------------- Scroll to bottom ----------------
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -78,7 +82,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
       messageQueue.current.push(msg);
     }
 
-    // Save to backend for owner inbox
+    // Save to backend for persistence
     try {
       await fetch(`${process.env.REACT_APP_API_URL}/chat/${chatId}/send`, {
         method: "POST",
@@ -96,7 +100,6 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     setInput("");
   };
 
-  // ---------------- Label Helper ----------------
   const getSenderLabel = (sender) => {
     if (sender === userId) return "You";
     if (sender === ownerId) return "Owner";
