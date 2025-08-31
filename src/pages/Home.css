@@ -1,4 +1,4 @@
-/* General Reset */
+/* ---------- General Reset ---------- */
 * {
   margin: 0;
   padding: 0;
@@ -12,7 +12,7 @@ body {
   line-height: 1.6;
 }
 
-/* Navbar */
+/* ---------- Navbar ---------- */
 .navbar {
   position: fixed;
   top: 0;
@@ -20,16 +20,13 @@ body {
   width: 100%;
   padding: 12px 40px;
   z-index: 1000;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background: rgba(0, 0, 0, 0.45); /* black glass effect */
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-
   transition: transform 0.3s ease-in-out;
 }
 
@@ -53,8 +50,8 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  
 }
+
 .logo-img {
   height: 130px; 
   width: 130px;  
@@ -68,7 +65,7 @@ body {
   transform: scale(1.05);
 }
 
-/* Nav Links - ONLY buttons, no categories */
+/* Nav Links */
 .nav-links {
   display: flex;
   list-style: none;
@@ -86,8 +83,9 @@ body {
 .register-btn,
 .add-property-btn,
 .my-account-btn,
-.search-btn {
-  background: linear-gradient(135deg, #ff6a00, #ee0979);
+.search-btn,
+.view-deals-btn {
+  background: linear-gradient(135deg, #ff8c42, #ff5eaa);
   border: none;
   color: white;
   padding: 8px 16px;
@@ -100,29 +98,18 @@ body {
 .register-btn:hover,
 .add-property-btn:hover,
 .my-account-btn:hover,
-.search-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
+.search-btn:hover,
+.view-deals-btn:hover {
+  background: linear-gradient(135deg, #ff7b2e, #e04b8d);
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
-/* Search Bar */
-.nav-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.search-input {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  width: 220px;
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
-  font-size: 0.9rem;
-}
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+/* Search Input */
+.search-input:focus {
+  box-shadow: 0 0 6px rgba(255, 140, 66, 0.4);
+  border-color: rgba(255, 140, 66, 0.6);
 }
 
 /* Mobile Menu */
@@ -146,11 +133,9 @@ body {
   }
 }
 
-
-
-/* Hero Section */
+/* ---------- Hero Section ---------- */
 .hero {
-  height: 90vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -166,7 +151,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7); /* dark overlay */
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .hero h1,
@@ -207,15 +192,48 @@ body {
   background: #e04848;
 }
 
-/* Categories */
-/* Categories Section */
-.categories {
-  text-align: center;
-  padding: 50px 20px;
-  background: #0d0d0d;
-  color: white;
+/* ---------- Categories Section ---------- */
+/* Wrapper */
+.categories-wrapper {
+  position: relative;
+  overflow: hidden;
+ 
+  min-height: 100%; /* adjust as needed */
 }
 
+/* Background video */
+.categories-bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none; /* clicks pass through video */
+}
+
+/* Categories container */
+.categories {
+  height: 100;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #fff;
+ 
+}
+
+/* Optional dim overlay */
+.categories::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 0;
+}
+
+/* Title */
 .categories h2 {
   font-size: 2.5rem;
   margin-bottom: 30px;
@@ -225,40 +243,48 @@ body {
   background: linear-gradient(90deg, #ff6a00, #ee0979);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  position: relative;
+  z-index: 1;
 }
 
+/* Grid layout */
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two per row */
+  grid-template-columns: repeat(2, 1fr);
   gap: 25px;
   max-width: 1000px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
-/* Category Card Base */
+/* Category Card */
 .category-card {
   position: relative;
   height: 300px;
   border-radius: 16px;
   overflow: hidden;
-  background-size: cover;
-  background-position: center;
   cursor: pointer;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4),
+              0 4px 10px rgba(255, 215, 0, 0.15);
 }
 
 .category-card:hover {
   transform: scale(1.07);
-  box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6),
+              0 10px 25px rgba(255, 215, 0, 0.25);
 }
 
-/* Overlay for Title */
+/* Overlay */
 .category-overlay {
   position: absolute;
   bottom: 0;
   width: 100%;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0,0,0,0.55);
   text-align: center;
 }
 
@@ -271,46 +297,34 @@ body {
   letter-spacing: 1.5px;
 }
 
-
-/* Category Images via CSS */
+/* Individual 6 Category Images */
 .category-card:nth-child(1) {
-  background-image: url("https://www.chennaiproperties.in/projectsgallery/5244/gallery/MGP_Kings_Park_Plot_1.jpeg"); 
-  
+  background-image: url("https://www.chennaiproperties.in/projectsgallery/5244/gallery/MGP_Kings_Park_Plot_1.jpeg");
 }
-
 .category-card:nth-child(2) {
   background-image: url("https://images.unsplash.com/photo-1494526585095-c41746248156");
-  
 }
-
-
 .category-card:nth-child(3) {
   background-image: url("https://images.unsplash.com/photo-1568605114967-8130f3a36994");
- 
 }
-
-
 .category-card:nth-child(4) {
-  background-image: url("https://images.unsplash.com/photo-1597047084897-51e81819a499"); 
- 
+  background-image: url("https://images.unsplash.com/photo-1597047084897-51e81819a499");
 }
-
-/* Villa (premium villa community) */
 .category-card:nth-child(5) {
-  background-image: url("https://images.unsplash.com/photo-1600607688969-a5bfcd646154"); 
- 
+  background-image: url("https://images.unsplash.com/photo-1600607688969-a5bfcd646154");
 }
-
-
 .category-card:nth-child(6) {
-  background-image: url("https://wallpapers.com/images/hd/yellow-wheat-field-mxv5z93jno748ww6.jpg"); 
- 
+  background-image: url("https://wallpapers.com/images/hd/yellow-wheat-field-mxv5z93jno748ww6.jpg");
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
-
-
-/* About Section */
+/* ---------- About Section ---------- */
 .about {
   padding: 280px 20px;
   background-size: cover;
@@ -340,7 +354,7 @@ body {
   color: #feca57;
 }
 
-/* Contact Section */
+/* ---------- Contact Section ---------- */
 .contact {
   padding: 80px 20px;
   text-align: center;
@@ -379,7 +393,7 @@ body {
   transform: scale(1.2);
 }
 
-/* Responsive */
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .categories-grid {
     grid-template-columns: 1fr;
