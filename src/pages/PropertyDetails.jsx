@@ -43,22 +43,25 @@ export default function PropertyDetails({ user }) {
   const isOwner = userEmail === property?.owner_email?.trim().toLowerCase();
 
   // In handleChatOpen
-const handleChatOpen = async () => {
-  if (!userEmail || !property) return;
+const handleOpenChat = async () => {
+  if (!property.ownerId) {
+    alert("Cannot start chat: Property owner not set yet.");
+    return;
+  }
 
   try {
-    const data = await getMessages(property._id.toString()); // <-- convert ObjectId to string
-    setChatData({
-      chatId: data.chatId,
-      propertyId: property._id.toString(),
-      ownerId: property.owner_email,
+    const res = await getMessages(property._id); // returns { chatId, messages }
+    setActiveChat({
+      chatId: res.chatId,
+      propertyId: property._id,
+      ownerId: property.ownerId,
     });
-    setChatOpen(true);
   } catch (err) {
     console.error("Failed to open chat:", err);
     alert("Unable to start chat. Try again later.");
   }
 };
+
 
   const handleChatClose = () => {
     setChatOpen(false);
