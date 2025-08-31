@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addProperty } from "../api/PropertyAPI";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import "../pages/AddProperty.css";
 
 export default function AddPropertyForm() {
@@ -40,7 +40,7 @@ export default function AddPropertyForm() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Session expired. Please login again.");
 
-      const decoded = jwt_decode(token);
+      const decoded = jwtDecode(token);
       const ownerId = decoded.id; // Extract owner ID from token
 
       const formData = new FormData();
