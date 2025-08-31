@@ -25,7 +25,7 @@ export default function Account({ user, setUser }) {
     fetchProperties();
   }, []);
 
-  // Fetch unread notifications
+  // Fetch notifications periodically
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
@@ -58,7 +58,7 @@ export default function Account({ user, setUser }) {
       setActiveChat({
         chatId: res.chatId,
         propertyId: property._id,
-        ownerId: property.ownerId || user._id, // make sure property includes ownerId
+        ownerId: property.ownerId || user._id,
       });
     } catch (err) {
       console.error("Failed to open chat:", err);
@@ -69,16 +69,31 @@ export default function Account({ user, setUser }) {
 
   return (
     <div className="account-page">
+      {/* ===== Header Section ===== */}
       <div className="account-header">
         <h1>{fullName || "My Account"}</h1>
-        <button className="inbox-btn" title="Go to Inbox" onClick={() => navigate("/inbox")}>
-          📥
-        </button>
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
+        <div className="header-buttons">
+          <button
+            className="inbox-btn"
+            title="Go to Inbox"
+            onClick={() => navigate("/inbox")}
+          >
+            <span className="inbox-avatar"></span>
+            Inbox
+            {notifications.length > 0 && (
+              <span className="notif-badge">
+                {notifications.reduce((acc, n) => acc + n.unread_count, 0)}
+              </span>
+            )}
+          </button>
+
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </div>
 
+      {/* ===== Properties Grid ===== */}
       <div className="user-properties">
         {properties.map((prop) => (
           <div key={prop._id} className="property-card">
@@ -99,6 +114,7 @@ export default function Account({ user, setUser }) {
         ))}
       </div>
 
+      {/* ===== Chat Modal ===== */}
       {activeChat && (
         <div className="chat-modal">
           <button className="chat-close-btn" onClick={closeChat}>
@@ -114,4 +130,4 @@ export default function Account({ user, setUser }) {
       )}
     </div>
   );
-} 
+}
