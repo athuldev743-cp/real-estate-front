@@ -15,8 +15,11 @@ export const loginUser = async (data) => {
   const result = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(result.detail || "Login failed");
 
+  // Store token, fullName, and email
   localStorage.setItem("token", result.access_token);
   localStorage.setItem("fullName", result.fullName);
+  localStorage.setItem("email", result.email);
+
   return result;
 };
 
@@ -50,8 +53,11 @@ export const verifyOTP = async ({ email, otp }) => {
   const result = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(result.detail || "OTP verification failed");
 
+  // Store token, fullName, and email
   localStorage.setItem("token", result.access_token || result.token);
   localStorage.setItem("fullName", result.fullName);
+  localStorage.setItem("email", result.email);
+
   return result;
 };
 
@@ -85,8 +91,6 @@ export const getCurrentUser = async () => {
 };
 
 // -------------------- Properties --------------------
-
-// Add property
 export const addProperty = async (formData) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
@@ -102,7 +106,6 @@ export const addProperty = async (formData) => {
   return result;
 };
 
-// Get all properties
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
     ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
@@ -113,7 +116,6 @@ export const getProperties = async (searchQuery = "") => {
   return await res.json();
 };
 
-// Get properties by category
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   if (!category) throw new Error("Category is required");
 
@@ -126,7 +128,6 @@ export const getPropertiesByCategory = async (category, searchQuery = "") => {
   return await res.json();
 };
 
-// Get single property by ID
 export const getPropertyById = async (id) => {
   if (!id) throw new Error("Property ID is required");
 
@@ -135,7 +136,6 @@ export const getPropertyById = async (id) => {
   return await res.json();
 };
 
-// Get logged-in user's properties
 export const getMyProperties = async () => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
@@ -148,9 +148,7 @@ export const getMyProperties = async () => {
   return await res.json();
 };
 
-// -------------------- Chat --------------------
-
-// -------------------- Chat & Notifications Helpers --------------------
+// -------------------- Chat Helpers --------------------
 const handleAuthFetch = async (url, options = {}) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
@@ -166,6 +164,7 @@ const handleAuthFetch = async (url, options = {}) => {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("fullName");
+      localStorage.removeItem("email");
       throw new Error("Unauthorized. Please login again.");
     }
     const errorText = await res.text();
@@ -175,15 +174,13 @@ const handleAuthFetch = async (url, options = {}) => {
   return await res.json();
 };
 
-// -------------------- Chat --------------------
-
-// Get or create chat for a property
 export const getMessages = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
-  return handleAuthFetch(`${BASE_URL}/chat/property/${propertyId}`);
+
+  const data = await handleAuthFetch(`${BASE_URL}/chat/property/${propertyId}`);
+  return { chatId: data.chatId, messages: data.messages || [] };
 };
 
-// Send a chat message
 export const sendMessage = async (chatId, text) => {
   if (!chatId || !text) throw new Error("Chat ID and message text are required");
   return handleAuthFetch(`${BASE_URL}/chat/${chatId}/send`, {
@@ -194,26 +191,16 @@ export const sendMessage = async (chatId, text) => {
 };
 
 // -------------------- Owner Inbox --------------------
+export const getOwnerInbox = async () => handleAuthFetch(`${BASE_URL}/chat/inbox`);
 
-// Get all chats for owner (inbox)
-export const getOwnerInbox = async () => {
-  return handleAuthFetch(`${BASE_URL}/chat/inbox`);
-};
-
-// Get all messages of a specific chat
 export const getOwnerChatMessages = async (chatId) => {
   if (!chatId) throw new Error("Chat ID is required");
   return handleAuthFetch(`${BASE_URL}/chat/${chatId}/messages`);
 };
 
 // -------------------- Notifications --------------------
+export const getNotifications = async () => handleAuthFetch(`${BASE_URL}/chat/notifications`);
 
-// Get unread notifications
-export const getNotifications = async () => {
-  return handleAuthFetch(`${BASE_URL}/chat/notifications`);
-};
-
-// Mark chat messages as read
 export const markMessagesAsRead = async (chatId) => {
   if (!chatId) throw new Error("Chat ID is required");
   return handleAuthFetch(`${BASE_URL}/chat/mark-read/${chatId}`, { method: "POST" });

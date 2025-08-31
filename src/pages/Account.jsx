@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { getMyProperties, getNotifications, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat";
+import Inbox from "./Inbox"; // Make sure this path is correct
 import "./Account.css";
 
 export default function Account({ user, setUser }) {
   const [properties, setProperties] = useState([]);
   const [activeChat, setActiveChat] = useState(null); // { chatId, propertyId, ownerId }
   const [notifications, setNotifications] = useState([]);
-  const navigate = useNavigate();
+  const [inbox, setInbox] = useState([]);
+  const [showInbox, setShowInbox] = useState(false);
 
   const fullName = localStorage.getItem("fullName");
 
@@ -40,6 +41,30 @@ export default function Account({ user, setUser }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch inbox chats when Inbox is opened
+  useEffect(() => {
+    if (!showInbox) return;
+
+    const fetchInbox = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/chat/inbox`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch inbox");
+
+        const data = await res.json();
+        setInbox(data.chats || []);
+      } catch (err) {
+        console.error("Error fetching inbox:", err);
+      }
+    };
+
+    fetchInbox();
+  }, [showInbox]);
+
   const unreadCountFor = (propId) => {
     const notif = notifications.find((n) => n.property_id === propId);
     return notif ? notif.unread_count : 0;
@@ -48,6 +73,7 @@ export default function Account({ user, setUser }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("fullName");
+    localStorage.removeItem("email");
     setUser(null);
   };
 
@@ -67,6 +93,17 @@ export default function Account({ user, setUser }) {
 
   const closeChat = () => setActiveChat(null);
 
+  const handleSelectChat = (chatId, propertyId) => {
+    // Reset unread count for selected chat
+    setInbox((prev) =>
+      prev.map((c) =>
+        c.chat_id === chatId ? { ...c, unread_count: 0 } : c
+      )
+    );
+    setActiveChat({ chatId, propertyId, ownerId: user._id });
+    setShowInbox(false); // optionally close inbox panel when chat is selected
+  };
+
   return (
     <div className="account-page">
       {/* ===== Header Section ===== */}
@@ -76,9 +113,8 @@ export default function Account({ user, setUser }) {
           <button
             className="inbox-btn"
             title="Go to Inbox"
-            onClick={() => navigate("/inbox")}
+            onClick={() => setShowInbox((prev) => !prev)}
           >
-            <span className="inbox-avatar"></span>
             Inbox
             {notifications.length > 0 && (
               <span className="notif-badge">
@@ -93,6 +129,13 @@ export default function Account({ user, setUser }) {
         </div>
       </div>
 
+      {/* ===== Inbox Panel ===== */}
+      {showInbox && (
+        <div className="inbox-panel">
+          <Inbox chats={inbox} onSelectChat={handleSelectChat} />
+        </div>
+      )}
+
       {/* ===== Properties Grid ===== */}
       <div className="user-properties">
         {properties.map((prop) => (
@@ -101,10 +144,7 @@ export default function Account({ user, setUser }) {
             <p>Category: {prop.category}</p>
             <p>Location: {prop.location}</p>
 
-            <button
-              className="chat-btn"
-              onClick={() => openChat(prop)}
-            >
+            <button className="chat-btn" onClick={() => openChat(prop)}>
               💬 Chat
               {unreadCountFor(prop._id) > 0 && (
                 <span className="notif-badge">{unreadCountFor(prop._id)}</span>

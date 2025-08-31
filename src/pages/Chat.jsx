@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { sendMessage as sendMsgAPI } from "../api/PropertyAPI";
+import { sendMessage as sendMsgAPI, getMessages as getInitialMessages } from "../api/PropertyAPI";
 import "./Chat.css";
 
 export default function Chat({ chatId, userId, propertyId, ownerId }) {
@@ -16,7 +16,15 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ---------------- WebSocket Setup ----------------
+  // Load initial messages from backend
+  useEffect(() => {
+    if (!chatId) return;
+    getInitialMessages(propertyId).then((res) => {
+      setMessages(res.messages || []);
+    });
+  }, [chatId, propertyId]);
+
+  // ---------------- PieSocket WebSocket Setup ----------------
   useEffect(() => {
     if (!chatId || !userId) return;
 
@@ -57,7 +65,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
       timestamp: Date.now(),
     };
 
-    // Send via WebSocket
+    // Send via PieSocket
     if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(msg));
     } else {
@@ -75,13 +83,17 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     setInput("");
   };
 
-  const getSenderLabel = (sender) => (sender === userId ? "You" : sender === ownerId ? "Owner" : "Buyer");
+  const getSenderLabel = (sender) =>
+    sender === userId ? "You" : sender === ownerId ? "Owner" : "Buyer";
 
   return (
     <div className="chat-container">
       <div className="messages">
         {messages.map((msg, idx) => (
-          <div key={idx} className={`message ${msg.sender === userId ? "own" : "other"}`}>
+          <div
+            key={idx}
+            className={`message ${msg.sender === userId ? "own" : "other"}`}
+          >
             <strong>{getSenderLabel(msg.sender)}:</strong> {msg.text}
           </div>
         ))}
