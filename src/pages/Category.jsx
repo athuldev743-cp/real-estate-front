@@ -15,16 +15,14 @@ export default function Category() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      console.log("Fetching properties for category:", category, "with search:", searchQuery);
       try {
         let data;
-        if (category === "all") {
+        if (category?.toLowerCase() === "all") {
           data = await getProperties(searchQuery);
         } else {
           const backendCategory = category.toLowerCase();
           data = await getPropertiesByCategory(backendCategory, searchQuery);
         }
-        console.log("Fetched properties:", data);
         setProperties(data);
       } catch (err) {
         console.error("Error fetching properties:", err);
@@ -35,7 +33,6 @@ export default function Category() {
     fetchData();
   }, [category, searchQuery]);
 
-  // Display name formatting
   const displayCategoryName = (cat) => {
     if (!cat || cat.toLowerCase() === "all") return "Top Deals";
     return cat.charAt(0).toUpperCase() + cat.slice(1);
@@ -43,10 +40,16 @@ export default function Category() {
 
   return (
     <div className="category-page">
-      <h2 className="category-title">{displayCategoryName(category)}</h2>
+      {/* Animated Header */}
+      <div className="category-header">
+        <div className="animated-gradient"></div>
+        <div className="light-streaks"></div>
+        <h2 className="category-title">{displayCategoryName(category)}</h2>
+      </div>
 
+      {/* Properties */}
       {loading ? (
-        <p>Loading properties...</p>
+        <p className="loading-text">Loading properties...</p>
       ) : properties.length > 0 ? (
         <div className="properties-grid">
           {properties.map((p) => (
@@ -69,15 +72,7 @@ export default function Category() {
               <p>{p.location}</p>
               <button
                 className="view-details-btn"
-                onClick={() => {
-                  if (!p._id) {
-                    console.error("Property ID missing!", p);
-                    alert("Property ID missing, cannot navigate!");
-                    return;
-                  }
-                  console.log("Navigating to property details with ID:", p._id);
-                  navigate(`/property/${p._id}`);
-                }}
+                onClick={() => navigate(`/property/${p._id}`)}
               >
                 View Details
               </button>
@@ -85,7 +80,7 @@ export default function Category() {
           ))}
         </div>
       ) : (
-        <p>No properties found.</p>
+        <p className="loading-text">No properties found.</p>
       )}
     </div>
   );

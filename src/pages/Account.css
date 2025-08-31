@@ -1,4 +1,4 @@
-/* ===== Global Reset ===== */
+/* ---------- Global Reset ---------- */
 * {
   margin: 0;
   padding: 0;
@@ -7,89 +7,97 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-  color: #f5f5f5;
-  min-height: 100vh;
+  background: #000;
+  color: #fff;
   overflow-x: hidden;
 }
 
-/* ===== Account Page Layout ===== */
+/* ---------- Account Page Wrapper ---------- */
 .account-page {
-  padding: 24px;
   min-height: 100vh;
+  padding: 0 20px 50px 20px;
+  position: relative;
+  background: url('/public/image/luxury-header.jpeg') center/cover no-repeat;
 }
 
-/* ===== Header Section ===== */
+/* ---------- Animated Overlay ---------- */
+.account-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+}
+
+.account-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 100%);
+  transform: translateX(-100%);
+  animation: light-streak 8s linear infinite;
+  z-index: 1;
+}
+
+@keyframes light-streak {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ---------- Header Section ---------- */
 .account-header {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  margin-bottom: 32px;
+  align-items: center;
+  padding: 25px 40px;
+  margin-bottom: 40px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px rgba(255,255,255,0.1);
 }
 
 .account-header h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #00aaff, #0066cc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8c00, 0 0 30px #ffffff;
+  letter-spacing: 2px;
 }
 
+/* ---------- Header Buttons ---------- */
 .header-buttons {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 15px;
 }
 
-.inbox-btn {
+.header-buttons button {
+  position: relative;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  position: relative;
-  background: linear-gradient(135deg, #0066cc, #004499);
-  color: #fff;
-  font-size: 1rem;
-  padding: 8px 14px;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  border: none;
+  gap: 8px;
 }
 
-.inbox-btn:hover {
-  background: linear-gradient(135deg, #00aaff, #0066cc);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.5);
-}
-
-.inbox-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  margin-right: 8px;
-  background-image: url('https://i.ibb.co/2NfG7DF/inbox-icon.png'); /* Replace with your avatar image URL */
-  background-size: cover;
-  background-position: center;
-  border: 2px solid #fff;
-}
-
-.logout-btn {
-  border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 1rem;
-  padding: 8px 14px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.logout-btn:hover {
-  background: rgba(0, 170, 255, 0.15);
+.header-buttons button:hover {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #000;
+  box-shadow: 0 4px 20px rgba(255,215,0,0.5);
   transform: translateY(-2px);
 }
 
-/* ===== Notification Badge ===== */
+/* Inbox Badge */
 .notif-badge {
   position: absolute;
   top: -6px;
@@ -99,75 +107,94 @@ body {
   font-size: 0.75rem;
   padding: 2px 6px;
   border-radius: 50%;
-  font-weight: 600;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  font-weight: 700;
 }
 
-/* ===== Properties Grid ===== */
+/* Inbox Avatar Circle */
+.inbox-avatar {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(45deg, #ffd700, #ff8c00);
+  border-radius: 50%;
+}
+
+/* ---------- Properties Grid ---------- */
 .user-properties {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  z-index: 2;
+  position: relative;
 }
 
+/* ---------- Luxury Property Card ---------- */
 .property-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 18px;
+  position: relative;
+  background: rgba(20,20,20,0.6);
   backdrop-filter: blur(10px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(255,215,0,0.2),
+              0 8px 30px rgba(0,170,255,0.15),
+              0 12px 40px rgba(255,0,102,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .property-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 10px 35px rgba(255,215,0,0.5),
+              0 15px 45px rgba(0,170,255,0.4),
+              0 20px 60px rgba(255,0,102,0.35);
 }
 
+/* Property Title & Text */
 .property-card h3 {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-  color: #00aaff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0 0 5px #ffd700, 0 0 10px #ff8c00;
 }
 
 .property-card p {
   font-size: 0.9rem;
+  color: #ddd;
   margin: 4px 0;
-  color: #ccc;
 }
 
-/* ===== Chat Button ===== */
+.property-card p strong {
+  color: #ff6600;
+}
+
+/* Chat Button */
 .chat-btn {
-  margin-top: 10px;
-  background: linear-gradient(135deg, #0066cc, #004499);
-  border: none;
-  color: #fff;
-  padding: 10px 16px;
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px;
   border-radius: 12px;
-  font-size: 0.9rem;
   font-weight: 600;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  border: none;
+  color: #000;
   cursor: pointer;
-  transition: all 0.25s ease;
-  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .chat-btn:hover {
-  background: linear-gradient(135deg, #00aaff, #0066cc);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.5);
+  box-shadow: 0 6px 20px rgba(255,215,0,0.5);
 }
 
-/* ===== Chat Modal ===== */
+/* ---------- Chat Modal ---------- */
 .chat-modal {
   position: fixed;
   bottom: 20px;
   right: 20px;
   width: 360px;
   max-width: 90%;
-  background: rgba(20, 20, 20, 0.95);
+  background: rgba(20,20,20,0.95);
   border-radius: 18px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
-  z-index: 2000;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+  z-index: 3000;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -180,50 +207,19 @@ body {
   color: #aaa;
   font-size: 1.2rem;
   cursor: pointer;
-  transition: color 0.2s ease;
-  align-self: flex-end;
   padding: 10px;
 }
 
-.chat-close-btn:hover {
-  color: #fff;
-}
-
-/* ===== Scrollbar ===== */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #666;
-}
-
-/* ===== Animations ===== */
 @keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-/* ===== Responsive ===== */
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .account-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .account-header h1 {
-    margin-bottom: 12px;
   }
 
   .user-properties {
