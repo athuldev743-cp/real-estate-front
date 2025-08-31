@@ -1,16 +1,32 @@
 import React, { useEffect, useState, useRef } from "react";
 
+// Helper to format timestamp
+const formatTime = (timestamp) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
+
+  if (diff < 60000) return "Just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)} hr ago`;
+  return date.toLocaleDateString() + " " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+};
+
 export default function Inbox({ onSelectChat }) {
   const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(true);
   const ws = useRef(null);
 
   const token = localStorage.getItem("token");
+  const PIE_WS_URL = process.env.REACT_APP_WS_URL;
 
-  // Function to parse incoming message
+  if (!PIE_WS_URL) console.error("WebSocket URL not found in environment variables!");
+
+  // Handle incoming PieSocket message
   const handleIncomingMessage = (raw) => {
     try {
       const msg = JSON.parse(raw);
-      // Update inbox state: increment unread_count or add new chat
+
       setChats((prev) => {
         const chatIndex = prev.findIndex((c) => c.chat_id === msg.chat_id);
         if (chatIndex >= 0) {
@@ -22,12 +38,12 @@ export default function Inbox({ onSelectChat }) {
           };
           return updated;
         } else {
-          // If chat not in inbox, add it
           return [
             ...prev,
             {
               chat_id: msg.chat_id,
               property_id: msg.property_id,
+              user_name: msg.sender_name || "Unknown",
               last_message: msg,
               unread_count: 1,
             },
@@ -39,29 +55,49 @@ export default function Inbox({ onSelectChat }) {
     }
   };
 
+  // Fetch existing chats from backend
   useEffect(() => {
     if (!token) return;
 
-    // PieSocket free cluster WebSocket
-    const PIE_WS_URL =
-      "wss://free.blr2.piesocket.com/v3/1?api_key=3ZvIvBkQHI9tmmL3ufNwIijE2uEPLuCBML43DuSv&notify_self=1";
+    const fetchChats = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/chats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch chats");
+        const data = await res.json();
+
+        const formatted = data.map((chat) => ({
+          ...chat,
+          user_name: chat.user_name || "Unknown",
+        }));
+
+        setChats(formatted);
+      } catch (err) {
+        console.error("Error fetching chats:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, [token]);
+
+  // PieSocket WebSocket for real-time updates
+  useEffect(() => {
+    if (!token || !PIE_WS_URL) return;
 
     ws.current = new WebSocket(PIE_WS_URL);
 
-    ws.current.onopen = () => {
-      console.log("PieSocket connected");
-    };
-
-    ws.current.onmessage = (event) => {
-      handleIncomingMessage(event.data);
-    };
-
+    ws.current.onopen = () => console.log("PieSocket connected");
+    ws.current.onmessage = (event) => handleIncomingMessage(event.data);
     ws.current.onerror = (err) => console.error("PieSocket error:", err);
     ws.current.onclose = () => console.log("PieSocket disconnected");
 
     return () => ws.current?.close();
-  }, [token]);
+  }, [token, PIE_WS_URL]);
 
+  if (loading) return <div>Loading user info...</div>;
   if (chats.length === 0) return <div>No chats yet.</div>;
 
   return (
@@ -72,7 +108,6 @@ export default function Inbox({ onSelectChat }) {
           className="inbox-item"
           onClick={() => {
             onSelectChat(chat.chat_id, chat.property_id);
-            // Reset unread count on click
             setChats((prev) =>
               prev.map((c) =>
                 c.chat_id === chat.chat_id ? { ...c, unread_count: 0 } : c
@@ -81,7 +116,14 @@ export default function Inbox({ onSelectChat }) {
           }}
         >
           <div className="chat-info">
-            <div className="chat-property">Property ID: {chat.property_id}</div>
+            <div className="chat-header">
+              <span className="chat-user">{chat.user_name}</span>
+              {chat.last_message?.timestamp && (
+                <span className="chat-time">
+                  {formatTime(chat.last_message.timestamp)}
+                </span>
+              )}
+            </div>
             {chat.last_message && (
               <div className="chat-last-msg">{chat.last_message.text}</div>
             )}
