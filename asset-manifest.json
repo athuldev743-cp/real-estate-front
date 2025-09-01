@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/real-estate-frontend/static/css/main.fe1ad391.css",
-    "main.js": "/real-estate-frontend/static/js/main.7a5f69b9.js",
-    "static/js/900.ecab8427.chunk.js": "/real-estate-frontend/static/js/900.ecab8427.chunk.js",
-    "static/media/account-header.jpeg": "/real-estate-frontend/static/media/account-header.53b30ee2c9b30929d7af.jpeg",
-    "static/media/account-bg.jpeg": "/real-estate-frontend/static/media/account-bg.45dd82e68dc5a3d4a974.jpeg",
-    "static/media/luxury-header.jpeg": "/real-estate-frontend/static/media/luxury-header.6b27dbef48e87fd78dbd.jpeg",
-    "index.html": "/real-estate-frontend/index.html",
-    "main.fe1ad391.css.map": "/real-estate-frontend/static/css/main.fe1ad391.css.map",
-    "main.7a5f69b9.js.map": "/real-estate-frontend/static/js/main.7a5f69b9.js.map"
+    "main.css": "/real-estate-front/static/css/main.8360dd16.css",
+    "main.js": "/real-estate-front/static/js/main.82ef8433.js",
+    "static/js/900.ecab8427.chunk.js": "/real-estate-front/static/js/900.ecab8427.chunk.js",
+    "static/media/account-header.jpeg": "/real-estate-front/static/media/account-header.53b30ee2c9b30929d7af.jpeg",
+    "static/media/account-bg.jpeg": "/real-estate-front/static/media/account-bg.45dd82e68dc5a3d4a974.jpeg",
+    "static/media/luxury-header.jpeg": "/real-estate-front/static/media/luxury-header.6b27dbef48e87fd78dbd.jpeg",
+    "index.html": "/real-estate-front/index.html",
+    "main.8360dd16.css.map": "/real-estate-front/static/css/main.8360dd16.css.map",
+    "main.82ef8433.js.map": "/real-estate-front/static/js/main.82ef8433.js.map"
   },
   "entrypoints": [
-    "static/css/main.fe1ad391.css",
-    "static/js/main.7a5f69b9.js"
+    "static/css/main.8360dd16.css",
+    "static/js/main.82ef8433.js"
   ]
 }
