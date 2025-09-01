@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('/image/account-header.jpeg') center/cover no-repeat;
+  background: url('/public/image/account-header.jpeg') center/cover no-repeat;
   position: relative;
   font-family: 'Poppins', sans-serif;
   padding: 20px;

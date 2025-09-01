@@ -1,7 +1,7 @@
 /* ---------- Add Property Page Luxury ---------- */
 .add-property-page {
   min-height: 100vh;
-  background: url('/image/account-header.jpeg') center/cover no-repeat;
+  background: url('/public/image/account-header.jpeg') center/cover no-repeat;
   position: relative;
   font-family: 'Poppins', sans-serif;
   color: #fff;

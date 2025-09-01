@@ -28,7 +28,7 @@ body {
   margin-left: calc(-50vw + 50%);
   margin-bottom: 40px;
   border-radius: 16px;
-  background: url('/image/luxury-header.jpeg') center/cover no-repeat;
+  background: url('/public/image/luxury-header.jpeg') center/cover no-repeat;
   box-shadow: 0 8px 30px rgba(0,0,0,0.6);
 }
 
