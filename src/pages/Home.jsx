@@ -71,7 +71,7 @@ export default function Home({ user }) {
         <div className="nav-content">
           <div className="logo">
             <img
-              src="/image/logo.jpeg"
+              src="/public/image/logo.jpeg"
               alt="Logo"
               className="logo-img"
               onError={(e) => (e.target.src = "/image/default-category.jpeg")}
@@ -121,7 +121,7 @@ export default function Home({ user }) {
       <section
         className="hero"
         style={{
-          backgroundImage: `url("/image/bgo3.jpeg"), url("/image/default-category.jpeg")`,
+          backgroundImage: `url("/public/image/bgo3.jpeg"), url("/image/default-category.jpeg")`,
         }}
       >
         <h1>Find Your Dream Property</h1>
@@ -150,7 +150,7 @@ export default function Home({ user }) {
     loop
     playsInline
   >
-    <source src="/image/belux.mp4" type="video/mp4" />
+    <source src="public/image/belux.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 
