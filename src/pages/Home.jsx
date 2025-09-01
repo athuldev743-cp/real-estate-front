@@ -71,10 +71,12 @@ export default function Home({ user }) {
         <div className="nav-content">
           <div className="logo">
             <img
-              src="/public/image/logo.jpeg"
+              src={process.env.PUBLIC_URL + "/image/logo.jpeg"}
               alt="Logo"
               className="logo-img"
-              onError={(e) => (e.target.src = "/image/default-category.jpeg")}
+              onError={(e) =>
+                (e.target.src = process.env.PUBLIC_URL + "/image/default-category.jpeg")
+              }
             />
           </div>
 
@@ -121,7 +123,7 @@ export default function Home({ user }) {
       <section
         className="hero"
         style={{
-          backgroundImage: `url("/public/image/bgo3.jpeg"), url("/image/default-category.jpeg")`,
+          backgroundImage: `url(${process.env.PUBLIC_URL}/image/bgo3.jpeg), url(${process.env.PUBLIC_URL}/image/default-category.jpeg)`,
         }}
       >
         <h1>Find Your Dream Property</h1>
@@ -141,51 +143,47 @@ export default function Home({ user }) {
           )}
         </div>
       </section>
-      <section className="categories-wrapper">
-  {/* Background video */}
-  <video
-    className="categories-bg-video"
-    autoPlay
-    muted
-    loop
-    playsInline
-  >
-    <source src="public/image/belux.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
 
-  <div className="categories">
-    <h2>Categories</h2>
-    <div className="categories-grid">
-      {categories.map((cat) => (
-        <div
-          key={cat.id}
-          className={`category-card ${cat.value}`}
-          onClick={() => goToCategory(cat.value)}
-        >
-          <div className="category-overlay">
-            <h3>{cat.name}</h3>
+      <section className="categories-wrapper">
+        {/* Background video */}
+        <video className="categories-bg-video" autoPlay muted loop playsInline>
+          <source
+            src={process.env.PUBLIC_URL + "/image/belux.mp4"}
+            type="video/mp4"
+          />
+          Your browser does not support the video tag.
+        </video>
+
+        <div className="categories">
+          <h2>Categories</h2>
+          <div className="categories-grid">
+            {categories.map((cat) => (
+              <div
+                key={cat.id}
+                className={`category-card ${cat.value}`}
+                onClick={() => goToCategory(cat.value)}
+              >
+                <div className="category-overlay">
+                  <h3>{cat.name}</h3>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-
-
-
+      </section>
 
       {/* About Section */}
       <section
         className="about"
         style={{
-          backgroundImage: `url("/image/about-bg.jpeg"), url("/image/default-category.jpeg")`,
+          backgroundImage: `url(${process.env.PUBLIC_URL}/image/about-bg.jpeg), url(${process.env.PUBLIC_URL}/image/default-category.jpeg)`,
         }}
       >
         <h2>About Us</h2>
         <p>
-          At Estateuro, we believe real estate is more than just buying or selling property — it’s about creating lifestyles, securing investments, and shaping dreams into reality...
+          At Estateuro, we believe real estate is more than just buying or
+          selling property — it’s about creating lifestyles, securing
+          investments, and shaping dreams into reality...
         </p>
       </section>
 
