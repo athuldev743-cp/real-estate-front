@@ -1,3 +1,12 @@
+# Estateuro Real Estate Web Application
 # https://www.robotstxt.org/robotstxt.html
+
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /private/
+
+# Allow crawling of everything else
+Allow: /
+
+# Sitemap location (optional but recommended)
+Sitemap: https://real-estate-front-48yltm7ic-athul-devs-projects.vercel.app/sitemap.xml
