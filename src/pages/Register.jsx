@@ -1,77 +1,45 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { registerUser, verifyOTP } from "../api/PropertyAPI";
-import "./Register.css";
+import { registerUser, verifyOtp } from "../api/PropertyAPI";
 
 export default function Register({ setUser }) {
-  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");   // ✅ added phone state
   const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [step, setStep] = useState(1);
 
-  // Step 1: Register
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!fullName || !email || !password) {
-      setError("Full name, email, and password are required");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
     try {
-      const res = await registerUser({ fullName, email, password });
-      setMessage(res.message || "OTP sent to your email");
-      setShowOtpModal(true);
+      const res = await registerUser({ fullName, email, password, phone }); // ✅ send phone
+      if (res.success) {
+        setStep(2);
+      }
     } catch (err) {
-      setError(err.message || "Registration failed");
-    } finally {
-      setLoading(false);
+      console.error("Registration error:", err);
     }
   };
 
-  // Step 2: Verify OTP & auto-login
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!otp) {
-      setError("Please enter OTP");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
     try {
-      const res = await verifyOTP({ email, otp });
-
-      // ✅ Store token and user info (auto-login)
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("fullName", res.fullName);
-      setUser({ fullName: res.fullName, email });
-
-      setMessage(res.message || "Registration & Login successful!");
-      setShowOtpModal(false);
-
-      // ✅ Redirect to add property page
-      navigate("/add-property");
+      const res = await verifyOtp({ email, otp });
+      if (res.success) {
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("fullName", res.fullName);
+        localStorage.setItem("email", res.email);
+        localStorage.setItem("phone", res.phone);  // ✅ save phone
+        setUser({ fullName: res.fullName, email: res.email, phone: res.phone });
+      }
     } catch (err) {
-      setError(err.message || "OTP verification failed");
-    } finally {
-      setLoading(false);
+      console.error("OTP verification failed:", err);
     }
   };
 
   return (
     <div className="register-page">
-      <div className="register-card">
-        <h2>Register</h2>
-        {message && <p className="success">{message}</p>}
-        {error && <p className="error">{error}</p>}
-
+      {step === 1 ? (
         <form onSubmit={handleRegister}>
           <input
             type="text"
@@ -94,38 +62,26 @@ export default function Register({ setUser }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
-          </button>
+          <input
+            type="text"
+            placeholder="Phone Number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+          />
+          <button type="submit">Register</button>
         </form>
-      </div>
-
-      {showOtpModal && (
-        <div className="otp-modal">
-          <div className="otp-content">
-            <h3>Enter OTP</h3>
-            <input
-              type="text"
-              placeholder="OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              autoFocus
-              autoComplete="off"
-              required
-            />
-            <div className="otp-buttons">
-              <button onClick={handleVerifyOtp} disabled={loading}>
-                {loading ? "Verifying..." : "Verify & Login"}
-              </button>
-              <button
-                className="close-btn"
-                onClick={() => setShowOtpModal(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+      ) : (
+        <form onSubmit={handleVerifyOtp}>
+          <input
+            type="text"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            required
+          />
+          <button type="submit">Verify OTP</button>
+        </form>
       )}
     </div>
   );

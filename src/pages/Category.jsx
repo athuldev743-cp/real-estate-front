@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { getPropertiesByCategory, getProperties } from "../api/PropertyAPI";
-import { FaCommentDots } from "react-icons/fa";
+import { FaCommentDots, FaShoppingCart } from "react-icons/fa";
 import "./Category.css";
 
 export default function Category() {
   const { category } = useParams();
   const searchQuery = new URLSearchParams(useLocation().search).get("search") || "";
   const [properties, setProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Filters
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+
+  // Cart
+  const [cart, setCart] = useState([]);
+
   const navigate = useNavigate();
 
   // Fetch properties
@@ -24,6 +34,7 @@ export default function Category() {
           data = await getPropertiesByCategory(backendCategory, searchQuery);
         }
         setProperties(data);
+        setFilteredProperties(data);
       } catch (err) {
         console.error("Error fetching properties:", err);
       } finally {
@@ -33,9 +44,38 @@ export default function Category() {
     fetchData();
   }, [category, searchQuery]);
 
+  // Apply filters
+  useEffect(() => {
+    let data = [...properties];
+
+    if (minPrice) {
+      data = data.filter((p) => p.price >= parseInt(minPrice));
+    }
+    if (maxPrice) {
+      data = data.filter((p) => p.price <= parseInt(maxPrice));
+    }
+    if (locationFilter) {
+      data = data.filter((p) =>
+        p.location.toLowerCase().includes(locationFilter.toLowerCase())
+      );
+    }
+
+    setFilteredProperties(data);
+  }, [minPrice, maxPrice, locationFilter, properties]);
+
   const displayCategoryName = (cat) => {
     if (!cat || cat.toLowerCase() === "all") return "Top Deals";
     return cat.charAt(0).toUpperCase() + cat.slice(1);
+  };
+
+  // Add to cart function
+  const addToCart = (property) => {
+    if (!cart.find((item) => item._id === property._id)) {
+      setCart([...cart, property]);
+      alert(`${property.title} added to cart!`);
+    } else {
+      alert("This property is already in your cart.");
+    }
   };
 
   return (
@@ -47,12 +87,34 @@ export default function Category() {
         <h2 className="category-title">{displayCategoryName(category)}</h2>
       </div>
 
+      {/* Filters */}
+      <div className="filters">
+        <input
+          type="number"
+          placeholder="Min Price"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Max Price"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Filter by Location"
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value)}
+        />
+      </div>
+
       {/* Properties */}
       {loading ? (
         <p className="loading-text">Loading properties...</p>
-      ) : properties.length > 0 ? (
+      ) : filteredProperties.length > 0 ? (
         <div className="properties-grid">
-          {properties.map((p) => (
+          {filteredProperties.map((p) => (
             <div key={p._id || p.title} className="property-card">
               <div className="property-image-wrapper">
                 <img
@@ -70,17 +132,37 @@ export default function Category() {
               <p>{p.description}</p>
               <p><strong>₹{p.price}</strong></p>
               <p>{p.location}</p>
-              <button
-                className="view-details-btn"
-                onClick={() => navigate(`/property/${p._id}`)}
-              >
-                View Details
-              </button>
+              <div className="property-actions">
+                <button
+                  className="view-details-btn"
+                  onClick={() => navigate(`/property/${p._id}`)}
+                >
+                  View Details
+                </button>
+                <button
+                  className="add-to-cart-btn"
+                  onClick={() => addToCart(p)}
+                >
+                  <FaShoppingCart /> Add to Cart
+                </button>
+              </div>
             </div>
           ))}
         </div>
       ) : (
         <p className="loading-text">No properties found.</p>
+      )}
+
+      {/* Cart Preview */}
+      {cart.length > 0 && (
+        <div className="cart-preview">
+          <h3>🛒 Cart ({cart.length})</h3>
+          <ul>
+            {cart.map((item) => (
+              <li key={item._id}>{item.title} - ₹{item.price}</li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

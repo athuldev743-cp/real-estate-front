@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getMyProperties, getNotifications, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat";
 import Inbox from "./Inbox"; // Make sure this path is correct
+import { FaShoppingCart } from "react-icons/fa";
 import "./Account.css";
 
 export default function Account({ user, setUser }) {
@@ -11,7 +12,19 @@ export default function Account({ user, setUser }) {
   const [inbox, setInbox] = useState([]);
   const [showInbox, setShowInbox] = useState(false);
 
+  // Cart
+  const [cart, setCart] = useState(() => {
+    // Load from localStorage if available
+    const saved = localStorage.getItem("cart");
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const fullName = localStorage.getItem("fullName");
+
+  // Save cart to localStorage
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   // Fetch properties
   useEffect(() => {
@@ -104,6 +117,16 @@ export default function Account({ user, setUser }) {
     setShowInbox(false); // optionally close inbox panel when chat is selected
   };
 
+  // Add to cart function
+  const addToCart = (property) => {
+    if (!cart.find((item) => item._id === property._id)) {
+      setCart([...cart, property]);
+      alert(`${property.title} added to cart!`);
+    } else {
+      alert("This property is already in your cart.");
+    }
+  };
+
   return (
     <div className="account-page">
       {/* ===== Header Section ===== */}
@@ -144,12 +167,18 @@ export default function Account({ user, setUser }) {
             <p>Category: {prop.category}</p>
             <p>Location: {prop.location}</p>
 
-            <button className="chat-btn" onClick={() => openChat(prop)}>
-              💬 Chat
-              {unreadCountFor(prop._id) > 0 && (
-                <span className="notif-badge">{unreadCountFor(prop._id)}</span>
-              )}
-            </button>
+            <div className="property-actions">
+              <button className="chat-btn" onClick={() => openChat(prop)}>
+                💬 Chat
+                {unreadCountFor(prop._id) > 0 && (
+                  <span className="notif-badge">{unreadCountFor(prop._id)}</span>
+                )}
+              </button>
+
+              <button className="add-to-cart-btn" onClick={() => addToCart(prop)}>
+                <FaShoppingCart /> Add to Cart
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -166,6 +195,20 @@ export default function Account({ user, setUser }) {
             propertyId={activeChat.propertyId}
             ownerId={activeChat.ownerId}
           />
+        </div>
+      )}
+
+      {/* ===== Cart Preview ===== */}
+      {cart.length > 0 && (
+        <div className="cart-preview">
+          <h3>🛒 My Cart ({cart.length})</h3>
+          <ul>
+            {cart.map((item) => (
+              <li key={item._id}>
+                {item.title} - ₹{item.price || "N/A"}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
