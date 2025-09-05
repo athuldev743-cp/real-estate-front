@@ -142,7 +142,6 @@ export default function Home({ user }) {
         </div>
       </section>
 
-      {/* Categories */}
       <section className="categories-wrapper">
         {/* Background video */}
         <video className="categories-bg-video" autoPlay muted loop playsInline>
