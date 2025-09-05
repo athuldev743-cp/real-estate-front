@@ -1,5 +1,6 @@
-
-/* Register page with background image and dark overlay */
+/* =======================
+   Register Page Background
+======================= */
 .register-page {
   display: flex;
   justify-content: center;
@@ -8,14 +9,16 @@
 
   background: 
     linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
-    url('/public/image/account-header.jpeg') center/cover no-repeat;
+    url("/public/image/account-header.jpeg") center/cover no-repeat;
 
   color: #FFD700;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
 }
 
-/* Modern Register Card */
+/* =======================
+   Register Card
+======================= */
 .register-card {
   background: #111;
   border: 2px solid #FFD700;
@@ -40,7 +43,9 @@
   text-shadow: 0 0 10px #FFD700;
 }
 
-/* Inputs */
+/* =======================
+   Inputs
+======================= */
 .register-card input {
   width: 100%;
   padding: 14px;
@@ -59,7 +64,9 @@
   box-shadow: 0 0 10px #FFD700;
 }
 
-/* Buttons */
+/* =======================
+   Buttons
+======================= */
 .register-card button {
   width: 100%;
   padding: 14px;
@@ -78,7 +85,9 @@
   box-shadow: 0 0 20px #FFD700;
 }
 
-/* OTP modal */
+/* =======================
+   OTP Modal
+======================= */
 .otp-modal {
   position: fixed;
   top: 0;
@@ -115,6 +124,13 @@
 @keyframes slideIn {
   from {transform: translateY(-30px); opacity: 0;}
   to {transform: translateY(0); opacity: 1;}
+}
+
+.otp-content h3 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.4rem;
+  color: #FFD700;
 }
 
 .otp-content input {
