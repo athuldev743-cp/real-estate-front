@@ -71,11 +71,11 @@ export default function Home({ user }) {
         <div className="nav-content">
           <div className="logo">
             <img
-              src={process.env.PUBLIC_URL + "/image/logo.jpeg"}
+              src={process.env.PUBLIC_URL + "/public/image/logo.jpeg"}
               alt="Logo"
               className="logo-img"
               onError={(e) =>
-                (e.target.src = process.env.PUBLIC_URL + "/image/default-category.jpeg")
+                (e.target.src = process.env.PUBLIC_URL + "/public/image/default-category.jpeg")
               }
             />
           </div>
@@ -123,7 +123,7 @@ export default function Home({ user }) {
       <section
         className="hero"
         style={{
-          backgroundImage: `url(${process.env.PUBLIC_URL}/image/bgo3.jpeg), url(${process.env.PUBLIC_URL}/image/default-category.jpeg)`,
+          backgroundImage: `url(${process.env.PUBLIC_URL}/public/image/bgo3.jpeg), url(${process.env.PUBLIC_URL}/image/default-category.jpeg)`,
         }}
       >
         <h1>Find Your Dream Property</h1>
@@ -148,7 +148,7 @@ export default function Home({ user }) {
         {/* Background video */}
         <video className="categories-bg-video" autoPlay muted loop playsInline>
           <source
-            src={process.env.PUBLIC_URL + "/image/belux.mp4"}
+            src={process.env.PUBLIC_URL + "/public/image/belux.mp4"}
             type="video/mp4"
           />
           Your browser does not support the video tag.
@@ -176,7 +176,7 @@ export default function Home({ user }) {
       <section
         className="about"
         style={{
-          backgroundImage: `url(${process.env.PUBLIC_URL}/image/about-bg.jpeg), url(${process.env.PUBLIC_URL}/image/default-category.jpeg)`,
+          backgroundImage: `url(${process.env.PUBLIC_URL}/public/image/about-bg.jpeg), url(${process.env.PUBLIC_URL}/image/default-category.jpeg)`,
         }}
       >
         <h2>About Us</h2>
