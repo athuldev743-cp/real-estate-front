@@ -95,7 +95,7 @@ export const addProperty = async (formData) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
-  const res = await fetch(`${BASE_URL}/api/add-property`, {
+  const res = await fetch(`${BASE_URL}/add-property`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` }, // Do NOT set Content-Type for FormData
     body: formData,
@@ -108,8 +108,8 @@ export const addProperty = async (formData) => {
 
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
-    ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
-    : `${BASE_URL}/api/properties`;
+    ? `${BASE_URL}/properties?search=${encodeURIComponent(searchQuery)}`
+    : `${BASE_URL}/properties`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch properties");
@@ -119,7 +119,7 @@ export const getProperties = async (searchQuery = "") => {
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   if (!category) throw new Error("Category is required");
 
-  const url = `${BASE_URL}/api/category/${encodeURIComponent(category.toLowerCase())}${
+  const url = `${BASE_URL}/category/${encodeURIComponent(category.toLowerCase())}${
     searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
   }`;
 
@@ -131,7 +131,7 @@ export const getPropertiesByCategory = async (category, searchQuery = "") => {
 export const getPropertyById = async (id) => {
   if (!id) throw new Error("Property ID is required");
 
-  const res = await fetch(`${BASE_URL}/api/property/${id}`);
+  const res = await fetch(`${BASE_URL}/property/${id}`);
   if (!res.ok) throw new Error("Failed to fetch property");
   return await res.json();
 };
@@ -140,7 +140,7 @@ export const getMyProperties = async () => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Authentication required");
 
-  const res = await fetch(`${BASE_URL}/api/my-properties`, {
+  const res = await fetch(`${BASE_URL}/my-properties`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
