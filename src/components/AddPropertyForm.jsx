@@ -1,11 +1,17 @@
+// src/components/AddPropertyForm.jsx
 import React, { useState } from "react";
 import { addProperty } from "../api/PropertyAPI";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "../pages/AddProperty.css";
 
-// Fix Leaflet default marker icons
+// Fix default Leaflet marker icon
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -16,15 +22,15 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const defaultCenter = [28.6139, 77.209]; // Delhi
+const defaultCenter = { lat: 28.6139, lng: 77.209 }; // Delhi
 
-function LocationPicker({ setLocation }) {
+function LocationMarker({ location, setLocation }) {
   useMapEvents({
     click(e) {
-      setLocation([e.latlng.lat, e.latlng.lng]);
+      setLocation(e.latlng);
     },
   });
-  return null;
+  return location ? <Marker position={location} /> : null;
 }
 
 export default function AddPropertyForm() {
@@ -32,15 +38,16 @@ export default function AddPropertyForm() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [images, setImages] = useState([]);
+  const [category, setCategory] = useState("house");
   const [location, setLocation] = useState(defaultCenter);
+  const [searchQuery, setSearchQuery] = useState("");
   const [mobileNO, setMobileNO] = useState(localStorage.getItem("phone") || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
 
   const handleImagesChange = (e) => setImages(e.target.files);
 
-  // 🔎 Search location using Nominatim API
+  // 🔍 Search with Nominatim (OpenStreetMap)
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -53,11 +60,12 @@ export default function AddPropertyForm() {
       );
       const data = await res.json();
       if (data && data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
-        setLocation([lat, lon]);
+        setLocation({
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon),
+        });
       } else {
-        alert("Location not found. Try another search.");
+        alert("Location not found");
       }
     } catch (err) {
       console.error("Search error:", err);
@@ -75,8 +83,9 @@ export default function AddPropertyForm() {
       formData.append("description", description);
       formData.append("price", price);
       formData.append("mobileNO", mobileNO);
-      formData.append("latitude", location[0]);
-      formData.append("longitude", location[1]);
+      formData.append("latitude", location.lat);
+      formData.append("longitude", location.lng);
+      formData.append("category", category);
 
       for (let i = 0; i < images.length; i++) {
         formData.append("images", images[i]);
@@ -84,9 +93,11 @@ export default function AddPropertyForm() {
 
       await addProperty(formData);
 
+      // reset form
       setTitle("");
       setDescription("");
       setPrice("");
+      setCategory("house");
       setImages([]);
       setLocation(defaultCenter);
       setSearchQuery("");
@@ -103,19 +114,27 @@ export default function AddPropertyForm() {
       {error && <div className="error">{error}</div>}
 
       <input
+        id="title"
+        name="title"
         type="text"
         placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
       />
+
       <textarea
+        id="description"
+        name="description"
         placeholder="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         required
       />
+
       <input
+        id="price"
+        name="price"
         type="number"
         placeholder="Price"
         value={price}
@@ -123,49 +142,68 @@ export default function AddPropertyForm() {
         required
       />
 
-      <input type="file" multiple accept="image/*" onChange={handleImagesChange} />
+      <select
+        id="category"
+        name="category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        required
+      >
+        <option value="house">House</option>
+        <option value="villa">Villa</option>
+        <option value="apartment">Apartment</option>
+        <option value="farmlands">Farmlands</option>
+        <option value="plots">Plots</option>
+        <option value="buildings">Buildings</option>
+      </select>
 
-      {/* 🔎 Location Search */}
-      <div style={{ margin: "10px 0" }}>
-        <form
-          onSubmit={handleSearch}
-          style={{ display: "flex", gap: "8px", marginBottom: "10px" }}
-        >
-          <input
-            type="text"
-            placeholder="Search location..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              flex: 1,
-              padding: "10px",
-              borderRadius: "8px",
-              border: "1px solid #ccc",
-            }}
-          />
-          <button type="submit" style={{ padding: "10px 16px" }}>
-            Search
-          </button>
-        </form>
+      <input
+        id="images"
+        name="images"
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={handleImagesChange}
+      />
 
+      {/* 🔍 Search bar */}
+      <form onSubmit={handleSearch} className="search-bar">
+        <input
+          id="search"
+          name="search"
+          type="text"
+          placeholder="Search location..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button type="submit">Search</button>
+      </form>
+
+      {/* Map */}
+      <div style={{ margin: "10px 0", height: "250px" }}>
         <MapContainer
           center={location}
           zoom={12}
-          style={{ height: "250px", width: "100%", borderRadius: "12px" }}
+          style={{ height: "100%", width: "100%", borderRadius: "12px" }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&copy; OpenStreetMap contributors"
+            attribution="© OpenStreetMap contributors"
           />
-          <Marker position={location} />
-          <LocationPicker setLocation={setLocation} />
+          <LocationMarker location={location} setLocation={setLocation} />
         </MapContainer>
         <p style={{ color: "#fff", textAlign: "center", marginTop: "5px" }}>
-          Selected: Lat {location[0].toFixed(4)}, Lng {location[1].toFixed(4)}
+          Selected: Lat {location.lat.toFixed(4)}, Lng {location.lng.toFixed(4)}
         </p>
       </div>
 
-      <input type="text" value={mobileNO} readOnly />
+      <input
+        id="mobileNO"
+        name="mobileNO"
+        type="text"
+        value={mobileNO}
+        readOnly
+      />
 
       <button type="submit" disabled={loading}>
         {loading ? "Adding..." : "Add Property"}
