@@ -21,8 +21,8 @@ export default function AddProperty({ user }) {
         </>
       )}
 
-      {/* ✅ Our new form with search + add location */}
-      <AddPropertyForm />
+      {/* Pass the user prop to the form */}
+      <AddPropertyForm user={user} />
 
       <div className="notifications-placeholder">
         {/* Later we will fetch unread messages for this user */}

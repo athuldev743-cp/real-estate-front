@@ -13,6 +13,7 @@ export default function PropertyDetails({ user }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatData, setChatData] = useState(null);
 
+  // Current user info
   const currentUser = user || {
     fullName: localStorage.getItem("fullName"),
     email: localStorage.getItem("email"),
@@ -40,28 +41,24 @@ export default function PropertyDetails({ user }) {
     fetchProperty();
   }, [id]);
 
-  const isOwner = userEmail === property?.owner_email?.trim().toLowerCase();
+  // Check if current user is owner
+  const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 
-  // In handleChatOpen
-const handleOpenChat = async () => {
-  if (!property.ownerId) {
-    alert("Cannot start chat: Property owner not set yet.");
-    return;
-  }
-
-  try {
-    const res = await getMessages(property._id); // returns { chatId, messages }
-    setActiveChat({
-      chatId: res.chatId,
-      propertyId: property._id,
-      ownerId: property.ownerId,
-    });
-  } catch (err) {
-    console.error("Failed to open chat:", err);
-    alert("Unable to start chat. Try again later.");
-  }
-};
-
+  // Open chat with property owner
+  const handleChatOpen = async () => {
+    try {
+      const res = await getMessages(property._id); // returns { chatId, messages }
+      setChatData({
+        chatId: res.chatId,
+        propertyId: property._id,
+        ownerId: property.owner, // email of owner
+      });
+      setChatOpen(true);
+    } catch (err) {
+      console.error("Failed to open chat:", err);
+      alert("Unable to start chat. Try again later.");
+    }
+  };
 
   const handleChatClose = () => {
     setChatOpen(false);
@@ -83,7 +80,7 @@ const handleOpenChat = async () => {
       <div className="property-main">
         <div className="property-image-container">
           <img
-            src={property.image_url || "/image/default-property.jpeg"}
+            src={property.images?.[0] || "/image/default-property.jpeg"}
             alt={property.title}
             className="property-image"
           />
@@ -95,7 +92,7 @@ const handleOpenChat = async () => {
           <p className="price"><strong>Price:</strong> ₹{property.price || "N/A"}</p>
           <p><strong>Location:</strong> {property.location || "Unknown"}</p>
           <p><strong>Category:</strong> {property.category || "N/A"}</p>
-          <p><strong>Owner:</strong> {property.owner_email || "N/A"}</p>
+          <p><strong>Owner:</strong> {property.ownerFullName || property.owner || "N/A"}</p>
           <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
 
           {!isOwner && (
@@ -112,9 +109,9 @@ const handleOpenChat = async () => {
           <button className="chat-close-btn" onClick={handleChatClose}>✖</button>
           <Chat
             chatId={chatData.chatId}
-            userId={userEmail} 
+            userId={userEmail}
             propertyId={chatData.propertyId}
-            ownerId={chatData.ownerId} 
+            ownerId={chatData.ownerId}
           />
         </div>
       )}

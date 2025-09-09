@@ -1,18 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-export default function AddPropertyForm() {
+export default function AddPropertyForm({ user }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(""); // phone auto-fill
 
   // Search + Location states
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState([28.6139, 77.2090]); // Default Delhi
   const [searchedLocation, setSearchedLocation] = useState(null); // temporary
   const [selectedLocation, setSelectedLocation] = useState(null); // confirmed
+
+  // Auto-fill phone from localStorage or user prop
+  useEffect(() => {
+    const storedPhone = localStorage.getItem("phone");
+    if (storedPhone) {
+      setPhone(storedPhone);
+    } else if (user?.phone) {
+      setPhone(user.phone);
+    }
+  }, [user]);
 
   // Search location handler
   const handleSearch = async (e) => {
@@ -27,7 +37,7 @@ export default function AddPropertyForm() {
       if (data.length > 0) {
         const { lat, lon } = data[0];
         setPosition([parseFloat(lat), parseFloat(lon)]);
-        setSearchedLocation({ lat, lon });
+        setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
       } else {
         alert("No results found!");
       }
@@ -62,6 +72,13 @@ export default function AddPropertyForm() {
     };
     console.log("Property added:", newProperty);
     alert("🏡 Property added successfully!");
+    // Reset form (optional)
+    setTitle("");
+    setDescription("");
+    setPrice("");
+    setSearch("");
+    setSearchedLocation(null);
+    setSelectedLocation(null);
   };
 
   return (
@@ -109,7 +126,7 @@ export default function AddPropertyForm() {
         />
 
         {/* Search bar for location */}
-        <form onSubmit={handleSearch} className="search-form">
+        <div className="search-form" style={{ display: "flex", marginTop: "10px" }}>
           <input
             type="text"
             id="location"
@@ -118,8 +135,10 @@ export default function AddPropertyForm() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button type="submit">Search</button>
-        </form>
+          <button type="button" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
 
         {/* Add Location Button */}
         <button
@@ -157,7 +176,7 @@ export default function AddPropertyForm() {
           </p>
         )}
 
-        <button type="submit" className="add-btn">
+        <button type="submit" className="add-btn" style={{ marginTop: "10px" }}>
           Add Property
         </button>
       </form>
