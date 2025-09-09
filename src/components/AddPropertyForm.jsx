@@ -20,14 +20,23 @@ export default function AddPropertyForm({ user }) {
     if (user?.phone) setPhone(user.phone);
   }, [user]);
 
-  // ---------------- Search location using backend proxy ----------------
+ // ---------------- Search location using backend proxy ----------------
 const handleSearch = async () => {
-  if (!search) return;
+  if (!search.trim()) {
+    alert("Please enter a location to search!");
+    return;
+  }
 
   try {
-    const res = await fetch(
-      `https://your-backend-domain.vercel.app/api/search-location?q=${encodeURIComponent(search)}`
-    );
+    // Replace this URL with your deployed backend URL
+    const backendURL = "https://your-backend-domain.vercel.app/api/search-location";
+
+    const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
+    
+    if (!res.ok) {
+      throw new Error(`Backend returned status ${res.status}`);
+    }
+
     const data = await res.json();
 
     if (data.length > 0) {
@@ -39,9 +48,10 @@ const handleSearch = async () => {
     }
   } catch (err) {
     console.error("Search error:", err);
-    alert("Failed to fetch location. Try again.");
+    alert("Failed to fetch location. Please try again later.");
   }
 };
+
 
 
   // ---------------- Confirm location ----------------
