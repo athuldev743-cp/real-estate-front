@@ -3,31 +3,31 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 export default function AddPropertyForm({ user }) {
+  // Form states
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Search + Location states
+  // Location states
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState([28.6139, 77.2090]); // Default Delhi
-  const [searchedLocation, setSearchedLocation] = useState(null); // temporary
-  const [selectedLocation, setSelectedLocation] = useState(null); // confirmed
+  const [searchedLocation, setSearchedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
-  // Autofill phone from logged-in user
+  // Autofill phone number from logged-in user
   useEffect(() => {
     if (user?.phone) setPhone(user.phone);
   }, [user]);
 
-  // Search location handler
+  // ---------------- Search location using backend proxy ----------------
   const handleSearch = async () => {
     if (!search) return;
 
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${search}`
-      );
+      const res = await fetch(`/api/search-location?q=${encodeURIComponent(search)}`);
       const data = await res.json();
+
       if (data.length > 0) {
         const { lat, lon } = data[0];
         setPosition([parseFloat(lat), parseFloat(lon)]);
@@ -41,7 +41,7 @@ export default function AddPropertyForm({ user }) {
     }
   };
 
-  // Confirm location
+  // ---------------- Confirm location ----------------
   const handleAddLocation = () => {
     if (!searchedLocation) {
       alert("Please search for a location first.");
@@ -51,13 +51,14 @@ export default function AddPropertyForm({ user }) {
     alert("✅ Location added successfully!");
   };
 
-  // Save property handler
+  // ---------------- Add property ----------------
   const handleAddProperty = (e) => {
     e.preventDefault();
     if (!selectedLocation) {
       alert("Please add a location before submitting property!");
       return;
     }
+
     const newProperty = {
       title,
       description,
@@ -65,8 +66,17 @@ export default function AddPropertyForm({ user }) {
       phone,
       location: selectedLocation,
     };
+
     console.log("Property added:", newProperty);
     alert("🏡 Property added successfully!");
+
+    // Reset form
+    setTitle("");
+    setDescription("");
+    setPrice("");
+    setSearchedLocation(null);
+    setSelectedLocation(null);
+    setSearch("");
   };
 
   return (
@@ -113,7 +123,7 @@ export default function AddPropertyForm({ user }) {
           required
         />
 
-        {/* Search bar for location */}
+        {/* ---------------- Search location ---------------- */}
         <div className="search-form">
           <input
             type="text"
@@ -127,7 +137,7 @@ export default function AddPropertyForm({ user }) {
           </button>
         </div>
 
-        {/* Add Location Button */}
+        {/* ---------------- Add Location Button ---------------- */}
         <button
           type="button"
           onClick={handleAddLocation}
@@ -137,18 +147,20 @@ export default function AddPropertyForm({ user }) {
           Add Location
         </button>
 
-        {/* Map Display */}
+        {/* ---------------- Map Display ---------------- */}
         <MapContainer
           center={position}
           zoom={13}
           style={{ height: "300px", width: "100%", marginTop: "10px" }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
           {searchedLocation && (
             <Marker position={[searchedLocation.lat, searchedLocation.lon]}>
               <Popup>Searched Location</Popup>
             </Marker>
           )}
+
           {selectedLocation && (
             <Marker position={[selectedLocation.lat, selectedLocation.lon]}>
               <Popup>Added Location</Popup>
@@ -156,7 +168,7 @@ export default function AddPropertyForm({ user }) {
           )}
         </MapContainer>
 
-        {/* Show selected location */}
+        {/* ---------------- Show selected location ---------------- */}
         {selectedLocation && (
           <p>
             📍 Added: Lat {selectedLocation.lat}, Lng {selectedLocation.lon}
