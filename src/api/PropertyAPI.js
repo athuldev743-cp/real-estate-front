@@ -29,10 +29,11 @@ export const loginUser = async (data) => {
   return result;
 };
 
-// Register user
+// Register User
 export const registerUser = async (data) => {
-  if (!data.fullName || !data.email || !data.password)
+  if (!data.fullName || !data.email || !data.password) {
     throw new Error("Full name, email, and password are required");
+  }
 
   const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
@@ -41,14 +42,18 @@ export const registerUser = async (data) => {
   });
 
   const result = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(result.detail || "Registration failed");
+  if (!res.ok) {
+    throw new Error(result.detail || "Registration failed");
+  }
 
   return result;
 };
 
 // Verify OTP
 export const verifyOTP = async ({ email, otp }) => {
-  if (!email || !otp) throw new Error("Email and OTP are required");
+  if (!email || !otp) {
+    throw new Error("Email and OTP are required");
+  }
 
   const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
     method: "POST",
@@ -57,11 +62,15 @@ export const verifyOTP = async ({ email, otp }) => {
   });
 
   const result = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(result.detail || "OTP verification failed");
+  if (!res.ok) {
+    throw new Error(result.detail || "OTP verification failed");
+  }
 
+  // Store token and user info
   localStorage.setItem("token", result.access_token || result.token);
   localStorage.setItem("fullName", result.fullName);
   localStorage.setItem("email", result.email);
+  localStorage.setItem("phone", result.phone);
 
   return result;
 };
