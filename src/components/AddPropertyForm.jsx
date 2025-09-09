@@ -21,25 +21,28 @@ export default function AddPropertyForm({ user }) {
   }, [user]);
 
   // ---------------- Search location using backend proxy ----------------
-  const handleSearch = async () => {
-    if (!search) return;
+const handleSearch = async () => {
+  if (!search) return;
 
-    try {
-      const res = await fetch(`/api/search-location?q=${encodeURIComponent(search)}`);
-      const data = await res.json();
+  try {
+    const res = await fetch(
+      `https://your-backend-domain.vercel.app/api/search-location?q=${encodeURIComponent(search)}`
+    );
+    const data = await res.json();
 
-      if (data.length > 0) {
-        const { lat, lon } = data[0];
-        setPosition([parseFloat(lat), parseFloat(lon)]);
-        setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
-      } else {
-        alert("No results found!");
-      }
-    } catch (err) {
-      console.error("Search error:", err);
-      alert("Failed to fetch location. Try again.");
+    if (data.length > 0) {
+      const { lat, lon } = data[0];
+      setPosition([parseFloat(lat), parseFloat(lon)]);
+      setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
+    } else {
+      alert("No results found!");
     }
-  };
+  } catch (err) {
+    console.error("Search error:", err);
+    alert("Failed to fetch location. Try again.");
+  }
+};
+
 
   // ---------------- Confirm location ----------------
   const handleAddLocation = () => {
