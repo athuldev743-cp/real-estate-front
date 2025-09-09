@@ -3,56 +3,54 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 export default function AddPropertyForm({ user }) {
-  // Form states
+  // ---------------- Form states ----------------
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Location states
+  // ---------------- Location states ----------------
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState([28.6139, 77.2090]); // Default Delhi
   const [searchedLocation, setSearchedLocation] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  // Autofill phone number from logged-in user
+  // ---------------- Autofill phone ----------------
   useEffect(() => {
     if (user?.phone) setPhone(user.phone);
   }, [user]);
 
- // ---------------- Search location using backend proxy ----------------
-const handleSearch = async () => {
-  if (!search.trim()) {
-    alert("Please enter a location to search!");
-    return;
-  }
-
-  try {
-    // Replace this URL with your deployed backend URL
-    const backendURL = "https://your-backend-domain.vercel.app/api/search-location";
-
-    const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
-    
-    if (!res.ok) {
-      throw new Error(`Backend returned status ${res.status}`);
+  // ---------------- Search location using backend ----------------
+  const handleSearch = async () => {
+    if (!search.trim()) {
+      alert("Please enter a location to search!");
+      return;
     }
 
-    const data = await res.json();
+    try {
+      // Use the environment variable for backend
+      const backendURL = `${process.env.REACT_APP_API_URL}/api/search-location`;
 
-    if (data.length > 0) {
-      const { lat, lon } = data[0];
-      setPosition([parseFloat(lat), parseFloat(lon)]);
-      setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
-    } else {
-      alert("No results found!");
+      const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
+
+      if (!res.ok) {
+        throw new Error(`Backend returned status ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        setPosition([parseFloat(lat), parseFloat(lon)]);
+        setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
+      } else {
+        alert("No results found!");
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      alert("Failed to fetch location. Please try again later.");
     }
-  } catch (err) {
-    console.error("Search error:", err);
-    alert("Failed to fetch location. Please try again later.");
-  }
-};
-
-
+  };
 
   // ---------------- Confirm location ----------------
   const handleAddLocation = () => {
@@ -99,8 +97,6 @@ const handleSearch = async () => {
       <form onSubmit={handleAddProperty} className="property-form">
         <input
           type="text"
-          id="title"
-          name="title"
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -108,8 +104,6 @@ const handleSearch = async () => {
         />
 
         <textarea
-          id="description"
-          name="description"
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -118,8 +112,6 @@ const handleSearch = async () => {
 
         <input
           type="number"
-          id="price"
-          name="price"
           placeholder="Price"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
@@ -128,8 +120,6 @@ const handleSearch = async () => {
 
         <input
           type="text"
-          id="phone"
-          name="phone"
           placeholder="Phone Number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -140,7 +130,6 @@ const handleSearch = async () => {
         <div className="search-form">
           <input
             type="text"
-            id="location-search"
             placeholder="Search location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
