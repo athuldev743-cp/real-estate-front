@@ -21,6 +21,7 @@ export default function AddProperty({ user }) {
         </>
       )}
 
+      {/* ✅ Our new form with search + add location */}
       <AddPropertyForm />
 
       <div className="notifications-placeholder">
