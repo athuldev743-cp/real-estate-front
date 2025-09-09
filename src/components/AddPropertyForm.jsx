@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -6,33 +6,26 @@ export default function AddPropertyForm({ user }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [phone, setPhone] = useState(""); // phone auto-fill
+  const [phone, setPhone] = useState("");
 
   // Search + Location states
   const [search, setSearch] = useState("");
-  const [position, setPosition] = useState([28.6139, 77.2090]); // Default Delhi
-  const [searchedLocation, setSearchedLocation] = useState(null); // temporary
-  const [selectedLocation, setSelectedLocation] = useState(null); // confirmed
+  const [position, setPosition] = useState([28.6139, 77.209]); // Default Delhi
+  const [searchedLocation, setSearchedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
-  // Auto-fill phone from localStorage or user prop
+  // Autofill phone if user exists
   useEffect(() => {
-    const storedPhone = localStorage.getItem("phone");
-    if (storedPhone) {
-      setPhone(storedPhone);
-    } else if (user?.phone) {
-      setPhone(user.phone);
-    }
+    if (user?.phone) setPhone(user.phone);
   }, [user]);
 
   // Search location handler
   const handleSearch = async (e) => {
-    e.preventDefault(); // stop reload
+    e.preventDefault(); // prevent page reload
     if (!search) return;
 
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${search}`
-      );
+      const res = await fetch(`/api/search-location?q=${encodeURIComponent(search)}`);
       const data = await res.json();
       if (data.length > 0) {
         const { lat, lon } = data[0];
@@ -43,6 +36,7 @@ export default function AddPropertyForm({ user }) {
       }
     } catch (err) {
       console.error("Search error:", err);
+      alert("Search failed. Try again.");
     }
   };
 
@@ -56,13 +50,14 @@ export default function AddPropertyForm({ user }) {
     alert("✅ Location added successfully!");
   };
 
-  // Save property handler
+  // Submit property
   const handleAddProperty = (e) => {
     e.preventDefault();
     if (!selectedLocation) {
       alert("Please add a location before submitting property!");
       return;
     }
+
     const newProperty = {
       title,
       description,
@@ -70,22 +65,16 @@ export default function AddPropertyForm({ user }) {
       phone,
       location: selectedLocation,
     };
+
     console.log("Property added:", newProperty);
     alert("🏡 Property added successfully!");
-    // Reset form (optional)
-    setTitle("");
-    setDescription("");
-    setPrice("");
-    setSearch("");
-    setSearchedLocation(null);
-    setSelectedLocation(null);
   };
 
   return (
-    <div className="add-property-page">
+    <div className="add-property-form">
       <h2>Add a New Property</h2>
 
-      <form onSubmit={handleAddProperty} className="property-form">
+      <form onSubmit={handleAddProperty}>
         <input
           type="text"
           id="title"
@@ -95,7 +84,6 @@ export default function AddPropertyForm({ user }) {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-
         <textarea
           id="description"
           name="description"
@@ -104,7 +92,6 @@ export default function AddPropertyForm({ user }) {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
-
         <input
           type="number"
           id="price"
@@ -114,7 +101,6 @@ export default function AddPropertyForm({ user }) {
           onChange={(e) => setPrice(e.target.value)}
           required
         />
-
         <input
           type="text"
           id="phone"
@@ -125,22 +111,19 @@ export default function AddPropertyForm({ user }) {
           required
         />
 
-        {/* Search bar for location */}
-        <div className="search-form" style={{ display: "flex", marginTop: "10px" }}>
+        {/* Search bar */}
+        <form onSubmit={handleSearch} className="search-form">
           <input
             type="text"
-            id="location"
-            name="location"
+            id="location-search"
+            name="location-search"
             placeholder="Search location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button type="button" onClick={handleSearch}>
-            Search
-          </button>
-        </div>
+          <button type="submit">Search</button>
+        </form>
 
-        {/* Add Location Button */}
         <button
           type="button"
           onClick={handleAddLocation}
@@ -150,7 +133,7 @@ export default function AddPropertyForm({ user }) {
           Add Location
         </button>
 
-        {/* Map Display */}
+        {/* Map */}
         <MapContainer
           center={position}
           zoom={13}
@@ -176,7 +159,7 @@ export default function AddPropertyForm({ user }) {
           </p>
         )}
 
-        <button type="submit" className="add-btn" style={{ marginTop: "10px" }}>
+        <button type="submit" className="add-btn">
           Add Property
         </button>
       </form>
