@@ -25,9 +25,7 @@ export default function Register({ setUser }) {
         setError("Unexpected response from server.");
       }
     } catch (err) {
-      setError(
-        err?.response?.data?.detail || err.message || "Registration failed"
-      );
+      setError(err.message || "Registration failed");
       console.error("Registration error:", err);
     } finally {
       setLoading(false);
@@ -54,17 +52,12 @@ export default function Register({ setUser }) {
           email: res.email,
           phone: res.phone,
         });
-
-        // reset
-        setOtp("");
-        setStep(1);
+        setStep(1); // Reset step
       } else {
         setError("OTP verification failed.");
       }
     } catch (err) {
-      setError(
-        err?.response?.data?.detail || err.message || "OTP verification failed"
-      );
+      setError(err.message || "OTP verification failed");
       console.error("OTP verification error:", err);
     } finally {
       setLoading(false);
@@ -80,8 +73,6 @@ export default function Register({ setUser }) {
         {step === 1 && (
           <form onSubmit={handleRegister}>
             <input
-              id="fullName"
-              name="fullName"
               type="text"
               placeholder="Full Name"
               value={fullName}
@@ -89,8 +80,6 @@ export default function Register({ setUser }) {
               required
             />
             <input
-              id="email"
-              name="email"
               type="email"
               placeholder="Email"
               value={email}
@@ -98,8 +87,6 @@ export default function Register({ setUser }) {
               required
             />
             <input
-              id="password"
-              name="password"
               type="password"
               placeholder="Password"
               value={password}
@@ -107,9 +94,7 @@ export default function Register({ setUser }) {
               required
             />
             <input
-              id="phone"
-              name="phone"
-              type="tel"
+              type="text"
               placeholder="Phone Number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -127,10 +112,7 @@ export default function Register({ setUser }) {
               <h3>Enter OTP</h3>
               <form onSubmit={handleVerifyOtp}>
                 <input
-                  id="otp"
-                  name="otp"
-                  type="number"
-                  inputMode="numeric"
+                  type="text"
                   placeholder="Enter OTP"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
