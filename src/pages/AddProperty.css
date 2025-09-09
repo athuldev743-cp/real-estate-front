@@ -83,6 +83,13 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 12px #ffd700, 0 0 20px #ff8c00;
   background: rgba(50,50,50,0.8);
 }
+/* Add this inside AddProperty.css */
+.add-property-form .gm-style {
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255,215,0,0.3);
+  filter: brightness(0.9);
+}
+
 
 /* ---------- Textarea ---------- */
 textarea {

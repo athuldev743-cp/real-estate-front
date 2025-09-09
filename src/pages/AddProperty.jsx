@@ -6,7 +6,6 @@ import "./AddProperty.css";
 export default function AddProperty({ user }) {
   const navigate = useNavigate();
 
-  // Redirect to login if user not logged in
   useEffect(() => {
     if (!user || !user.fullName) {
       navigate("/login");
@@ -24,7 +23,6 @@ export default function AddProperty({ user }) {
 
       <AddPropertyForm />
 
-      {/* Placeholder for chat notifications */}
       <div className="notifications-placeholder">
         {/* Later we will fetch unread messages for this user */}
       </div>
