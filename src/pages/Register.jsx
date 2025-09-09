@@ -9,36 +9,58 @@ export default function Register({ setUser }) {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // Step 1: Register user
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
     try {
       const res = await registerUser({ fullName, email, password, phone });
-      if (res.success) {
-        setStep(2);
+      if (res.message) {
+        setStep(2); // Move to OTP verification
+      } else {
+        setError("Unexpected response from server.");
       }
     } catch (err) {
+      setError(err.message || "Registration failed");
       console.error("Registration error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
     try {
       const res = await verifyOTP({ email, otp });
-      if (res.success) {
-        localStorage.setItem("token", res.token);
+      if (res.access_token) {
+        // Save tokens and user info
+        localStorage.setItem("token", res.access_token);
+        localStorage.setItem("refresh_token", res.refresh_token);
         localStorage.setItem("fullName", res.fullName);
         localStorage.setItem("email", res.email);
         localStorage.setItem("phone", res.phone);
+
         setUser({
           fullName: res.fullName,
           email: res.email,
           phone: res.phone,
         });
+        setStep(1); // Reset step
+      } else {
+        setError("OTP verification failed.");
       }
     } catch (err) {
-      console.error("OTP verification failed:", err);
+      setError(err.message || "OTP verification failed");
+      console.error("OTP verification error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,62 +68,69 @@ export default function Register({ setUser }) {
     <div className="register-page">
       <div className="register-card">
         <h2>Create Account</h2>
-        <form onSubmit={handleRegister}>
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Phone Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-          <button type="submit">Register</button>
-        </form>
-      </div>
+        {error && <div className="error-msg">{error}</div>}
 
-      {/* OTP Modal */}
-      {step === 2 && (
-        <div className="otp-modal">
-          <div className="otp-content">
-            <h3>Enter OTP</h3>
-            <form onSubmit={handleVerifyOtp}>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-              />
-              <div className="otp-buttons">
-                <button type="submit">Verify OTP</button>
-                <button type="button" onClick={() => setStep(1)}>
-                  Cancel
-                </button>
-              </div>
-            </form>
+        {step === 1 && (
+          <form onSubmit={handleRegister}>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+            <button type="submit" disabled={loading}>
+              {loading ? "Registering..." : "Register"}
+            </button>
+          </form>
+        )}
+
+        {step === 2 && (
+          <div className="otp-modal">
+            <div className="otp-content">
+              <h3>Enter OTP</h3>
+              <form onSubmit={handleVerifyOtp}>
+                <input
+                  type="text"
+                  placeholder="Enter OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                />
+                <div className="otp-buttons">
+                  <button type="submit" disabled={loading}>
+                    {loading ? "Verifying..." : "Verify OTP"}
+                  </button>
+                  <button type="button" onClick={() => setStep(1)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
