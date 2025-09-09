@@ -10,22 +10,23 @@ export default function AddPropertyForm({ user }) {
 
   // Search + Location states
   const [search, setSearch] = useState("");
-  const [position, setPosition] = useState([28.6139, 77.209]); // Default Delhi
-  const [searchedLocation, setSearchedLocation] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [position, setPosition] = useState([28.6139, 77.2090]); // Default Delhi
+  const [searchedLocation, setSearchedLocation] = useState(null); // temporary
+  const [selectedLocation, setSelectedLocation] = useState(null); // confirmed
 
-  // Autofill phone if user exists
+  // Autofill phone from logged-in user
   useEffect(() => {
     if (user?.phone) setPhone(user.phone);
   }, [user]);
 
   // Search location handler
-  const handleSearch = async (e) => {
-    e.preventDefault(); // prevent page reload
+  const handleSearch = async () => {
     if (!search) return;
 
     try {
-      const res = await fetch(`/api/search-location?q=${encodeURIComponent(search)}`);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${search}`
+      );
       const data = await res.json();
       if (data.length > 0) {
         const { lat, lon } = data[0];
@@ -36,7 +37,7 @@ export default function AddPropertyForm({ user }) {
       }
     } catch (err) {
       console.error("Search error:", err);
-      alert("Search failed. Try again.");
+      alert("Failed to fetch location. Try again.");
     }
   };
 
@@ -50,14 +51,13 @@ export default function AddPropertyForm({ user }) {
     alert("✅ Location added successfully!");
   };
 
-  // Submit property
+  // Save property handler
   const handleAddProperty = (e) => {
     e.preventDefault();
     if (!selectedLocation) {
       alert("Please add a location before submitting property!");
       return;
     }
-
     const newProperty = {
       title,
       description,
@@ -65,16 +65,15 @@ export default function AddPropertyForm({ user }) {
       phone,
       location: selectedLocation,
     };
-
     console.log("Property added:", newProperty);
     alert("🏡 Property added successfully!");
   };
 
   return (
-    <div className="add-property-form">
+    <div className="add-property-page">
       <h2>Add a New Property</h2>
 
-      <form onSubmit={handleAddProperty}>
+      <form onSubmit={handleAddProperty} className="property-form">
         <input
           type="text"
           id="title"
@@ -84,6 +83,7 @@ export default function AddPropertyForm({ user }) {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+
         <textarea
           id="description"
           name="description"
@@ -92,6 +92,7 @@ export default function AddPropertyForm({ user }) {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
+
         <input
           type="number"
           id="price"
@@ -101,6 +102,7 @@ export default function AddPropertyForm({ user }) {
           onChange={(e) => setPrice(e.target.value)}
           required
         />
+
         <input
           type="text"
           id="phone"
@@ -111,19 +113,21 @@ export default function AddPropertyForm({ user }) {
           required
         />
 
-        {/* Search bar */}
-        <form onSubmit={handleSearch} className="search-form">
+        {/* Search bar for location */}
+        <div className="search-form">
           <input
             type="text"
             id="location-search"
-            name="location-search"
             placeholder="Search location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button type="submit">Search</button>
-        </form>
+          <button type="button" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
 
+        {/* Add Location Button */}
         <button
           type="button"
           onClick={handleAddLocation}
@@ -133,7 +137,7 @@ export default function AddPropertyForm({ user }) {
           Add Location
         </button>
 
-        {/* Map */}
+        {/* Map Display */}
         <MapContainer
           center={position}
           zoom={13}
