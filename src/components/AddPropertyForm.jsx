@@ -11,9 +11,10 @@ export default function AddPropertyForm({ user }) {
 
   // ---------------- Location states ----------------
   const [search, setSearch] = useState("");
-  const [position, setPosition] = useState([28.6139, 77.2090]); // Default Delhi
-  const [searchedLocation, setSearchedLocation] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+ // Kochi: 9.9679° N, 76.2450° E
+const [position, setPosition] = useState([9.9679, 76.2450]); // Default Kochi
+const [searchedLocation, setSearchedLocation] = useState({ lat: 9.9679, lon: 76.2450 });
+const [selectedLocation, setSelectedLocation] = useState(null);
 
   // ---------------- Autofill phone ----------------
   useEffect(() => {
@@ -22,35 +23,36 @@ export default function AddPropertyForm({ user }) {
 
   // ---------------- Search location using backend ----------------
   const handleSearch = async () => {
-    if (!search.trim()) {
-      alert("Please enter a location to search!");
-      return;
+  if (!search.trim()) {
+    alert("Please enter a location to search!");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `https://back-end-lybr.onrender.com/api/search-location?q=${encodeURIComponent(search)}`
+    );
+
+    if (!res.ok) {
+      throw new Error(`Backend returned status ${res.status}`);
     }
 
-    try {
-      // Use the environment variable for backend
-      const backendURL = `${process.env.REACT_APP_API_URL}/api/search-location`;
+    const data = await res.json();
+    console.log("🔎 API response:", data); // add debug log
 
-      const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
-
-      if (!res.ok) {
-        throw new Error(`Backend returned status ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      if (data.length > 0) {
-        const { lat, lon } = data[0];
-        setPosition([parseFloat(lat), parseFloat(lon)]);
-        setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
-      } else {
-        alert("No results found!");
-      }
-    } catch (err) {
-      console.error("Search error:", err);
-      alert("Failed to fetch location. Please try again later.");
+    if (data.length > 0) {
+      const { lat, lon } = data[0];
+      setPosition([parseFloat(lat), parseFloat(lon)]);
+      setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
+    } else {
+      alert("No results found!");
     }
-  };
+  } catch (err) {
+    console.error("Search error:", err);
+    alert("Failed to fetch location. Please try again later.");
+  }
+};
+
 
   // ---------------- Confirm location ----------------
   const handleAddLocation = () => {
