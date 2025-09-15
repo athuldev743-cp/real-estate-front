@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { addProperty } from "../api/PropertyAPI";
-import L from "leaflet";
+import { addProperty } from "../api/PropertyAPI"; // make sure this exists and works
 
 // Helper to recenter map when position changes
 function RecenterMap({ position }) {
@@ -13,6 +12,7 @@ function RecenterMap({ position }) {
   return null;
 }
 
+// Category list
 const categories = [
   { id: 1, name: "Plots", value: "plots" },
   { id: 2, name: "Buildings", value: "buildings" },
@@ -30,7 +30,7 @@ export default function AddPropertyForm({ user }) {
   const [phone, setPhone] = useState("");
 
   const [search, setSearch] = useState("");
-  const [position, setPosition] = useState([9.9679, 76.245]);
+  const [position, setPosition] = useState([9.9679, 76.245]); // default Kochi
   const [searchedLocation, setSearchedLocation] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
@@ -38,25 +38,21 @@ export default function AddPropertyForm({ user }) {
 
   const [images, setImages] = useState([]);
 
+  // Auto-fill phone number from registered user
   useEffect(() => {
     if (user?.phone) setPhone(user.phone);
   }, [user]);
 
+  // ---------------- Search Location ----------------
   const handleSearch = async () => {
-    if (!search.trim()) {
-      alert("Please enter a location to search!");
-      return;
-    }
+    if (!search.trim()) return alert("Please enter a location to search!");
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/search-location?q=${encodeURIComponent(search)}`
       );
       if (!res.ok) throw new Error("Failed to fetch locations");
       const data = await res.json();
-      if (data.length === 0) {
-        alert("No results found!");
-        return;
-      }
+      if (data.length === 0) return alert("No results found!");
       setSearchResults(data);
       setSelectedIndex(0);
       const { lat, lon } = data[0];
@@ -76,28 +72,17 @@ export default function AddPropertyForm({ user }) {
   };
 
   const handleAddLocation = () => {
-    if (!searchedLocation) {
-      alert("Please search for a location first.");
-      return;
-    }
+    if (!searchedLocation) return alert("Please search for a location first.");
     setSelectedLocation(searchedLocation);
-    alert("✅ Location added successfully! You can now drag the marker to fine-tune the position.");
+    alert("✅ Location added successfully!");
   };
 
+  // ---------------- Add Property ----------------
   const handleAddProperty = async (e) => {
     e.preventDefault();
-    if (!selectedLocation) {
-      alert("Please add a location before submitting property!");
-      return;
-    }
-    if (!category) {
-      alert("Please select a category!");
-      return;
-    }
-    if (images.length === 0) {
-      alert("Please select at least one image!");
-      return;
-    }
+    if (!selectedLocation) return alert("Please add a location before submitting!");
+    if (!category) return alert("Please select a category!");
+    if (images.length === 0) return alert("Please select at least one image!");
 
     const formData = new FormData();
     formData.append("title", title);
@@ -139,13 +124,15 @@ export default function AddPropertyForm({ user }) {
         <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
         <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
         <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
-        <input type="text" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+        <input type="text" placeholder="Phone Number" value={phone} readOnly />
+
         <select value={category} onChange={(e) => setCategory(e.target.value)} required style={{ marginTop: "8px" }}>
           <option value="">Select Category</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.value}>{cat.name}</option>
           ))}
         </select>
+
         <input type="file" multiple accept="image/*" onChange={(e) => setImages(Array.from(e.target.files))} style={{ marginTop: "8px" }} />
 
         <div className="search-form">
@@ -165,25 +152,11 @@ export default function AddPropertyForm({ user }) {
           Add Location
         </button>
 
+        {/* Map */}
         <MapContainer center={position} zoom={13} style={{ height: "300px", width: "100%", marginTop: "10px" }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <RecenterMap position={position} />
-          {searchedLocation && <Marker position={[searchedLocation.lat, searchedLocation.lon]}><Popup>Searched Location</Popup></Marker>}
-          {selectedLocation && (
-            <Marker
-              position={[selectedLocation.lat, selectedLocation.lon]}
-              draggable={true}
-              eventHandlers={{
-                dragend: (e) => {
-                  const marker = e.target;
-                  const { lat, lng } = marker.getLatLng();
-                  setSelectedLocation({ lat, lon: lng });
-                },
-              }}
-            >
-              <Popup>Drag me to adjust location</Popup>
-            </Marker>
-          )}
+          {searchedLocation && <Marker position={[searchedLocation.lat, searchedLocation.lon]}><Popup>Selected Location</Popup></Marker>}
         </MapContainer>
 
         {selectedLocation && <p>📍 Added: Lat {selectedLocation.lat}, Lng {selectedLocation.lon}</p>}

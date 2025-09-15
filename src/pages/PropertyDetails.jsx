@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPropertyById, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 import "./PropertyDetails.css";
 
 export default function PropertyDetails({ user }) {
@@ -74,7 +76,7 @@ export default function PropertyDetails({ user }) {
 
       <div className="property-header">
         <h1>{property.title || "Untitled Property"}</h1>
-        <p>{property.category?.toUpperCase() || "N/A"} • {property.location || "Unknown"}</p>
+        <p>{property.category?.toUpperCase() || "N/A"}</p>
       </div>
 
       <div className="property-main">
@@ -90,7 +92,6 @@ export default function PropertyDetails({ user }) {
           <h2>Property Details</h2>
           <p>{property.description || "No description available."}</p>
           <p className="price"><strong>Price:</strong> ₹{property.price || "N/A"}</p>
-          <p><strong>Location:</strong> {property.location || "Unknown"}</p>
           <p><strong>Category:</strong> {property.category || "N/A"}</p>
           <p><strong>Owner:</strong> {property.ownerFullName || property.owner || "N/A"}</p>
           <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
@@ -103,6 +104,23 @@ export default function PropertyDetails({ user }) {
           {isOwner && <p className="owner-label">You are the owner of this property</p>}
         </div>
       </div>
+
+      {/* Map for buyers */}
+      {property.latitude && property.longitude && (
+        <div className="property-map" style={{ height: "300px", width: "100%", marginTop: "20px" }}>
+          <MapContainer
+            center={[property.latitude, property.longitude]}
+            zoom={13}
+            style={{ height: "100%", width: "100%" }}
+            scrollWheelZoom={false}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker position={[property.latitude, property.longitude]}>
+              <Popup>{property.title}</Popup>
+            </Marker>
+          </MapContainer>
+        </div>
+      )}
 
       {chatOpen && chatData && (
         <div className="chat-modal">
