@@ -43,6 +43,7 @@
 }
 
 /* Image row container */
+/* Image row container */
 .property-image-container {
   height: 500px;
   overflow-x: auto;
@@ -59,19 +60,21 @@
 
 /* Individual images */
 .property-image {
-  height: 500px; /* Force fixed height */
-  width: auto; /* Keep aspect ratio */
+  height: 500px;       /* Fixed height */
+  width: auto;         /* Let width scale naturally */
   border-radius: 8px;
   border: 1px solid #ccc;
-  object-fit: cover; /* Ensure no stretching */
+  object-fit: contain; /* ✅ Show full image without cropping */
   flex-shrink: 0;
   cursor: pointer;
   transition: transform 0.3s;
+  background-color: #000; /* optional: gives padding around image */
 }
 
 .property-image:hover {
   transform: scale(1.02);
 }
+
 
 /* Info section */
 .property-info {
