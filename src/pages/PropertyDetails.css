@@ -43,13 +43,7 @@
 }
 
 /* ---------- Image Gallery Row ---------- */
-.property-image-container {
-  flex: 1 1 100%;
-  display: flex;
-  align-items: center;
-  position: relative;
-  margin-bottom: 20px;
-}
+
 
 .property-images-row {
   display: flex;
@@ -64,7 +58,7 @@
 }
 
 .property-image {
-  height: 320px;   /* increased height */
+  height: 620px;   /* increased height */
   width: auto;
   flex-shrink: 0;
   border-radius: 12px;
