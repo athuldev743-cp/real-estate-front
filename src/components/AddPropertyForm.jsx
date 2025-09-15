@@ -19,13 +19,14 @@ export default function AddPropertyForm({ user }) {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
+  const [category, setCategory] = useState(""); // ✅ category state added
 
   // ---------------- Location states ----------------
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState([9.9679, 76.2450]); // Kochi default
   const [searchedLocation, setSearchedLocation] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [searchResults, setSearchResults] = useState([]); // store multiple results
+  const [searchResults, setSearchResults] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   // ---------------- Autofill phone ----------------
@@ -54,7 +55,7 @@ export default function AddPropertyForm({ user }) {
 
       if (data.length > 0) {
         setSearchResults(data);
-        setSelectedIndex(0); // auto-select first result
+        setSelectedIndex(0);
         const { lat, lon } = data[0];
         setPosition([parseFloat(lat), parseFloat(lon)]);
         setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
@@ -92,12 +93,17 @@ export default function AddPropertyForm({ user }) {
       alert("Please add a location before submitting property!");
       return;
     }
+    if (!category) {
+      alert("Please select a category!");
+      return;
+    }
 
     const newProperty = {
       title,
       description,
       price,
       phone,
+      category, // ✅ category added
       location: selectedLocation,
     };
 
@@ -108,6 +114,8 @@ export default function AddPropertyForm({ user }) {
     setTitle("");
     setDescription("");
     setPrice("");
+    setPhone(user?.phone || "");
+    setCategory("");
     setSearchedLocation(null);
     setSelectedLocation(null);
     setSearch("");
@@ -150,6 +158,20 @@ export default function AddPropertyForm({ user }) {
           onChange={(e) => setPhone(e.target.value)}
           required
         />
+
+        {/* ---------------- Category ---------------- */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          required
+          style={{ marginTop: "8px" }}
+        >
+          <option value="">Select Category</option>
+          <option value="House">House</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Land">Land</option>
+          <option value="Commercial">Commercial</option>
+        </select>
 
         {/* ---------------- Search location ---------------- */}
         <div className="search-form">
@@ -196,8 +218,6 @@ export default function AddPropertyForm({ user }) {
           style={{ height: "300px", width: "100%", marginTop: "10px" }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-          {/* Recenter on search */}
           <RecenterMap position={position} />
 
           {searchedLocation && (
