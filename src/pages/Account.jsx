@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getMyProperties, getNotifications, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat";
-import Inbox from "./Inbox"; // Make sure this path is correct
-import { FaShoppingCart } from "react-icons/fa";
+import Inbox from "./Inbox";
+import { FaShoppingCart, FaInbox } from "react-icons/fa";
 import "./Account.css";
 
 export default function Account({ user, setUser }) {
@@ -11,10 +11,7 @@ export default function Account({ user, setUser }) {
   const [notifications, setNotifications] = useState([]);
   const [inbox, setInbox] = useState([]);
   const [showInbox, setShowInbox] = useState(false);
-
-  // Cart
   const [cart, setCart] = useState(() => {
-    // Load from localStorage if available
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
   });
@@ -57,24 +54,20 @@ export default function Account({ user, setUser }) {
   // Fetch inbox chats when Inbox is opened
   useEffect(() => {
     if (!showInbox) return;
-
     const fetchInbox = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-
         const res = await fetch(`${process.env.REACT_APP_API_URL}/chat/inbox`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch inbox");
-
         const data = await res.json();
         setInbox(data.chats || []);
       } catch (err) {
         console.error("Error fetching inbox:", err);
       }
     };
-
     fetchInbox();
   }, [showInbox]);
 
@@ -90,10 +83,9 @@ export default function Account({ user, setUser }) {
     setUser(null);
   };
 
-  // Open chat: get or create chatId from backend
   const openChat = async (property) => {
     try {
-      const res = await getMessages(property._id); // returns { chatId, messages }
+      const res = await getMessages(property._id);
       setActiveChat({
         chatId: res.chatId,
         propertyId: property._id,
@@ -107,17 +99,13 @@ export default function Account({ user, setUser }) {
   const closeChat = () => setActiveChat(null);
 
   const handleSelectChat = (chatId, propertyId) => {
-    // Reset unread count for selected chat
     setInbox((prev) =>
-      prev.map((c) =>
-        c.chat_id === chatId ? { ...c, unread_count: 0 } : c
-      )
+      prev.map((c) => (c.chat_id === chatId ? { ...c, unread_count: 0 } : c))
     );
     setActiveChat({ chatId, propertyId, ownerId: user._id });
-    setShowInbox(false); // optionally close inbox panel when chat is selected
+    setShowInbox(false);
   };
 
-  // Add to cart function
   const addToCart = (property) => {
     if (!cart.find((item) => item._id === property._id)) {
       setCart([...cart, property]);
@@ -129,28 +117,28 @@ export default function Account({ user, setUser }) {
 
   return (
     <div className="account-page">
-      {/* ===== Header Section ===== */}
-      <div className="account-header">
-        <h1>{fullName || "My Account"}</h1>
-        <div className="header-buttons">
-          <button
-            className="inbox-btn"
-            title="Go to Inbox"
-            onClick={() => setShowInbox((prev) => !prev)}
-          >
-            Inbox
+      {/* ===== Navbar ===== */}
+      <nav className="account-navbar">
+        <div className="nav-left">
+          <h2>Your Products</h2>
+        </div>
+        <div className="nav-right">
+          <button className="nav-btn" onClick={() => setShowInbox((prev) => !prev)}>
+            <FaInbox /> Inbox
             {notifications.length > 0 && (
               <span className="notif-badge">
                 {notifications.reduce((acc, n) => acc + n.unread_count, 0)}
               </span>
             )}
           </button>
-
-          <button className="logout-btn" onClick={handleLogout}>
+          <button className="nav-btn" onClick={() => {}}>
+            <FaShoppingCart /> Cart ({cart.length})
+          </button>
+          <button className="nav-btn logout-btn" onClick={handleLogout}>
             Logout
           </button>
         </div>
-      </div>
+      </nav>
 
       {/* ===== Inbox Panel ===== */}
       {showInbox && (
@@ -159,14 +147,13 @@ export default function Account({ user, setUser }) {
         </div>
       )}
 
-      {/* ===== Properties Grid ===== */}
-      <div className="user-properties">
+      {/* ===== User Products ===== */}
+      <div className="user-products-grid">
         {properties.map((prop) => (
           <div key={prop._id} className="property-card">
             <h3>{prop.title}</h3>
             <p>Category: {prop.category}</p>
             <p>Location: {prop.location}</p>
-
             <div className="property-actions">
               <button className="chat-btn" onClick={() => openChat(prop)}>
                 💬 Chat
@@ -174,7 +161,6 @@ export default function Account({ user, setUser }) {
                   <span className="notif-badge">{unreadCountFor(prop._id)}</span>
                 )}
               </button>
-
               <button className="add-to-cart-btn" onClick={() => addToCart(prop)}>
                 <FaShoppingCart /> Add to Cart
               </button>

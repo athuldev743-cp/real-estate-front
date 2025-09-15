@@ -15,6 +15,12 @@ export default function PropertyDetails({ user }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatData, setChatData] = useState(null);
 
+  // Cart state from localStorage
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem("cart");
+    return saved ? JSON.parse(saved) : [];
+  });
+
   // Current user info
   const currentUser = user || {
     fullName: localStorage.getItem("fullName"),
@@ -26,6 +32,11 @@ export default function PropertyDetails({ user }) {
   useEffect(() => {
     if (!userEmail) navigate("/login");
   }, [userEmail, navigate]);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   // Fetch property details
   useEffect(() => {
@@ -67,6 +78,16 @@ export default function PropertyDetails({ user }) {
     setChatData(null);
   };
 
+  // Add to cart
+  const handleAddToCart = () => {
+    if (!cart.find((item) => item._id === property._id)) {
+      setCart([...cart, property]);
+      alert(`${property.title} added to cart!`);
+    } else {
+      alert("This property is already in your cart.");
+    }
+  };
+
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
 
@@ -97,15 +118,21 @@ export default function PropertyDetails({ user }) {
           <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
 
           {!isOwner && (
-            <button className="chat-btn" onClick={handleChatOpen}>
-              💬 Chat with Seller
-            </button>
+            <>
+              <button className="chat-btn" onClick={handleChatOpen}>
+                💬 Chat with Seller
+              </button>
+              <button className="add-to-cart-btn" onClick={handleAddToCart} style={{ marginTop: "10px" }}>
+                🛒 Add to Cart
+              </button>
+            </>
           )}
+
           {isOwner && <p className="owner-label">You are the owner of this property</p>}
         </div>
       </div>
 
-      {/* Map for buyers */}
+      {/* Map */}
       {property.latitude && property.longitude && (
         <div className="property-map" style={{ height: "300px", width: "100%", marginTop: "20px" }}>
           <MapContainer
@@ -122,6 +149,7 @@ export default function PropertyDetails({ user }) {
         </div>
       )}
 
+      {/* Chat Modal */}
       {chatOpen && chatData && (
         <div className="chat-modal">
           <button className="chat-close-btn" onClick={handleChatClose}>✖</button>

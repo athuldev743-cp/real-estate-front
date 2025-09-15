@@ -68,15 +68,8 @@ export default function Category() {
     return cat.charAt(0).toUpperCase() + cat.slice(1);
   };
 
-  // Add to cart function
-  const addToCart = (property) => {
-    if (!cart.find((item) => item._id === property._id)) {
-      setCart([...cart, property]);
-      alert(`${property.title} added to cart!`);
-    } else {
-      alert("This property is already in your cart.");
-    }
-  };
+
+  
 
   return (
     <div className="category-page">
