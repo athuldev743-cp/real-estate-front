@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { getPropertiesByCategory, getProperties } from "../api/PropertyAPI";
-import { FaCommentDots, FaShoppingCart } from "react-icons/fa";
+import { FaCommentDots } from "react-icons/fa";
 import "./Category.css";
 
 export default function Category() {
@@ -15,9 +15,6 @@ export default function Category() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
-
-  // Cart
-  const [cart, setCart] = useState([]);
 
   const navigate = useNavigate();
 
@@ -68,9 +65,6 @@ export default function Category() {
     return cat.charAt(0).toUpperCase() + cat.slice(1);
   };
 
-
-  
-
   return (
     <div className="category-page">
       {/* Animated Header */}
@@ -111,7 +105,11 @@ export default function Category() {
             <div key={p._id || p.title} className="property-card">
               <div className="property-image-wrapper">
                 <img
-                  src={p.image_url || "/image/default-property.jpeg"}
+                  src={
+                    Array.isArray(p.images) && p.images.length > 0
+                      ? p.images[0] // show only first image in card
+                      : p.image_url || "/image/default-property.jpeg"
+                  }
                   alt={p.title}
                   className="property-image"
                 />
@@ -132,30 +130,12 @@ export default function Category() {
                 >
                   View Details
                 </button>
-                <button
-                  className="add-to-cart-btn"
-                  onClick={() => addToCart(p)}
-                >
-                  <FaShoppingCart /> Add to Cart
-                </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
         <p className="loading-text">No properties found.</p>
-      )}
-
-      {/* Cart Preview */}
-      {cart.length > 0 && (
-        <div className="cart-preview">
-          <h3>🛒 Cart ({cart.length})</h3>
-          <ul>
-            {cart.map((item) => (
-              <li key={item._id}>{item.title} - ₹{item.price}</li>
-            ))}
-          </ul>
-        </div>
       )}
     </div>
   );

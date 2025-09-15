@@ -42,21 +42,77 @@
   margin-top: 20px;
 }
 
-/* Image */
+/* ---------- Image Gallery Row ---------- */
 .property-image-container {
-  flex: 1 1 300px;
-  max-width: 400px;
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.property-images-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 0;
+  flex: 1;
+}
+
+.property-images-row::-webkit-scrollbar {
+  height: 8px;
+}
+
+.property-images-row::-webkit-scrollbar-thumb {
+  background: #aaa;
+  border-radius: 4px;
 }
 
 .property-image {
-  width: 100%;
-  height: auto;
+  flex: 0 0 auto;
+  width: 280px;
+  height: 200px;
+  object-fit: cover;
   border-radius: 8px;
   border: 1px solid #ccc;
-  object-fit: cover;
+  background: #f5f5f5;
+  transition: transform 0.2s ease;
 }
 
-/* Info section */
+.property-image:hover {
+  transform: scale(1.05);
+}
+
+/* Gallery navigation arrows */
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  font-size: 20px;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.gallery-arrow:hover {
+  background: rgba(0,0,0,0.7);
+}
+
+.gallery-arrow.left {
+  left: -10px;
+}
+
+.gallery-arrow.right {
+  right: -10px;
+}
+
+/* ---------- Info section ---------- */
 .property-info {
   flex: 1 1 300px;
 }

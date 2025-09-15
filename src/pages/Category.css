@@ -4,35 +4,33 @@ body {
   font-family: 'Poppins', sans-serif;
   background-color: #000;
   color: #fff;
+  overflow-x: hidden; /* prevent accidental horizontal scroll */
 }
 
 /* ---------- Category Page Wrapper ---------- */
 .category-page {
-  padding: 0 20px 50px 20px; /* <-- horizontal padding creates 20px gaps */
+  padding: 0 20px 50px 20px;
   max-width: 1600px;
   margin: 0 auto;
   position: relative;
 }
 
-/* ---------- Animated Header ---------- */
 /* ---------- Category Header ---------- */
 .category-header {
   position: relative;
-  width: 100vw; /* full viewport width */
+  width: 100%; /* safer than 100vw */
   height: 220px;
   display: flex;
-  
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  margin-left: calc(-50vw + 50%);
   margin-bottom: 40px;
   border-radius: 16px;
   background: url('/public/image/luxury-header.jpeg') center/cover no-repeat;
   box-shadow: 0 8px 30px rgba(0,0,0,0.6);
 }
 
-/* Gradient overlay + subtle shimmer */
+/* Gradient overlay */
 .category-header::before {
   content: "";
   position: absolute;
@@ -41,54 +39,43 @@ body {
   z-index: 1;
 }
 
+/* Light streak animation */
 .category-header::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.05) 0%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(255,255,255,0.05) 100%
+  );
   transform: translateX(-100%);
   animation: light-streak 6s linear infinite;
   z-index: 2;
 }
 
-/* Header Title */
+@keyframes light-streak {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ---------- Glowing + Gradient Title ---------- */
 .category-title {
   position: relative;
   z-index: 3;
   font-size: 3rem;
   font-weight: 900;
+  text-transform: uppercase;
   text-align: center;
-  color: #fff;
   letter-spacing: 2px;
-  text-shadow: 0 0 12px rgba(255,255,255,0.3),
-               0 0 24px rgba(255,204,0,0.5),
-               0 0 40px rgba(255,102,0,0.6);
+
+  /* gradient text */
   background: linear-gradient(45deg, #ffd700, #ff8c00, #ffffff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
 
-/* Light streak animation */
-@keyframes light-streak {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-
-/* Glowing neon title */
-.category-title {
-  position: relative;
-  font-size: 3rem;
-  font-weight: 900;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-align: center;
-  z-index: 1;
+  /* glow effect */
   text-shadow:
     0 0 5px #fff,
     0 0 10px #ff6600,
@@ -109,8 +96,9 @@ body {
 .property-card {
   width: 360px;
   border-radius: 20px;
-  background: rgba(20, 20, 20, 0.6); /* semi-transparent glass */
-  backdrop-filter: blur(10px);       /* glass effect */
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow:
     0 4px 20px rgba(255,102,0,0.3),
     0 8px 30px rgba(0,170,255,0.2),
@@ -131,7 +119,7 @@ body {
   border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Property image with rounded corners */
+/* Property image */
 .property-image-wrapper {
   position: relative;
   border-radius: 16px;
@@ -175,14 +163,14 @@ body {
   text-shadow: 0 0 6px rgba(0,170,255,0.6);
 }
 
-/* Property Description & Location */
+/* Property Details */
 .property-card p {
   font-size: 0.9rem;
   margin: 3px 0;
   color: #ddd;
 }
 
-/* Price Styling */
+/* Price */
 .property-card p strong {
   font-size: 1.1rem;
   color: #ff6600;
@@ -210,7 +198,7 @@ body {
   box-shadow: 0 6px 20px rgba(255,102,0,0.6);
 }
 
-/* Loading Text */
+/* Loading */
 .loading-text {
   text-align: center;
   font-size: 1.2rem;

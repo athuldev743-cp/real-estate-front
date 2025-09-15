@@ -89,6 +89,14 @@ export default function PropertyDetails({ user }) {
     }
   };
 
+  // Scroll gallery function
+  const scrollGallery = (dir) => {
+    const container = document.querySelector(".property-images-row");
+    if (container) {
+      container.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
+    }
+  };
+
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
 
@@ -102,14 +110,33 @@ export default function PropertyDetails({ user }) {
       </div>
 
       <div className="property-main">
+        {/* ---------- Image Gallery Row ---------- */}
         <div className="property-image-container">
-          <img
-            src={property.images?.[0] || "/image/default-property.jpeg"}
-            alt={property.title}
-            className="property-image"
-          />
+          <button className="gallery-arrow left" onClick={() => scrollGallery("left")}>◀</button>
+
+          <div className="property-images-row">
+            {property.images && property.images.length > 0 ? (
+              property.images.map((img, index) => (
+                <img
+                  key={index}
+                  src={img || "/image/default-property.jpeg"}
+                  alt={`Property ${index}`}
+                  className="property-image"
+                />
+              ))
+            ) : (
+              <img
+                src="/image/default-property.jpeg"
+                alt="Default Property"
+                className="property-image"
+              />
+            )}
+          </div>
+
+          <button className="gallery-arrow right" onClick={() => scrollGallery("right")}>▶</button>
         </div>
 
+        {/* ---------- Property Info ---------- */}
         <div className="property-info">
           <h2>Property Details</h2>
           <p>{property.description || "No description available."}</p>
