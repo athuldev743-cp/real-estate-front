@@ -133,13 +133,17 @@ export const getCurrentUser = async () => {
 };
 
 // -------------------- Properties --------------------
+// -------------------- Properties --------------------
+
+// Add a new property
 export const addProperty = async (formData) =>
-  authFetch(`${BASE_URL}/api/properties`, { // ✅ changed here
+  authFetch(`${BASE_URL}/api/add-property`, {
     method: "POST",
-    headers: {}, 
+    headers: {}, // leave empty for FormData
     body: formData,
   });
 
+// Get all properties (with optional search)
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
     ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
@@ -147,6 +151,7 @@ export const getProperties = async (searchQuery = "") => {
   return authFetch(url);
 };
 
+// Get properties by category (with optional search)
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   if (!category) throw new Error("Category is required");
   const url = `${BASE_URL}/api/category/${encodeURIComponent(category.toLowerCase())}${
@@ -155,11 +160,13 @@ export const getPropertiesByCategory = async (category, searchQuery = "") => {
   return authFetch(url);
 };
 
+// Get single property by ID
 export const getPropertyById = async (id) => {
   if (!id) throw new Error("Property ID is required");
   return authFetch(`${BASE_URL}/api/property/${id}`);
 };
 
+// Get properties owned by current user
 export const getMyProperties = async () => authFetch(`${BASE_URL}/api/my-properties`);
 
 // -------------------- Chat --------------------
