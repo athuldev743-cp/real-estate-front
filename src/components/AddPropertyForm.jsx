@@ -86,6 +86,7 @@ export default function AddPropertyForm({ user }) {
   // ---------------- Add Property ----------------
   const handleAddProperty = async (e) => {
     e.preventDefault();
+
     if (!selectedLocation) return alert("Please add a location before submitting!");
     if (!category) return alert("Please select a category!");
     if (images.length === 0) return alert("Please select at least one image!");
@@ -94,14 +95,16 @@ export default function AddPropertyForm({ user }) {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("price", price);
-    formData.append("mobileNO", phone); // user can edit this
+    formData.append("mobileNO", phone);
     formData.append("category", category);
     formData.append("latitude", selectedLocation.lat);
     formData.append("longitude", selectedLocation.lon);
-    images.forEach((img) => formData.append("images", img));
+
+    // Append all images properly
+    images.forEach((img) => formData.append("images", img)); // backend expects multiple "images" fields
 
     try {
-      const res = await addProperty(formData);
+      const res = await addProperty(formData); // your API call
       console.log("✅ Property added:", res);
       alert("🏡 Property added successfully!");
 
@@ -110,7 +113,7 @@ export default function AddPropertyForm({ user }) {
       setDescription("");
       setPrice("");
       setCategory("");
-      setPhone(user?.phone || ""); // auto-fill again
+      setPhone(user?.phone || "");
       setSearchedLocation(null);
       setSelectedLocation(null);
       setSearch("");
@@ -123,6 +126,13 @@ export default function AddPropertyForm({ user }) {
     }
   };
 
+  // Clean up object URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      images.forEach((img) => URL.revokeObjectURL(img));
+    };
+  }, [images]);
+
   return (
     <div className="add-property-page">
       <h2>Add a New Property</h2>
@@ -130,7 +140,7 @@ export default function AddPropertyForm({ user }) {
         <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
         <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
         <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
-        
+
         {/* ---------------- Phone input ---------------- */}
         <input
           type="text"
@@ -140,14 +150,56 @@ export default function AddPropertyForm({ user }) {
           required
         />
 
+        {/* ---------------- File input ---------------- */}
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => setImages([...images, ...Array.from(e.target.files)])} // append new images
+          style={{ marginTop: "8px" }}
+        />
+
+        {/* ---------------- Image previews ---------------- */}
+        {images.length > 0 && (
+          <div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
+            {images.map((img, idx) => (
+              <div key={idx} style={{ position: "relative" }}>
+                <img
+                  src={URL.createObjectURL(img)}
+                  alt={`preview ${idx}`}
+                  width={100}
+                  height={100}
+                  style={{ objectFit: "cover", borderRadius: "6px", border: "1px solid #ccc" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setImages(images.filter((_, i) => i !== idx))}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    background: "red",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "20px",
+                    height: "20px",
+                    cursor: "pointer",
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <select value={category} onChange={(e) => setCategory(e.target.value)} required style={{ marginTop: "8px" }}>
           <option value="">Select Category</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.value}>{cat.name}</option>
           ))}
         </select>
-
-        <input type="file" multiple accept="image/*" onChange={(e) => setImages(Array.from(e.target.files))} style={{ marginTop: "8px" }} />
 
         <div className="search-form">
           <input type="text" placeholder="Search location..." value={search} onChange={(e) => setSearch(e.target.value)} />
