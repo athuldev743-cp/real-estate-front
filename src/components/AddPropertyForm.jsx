@@ -29,7 +29,7 @@ export default function AddPropertyForm({ user }) {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
-  const [category, setCategory] = useState(""); // ✅ dynamic category
+  const [category, setCategory] = useState("");
 
   // ---------------- Location states ----------------
   const [search, setSearch] = useState("");
@@ -39,12 +39,12 @@ export default function AddPropertyForm({ user }) {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
-  // ---------------- Autofill phone ----------------
+  // Autofill phone from user
   useEffect(() => {
     if (user?.phone) setPhone(user.phone);
   }, [user]);
 
-  // ---------------- Search location using backend ----------------
+  // ---------------- Search location ----------------
   const handleSearch = async () => {
     if (!search.trim()) {
       alert("Please enter a location to search!");
@@ -55,9 +55,7 @@ export default function AddPropertyForm({ user }) {
       const backendURL = `${process.env.REACT_APP_API_URL}/api/search-location`;
       const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
 
-      if (!res.ok) {
-        throw new Error(`Backend returned status ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Backend returned status ${res.status}`);
 
       const data = await res.json();
       console.log("🔎 API response:", data);
@@ -96,8 +94,9 @@ export default function AddPropertyForm({ user }) {
   };
 
   // ---------------- Add property ----------------
-  const handleAddProperty = (e) => {
+  const handleAddProperty = async (e) => {
     e.preventDefault();
+
     if (!selectedLocation) {
       alert("Please add a location before submitting property!");
       return;
@@ -112,24 +111,41 @@ export default function AddPropertyForm({ user }) {
       description,
       price,
       phone,
-      category, // ✅ category added
+      category,
       location: selectedLocation,
+      userId: user?._id,
     };
 
-    console.log("Property added:", newProperty);
-    alert("🏡 Property added successfully!");
+    try {
+      const backendURL = `${process.env.REACT_APP_API_URL}/api/properties`;
+      const res = await fetch(backendURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newProperty),
+      });
 
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setPrice("");
-    setPhone(user?.phone || "");
-    setCategory("");
-    setSearchedLocation(null);
-    setSelectedLocation(null);
-    setSearch("");
-    setSearchResults([]);
-    setSelectedIndex(null);
+      if (!res.ok) throw new Error(`Backend error: ${res.status}`);
+
+      const savedProperty = await res.json();
+      console.log("✅ Property saved:", savedProperty);
+
+      alert("🏡 Property added successfully!");
+
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setPrice("");
+      setPhone(user?.phone || "");
+      setCategory("");
+      setSearchedLocation(null);
+      setSelectedLocation(null);
+      setSearch("");
+      setSearchResults([]);
+      setSelectedIndex(null);
+    } catch (err) {
+      console.error("❌ Error saving property:", err);
+      alert("Failed to save property. Please try again later.");
+    }
   };
 
   return (
