@@ -133,11 +133,12 @@ export const getCurrentUser = async () => {
 };
 
 // -------------------- Properties --------------------
-export const addProperty = async (formData) => authFetch(`${BASE_URL}/api/add-property`, {
-  method: "POST",
-  headers: {}, // don't set Content-Type for FormData
-  body: formData,
-});
+export const addProperty = async (formData) =>
+  authFetch(`${BASE_URL}/api/properties`, { // ✅ changed here
+    method: "POST",
+    headers: {}, 
+    body: formData,
+  });
 
 export const getProperties = async (searchQuery = "") => {
   const url = searchQuery
