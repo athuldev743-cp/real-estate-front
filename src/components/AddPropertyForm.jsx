@@ -39,9 +39,18 @@ export default function AddPropertyForm({ user }) {
   const [images, setImages] = useState([]);
 
   // Auto-fill phone number from registered user
-  useEffect(() => {
-    if (user?.phone) setPhone(user.phone);
-  }, [user]);
+ useEffect(() => {
+  // 1️⃣ Try using the user prop
+  if (user?.phone) {
+    setPhone(user.phone);
+    // Save in localStorage for future use
+    localStorage.setItem("phone", user.phone);
+  } else {
+    // 2️⃣ Fallback to localStorage
+    const storedPhone = localStorage.getItem("phone");
+    if (storedPhone) setPhone(storedPhone);
+  }
+}, [user]);
 
   // ---------------- Search Location ----------------
   const handleSearch = async () => {
