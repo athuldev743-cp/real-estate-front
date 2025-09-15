@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { addProperty } from "../api/PropertyAPI"; // your API helper
 
 // Helper to recenter map when position changes
 function RecenterMap({ position }) {
   const map = useMap();
   useEffect(() => {
-    if (position) {
-      map.setView(position, 13);
-    }
+    if (position) map.setView(position, 13);
   }, [position, map]);
   return null;
 }
 
-// ✅ Category list
+// Category list
 const categories = [
   { id: 1, name: "Plots", value: "plots" },
   { id: 2, name: "Buildings", value: "buildings" },
@@ -39,7 +38,7 @@ export default function AddPropertyForm({ user }) {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
-  // Autofill phone from user
+  // ---------------- Autofill phone ----------------
   useEffect(() => {
     if (user?.phone) setPhone(user.phone);
   }, [user]);
@@ -50,32 +49,27 @@ export default function AddPropertyForm({ user }) {
       alert("Please enter a location to search!");
       return;
     }
-
     try {
-      const backendURL = `${process.env.REACT_APP_API_URL}/api/search-location`;
-      const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
-
-      if (!res.ok) throw new Error(`Backend returned status ${res.status}`);
-
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/search-location?q=${encodeURIComponent(search)}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch locations");
       const data = await res.json();
-      console.log("🔎 API response:", data);
-
-      if (data.length > 0) {
-        setSearchResults(data);
-        setSelectedIndex(0);
-        const { lat, lon } = data[0];
-        setPosition([parseFloat(lat), parseFloat(lon)]);
-        setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
-      } else {
+      if (data.length === 0) {
         alert("No results found!");
+        return;
       }
+      setSearchResults(data);
+      setSelectedIndex(0);
+      const { lat, lon } = data[0];
+      setPosition([parseFloat(lat), parseFloat(lon)]);
+      setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
     } catch (err) {
-      console.error("Search error:", err);
-      alert("Failed to fetch location. Please try again later.");
+      console.error(err);
+      alert("Failed to fetch location. Try again.");
     }
   };
 
-  // ---------------- Handle dropdown change ----------------
   const handleResultSelect = (index) => {
     setSelectedIndex(index);
     const { lat, lon } = searchResults[index];
@@ -83,7 +77,6 @@ export default function AddPropertyForm({ user }) {
     setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
   };
 
-  // ---------------- Confirm location ----------------
   const handleAddLocation = () => {
     if (!searchedLocation) {
       alert("Please search for a location first.");
@@ -93,10 +86,9 @@ export default function AddPropertyForm({ user }) {
     alert("✅ Location added successfully!");
   };
 
-  // ---------------- Add property ----------------
+  // ---------------- Add Property ----------------
   const handleAddProperty = async (e) => {
     e.preventDefault();
-
     if (!selectedLocation) {
       alert("Please add a location before submitting property!");
       return;
@@ -106,29 +98,19 @@ export default function AddPropertyForm({ user }) {
       return;
     }
 
-    const newProperty = {
-      title,
-      description,
-      price,
-      phone,
-      category,
-      location: selectedLocation,
-      userId: user?._id,
-    };
+    // Using FormData to support potential file uploads in future
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("phone", phone);
+    formData.append("category", category);
+    formData.append("lat", selectedLocation.lat);
+    formData.append("lon", selectedLocation.lon);
 
     try {
-      const backendURL = `${process.env.REACT_APP_API_URL}/api/properties`;
-      const res = await fetch(backendURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProperty),
-      });
-
-      if (!res.ok) throw new Error(`Backend error: ${res.status}`);
-
-      const savedProperty = await res.json();
-      console.log("✅ Property saved:", savedProperty);
-
+      const res = await addProperty(formData);
+      console.log("✅ Property added:", res);
       alert("🏡 Property added successfully!");
 
       // Reset form
@@ -151,7 +133,6 @@ export default function AddPropertyForm({ user }) {
   return (
     <div className="add-property-page">
       <h2>Add a New Property</h2>
-
       <form onSubmit={handleAddProperty} className="property-form">
         <input
           type="text"
@@ -184,7 +165,7 @@ export default function AddPropertyForm({ user }) {
           required
         />
 
-        {/* ---------------- Category dropdown ---------------- */}
+        {/* Category */}
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -199,7 +180,7 @@ export default function AddPropertyForm({ user }) {
           ))}
         </select>
 
-        {/* ---------------- Search location ---------------- */}
+        {/* Search Location */}
         <div className="search-form">
           <input
             type="text"
@@ -212,7 +193,7 @@ export default function AddPropertyForm({ user }) {
           </button>
         </div>
 
-        {/* ---------------- Dropdown for multiple results ---------------- */}
+        {/* Dropdown for multiple search results */}
         {searchResults.length > 1 && (
           <select
             value={selectedIndex}
@@ -227,7 +208,7 @@ export default function AddPropertyForm({ user }) {
           </select>
         )}
 
-        {/* ---------------- Add Location Button ---------------- */}
+        {/* Add Location */}
         <button
           type="button"
           onClick={handleAddLocation}
@@ -237,7 +218,7 @@ export default function AddPropertyForm({ user }) {
           Add Location
         </button>
 
-        {/* ---------------- Map Display ---------------- */}
+        {/* Map */}
         <MapContainer
           center={position}
           zoom={13}
@@ -245,13 +226,11 @@ export default function AddPropertyForm({ user }) {
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <RecenterMap position={position} />
-
           {searchedLocation && (
             <Marker position={[searchedLocation.lat, searchedLocation.lon]}>
               <Popup>Searched Location</Popup>
             </Marker>
           )}
-
           {selectedLocation && (
             <Marker position={[selectedLocation.lat, selectedLocation.lon]}>
               <Popup>Added Location</Popup>
@@ -259,7 +238,6 @@ export default function AddPropertyForm({ user }) {
           )}
         </MapContainer>
 
-        {/* ---------------- Show selected location ---------------- */}
         {selectedLocation && (
           <p>
             📍 Added: Lat {selectedLocation.lat}, Lng {selectedLocation.lon}
