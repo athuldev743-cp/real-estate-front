@@ -132,42 +132,53 @@ export const getCurrentUser = async () => {
   }
 };
 
-// -------------------- Properties --------------------
-// -------------------- Properties --------------------
+// ---------------- Add Property ----------------
+const handleAddProperty = async (e) => {
+  e.preventDefault();
 
-// Add a new property
-export const addProperty = async (formData) =>
-  authFetch(`${BASE_URL}/api/add-property`, {
-    method: "POST",
-    headers: {}, // leave empty for FormData
-    body: formData,
-  });
+  // ---------------- Validation ----------------
+  if (!selectedLocation) {
+    alert("Please add a location before submitting property!");
+    return;
+  }
+  if (!category) {
+    alert("Please select a category!");
+    return;
+  }
 
-// Get all properties (with optional search)
-export const getProperties = async (searchQuery = "") => {
-  const url = searchQuery
-    ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
-    : `${BASE_URL}/api/properties`;
-  return authFetch(url);
+  try {
+    // Create FormData
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("mobileNO", phone); // matches backend
+    formData.append("category", category);
+    formData.append("latitude", selectedLocation.lat);  // matches backend
+    formData.append("longitude", selectedLocation.lon); // matches backend
+
+    // Call API
+    const res = await addProperty(formData);
+    console.log("✅ Property added:", res);
+    alert("🏡 Property added successfully!");
+
+    // ---------------- Reset form ----------------
+    setTitle("");
+    setDescription("");
+    setPrice("");
+    setPhone(user?.phone || "");
+    setCategory("");
+    setSearchedLocation(null);
+    setSelectedLocation(null);
+    setSearch("");
+    setSearchResults([]);
+    setSelectedIndex(null);
+
+  } catch (err) {
+    console.error("❌ Error saving property:", err);
+    alert("Failed to save property. Please try again later.");
+  }
 };
-
-// Get properties by category (with optional search)
-export const getPropertiesByCategory = async (category, searchQuery = "") => {
-  if (!category) throw new Error("Category is required");
-  const url = `${BASE_URL}/api/category/${encodeURIComponent(category.toLowerCase())}${
-    searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
-  }`;
-  return authFetch(url);
-};
-
-// Get single property by ID
-export const getPropertyById = async (id) => {
-  if (!id) throw new Error("Property ID is required");
-  return authFetch(`${BASE_URL}/api/property/${id}`);
-};
-
-// Get properties owned by current user
-export const getMyProperties = async () => authFetch(`${BASE_URL}/api/my-properties`);
 
 // -------------------- Chat --------------------
 export const getMessages = async (propertyId) => {
