@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+
+// Helper to recenter map when position changes
+function RecenterMap({ position }) {
+  const map = useMap();
+  useEffect(() => {
+    if (position) {
+      map.setView(position, 13);
+    }
+  }, [position, map]);
+  return null;
+}
 
 export default function AddPropertyForm({ user }) {
   // ---------------- Form states ----------------
@@ -11,10 +22,11 @@ export default function AddPropertyForm({ user }) {
 
   // ---------------- Location states ----------------
   const [search, setSearch] = useState("");
- // Kochi: 9.9679° N, 76.2450° E
-const [position, setPosition] = useState([9.9679, 76.2450]); // Default Kochi
-const [searchedLocation, setSearchedLocation] = useState({ lat: 9.9679, lon: 76.2450 });
-const [selectedLocation, setSelectedLocation] = useState(null);
+  const [position, setPosition] = useState([9.9679, 76.2450]); // Kochi default
+  const [searchedLocation, setSearchedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [searchResults, setSearchResults] = useState([]); // store multiple results
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   // ---------------- Autofill phone ----------------
   useEffect(() => {
@@ -23,36 +35,45 @@ const [selectedLocation, setSelectedLocation] = useState(null);
 
   // ---------------- Search location using backend ----------------
   const handleSearch = async () => {
-  if (!search.trim()) {
-    alert("Please enter a location to search!");
-    return;
-  }
-
-  try {
-    const res = await fetch(
-      `https://back-end-lybr.onrender.com/api/search-location?q=${encodeURIComponent(search)}`
-    );
-
-    if (!res.ok) {
-      throw new Error(`Backend returned status ${res.status}`);
+    if (!search.trim()) {
+      alert("Please enter a location to search!");
+      return;
     }
 
-    const data = await res.json();
-    console.log("🔎 API response:", data); // add debug log
+    try {
+      const backendURL = `${process.env.REACT_APP_API_URL}/api/search-location`;
 
-    if (data.length > 0) {
-      const { lat, lon } = data[0];
-      setPosition([parseFloat(lat), parseFloat(lon)]);
-      setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
-    } else {
-      alert("No results found!");
+      const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
+
+      if (!res.ok) {
+        throw new Error(`Backend returned status ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("🔎 API response:", data);
+
+      if (data.length > 0) {
+        setSearchResults(data);
+        setSelectedIndex(0); // auto-select first result
+        const { lat, lon } = data[0];
+        setPosition([parseFloat(lat), parseFloat(lon)]);
+        setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
+      } else {
+        alert("No results found!");
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      alert("Failed to fetch location. Please try again later.");
     }
-  } catch (err) {
-    console.error("Search error:", err);
-    alert("Failed to fetch location. Please try again later.");
-  }
-};
+  };
 
+  // ---------------- Handle dropdown change ----------------
+  const handleResultSelect = (index) => {
+    setSelectedIndex(index);
+    const { lat, lon } = searchResults[index];
+    setPosition([parseFloat(lat), parseFloat(lon)]);
+    setSearchedLocation({ lat: parseFloat(lat), lon: parseFloat(lon) });
+  };
 
   // ---------------- Confirm location ----------------
   const handleAddLocation = () => {
@@ -90,6 +111,8 @@ const [selectedLocation, setSelectedLocation] = useState(null);
     setSearchedLocation(null);
     setSelectedLocation(null);
     setSearch("");
+    setSearchResults([]);
+    setSelectedIndex(null);
   };
 
   return (
@@ -141,6 +164,21 @@ const [selectedLocation, setSelectedLocation] = useState(null);
           </button>
         </div>
 
+        {/* ---------------- Dropdown for multiple results ---------------- */}
+        {searchResults.length > 1 && (
+          <select
+            value={selectedIndex}
+            onChange={(e) => handleResultSelect(e.target.value)}
+            style={{ marginTop: "8px" }}
+          >
+            {searchResults.map((loc, idx) => (
+              <option key={loc.place_id} value={idx}>
+                {loc.display_name}
+              </option>
+            ))}
+          </select>
+        )}
+
         {/* ---------------- Add Location Button ---------------- */}
         <button
           type="button"
@@ -158,6 +196,9 @@ const [selectedLocation, setSelectedLocation] = useState(null);
           style={{ height: "300px", width: "100%", marginTop: "10px" }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+          {/* Recenter on search */}
+          <RecenterMap position={position} />
 
           {searchedLocation && (
             <Marker position={[searchedLocation.lat, searchedLocation.lon]}>
