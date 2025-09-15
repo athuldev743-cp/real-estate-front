@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { getMyProperties } from "../api/PropertyAPI";
-import { FaShoppingCart } from "react-icons/fa";
-
-
+import Inbox from "./Inbox";
+import { useNavigate } from "react-router-dom";
+import { FaShoppingCart, FaInbox } from "react-icons/fa";
 import "./Account.css";
 
 export default function Account({ user, setUser }) {
   const navigate = useNavigate();
-
   const [properties, setProperties] = useState([]);
-  const [showCart, setShowCart] = useState(false);
-
+  const [inbox, setInbox] = useState([]);
+  const [showInbox, setShowInbox] = useState(false);
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
   });
+  const [showCart, setShowCart] = useState(false);
 
   const fullName = localStorage.getItem("fullName");
 
@@ -24,7 +23,7 @@ export default function Account({ user, setUser }) {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Fetch user's properties
+  // Fetch properties
   useEffect(() => {
     const fetchProperties = async () => {
       try {
@@ -37,32 +36,48 @@ export default function Account({ user, setUser }) {
     fetchProperties();
   }, []);
 
+  // Fetch inbox chats when Inbox is opened
+  useEffect(() => {
+    if (!showInbox) return;
+    const fetchInbox = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/chat/inbox`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch inbox");
+        const data = await res.json();
+        setInbox(data.chats || []);
+      } catch (err) {
+        console.error("Error fetching inbox:", err);
+      }
+    };
+    fetchInbox();
+  }, [showInbox]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("fullName");
     localStorage.removeItem("email");
     setUser(null);
-    navigate("/login");
-  };
-
-  const addToCart = (property) => {
-    if (!cart.find((item) => item._id === property._id)) {
-      setCart([...cart, property]);
-      alert(`${property.title} added to cart!`);
-    } else {
-      alert("This property is already in your cart.");
-    }
   };
 
   return (
     <div className="account-page">
       {/* ===== Header ===== */}
-      <header className="account-header">
+      <header
+        className="account-header"
+        style={{ backgroundImage: "url('/image/account-bg.jpeg')" }}
+      >
         <div className="header-overlay"></div>
         <div className="header-content">
-          <h1>Welcome, {fullName || "User"}</h1>
+          <h1>Welcome, {fullName}</h1>
           <div className="header-buttons">
-            <button className="nav-btn" onClick={() => setShowCart(prev => !prev)}>
+            <button className="nav-btn" onClick={() => setShowInbox((prev) => !prev)}>
+              <FaInbox /> Inbox
+            </button>
+            <button className="nav-btn" onClick={() => setShowCart(true)}>
               <FaShoppingCart /> Cart ({cart.length})
             </button>
             <button className="nav-btn logout-btn" onClick={handleLogout}>
@@ -72,37 +87,45 @@ export default function Account({ user, setUser }) {
         </div>
       </header>
 
-      {/* ===== Your Products Section ===== */}
+      {/* ===== Your Products ===== */}
       <section className="your-products">
         <h2>Your Products</h2>
         <div className="user-products-grid">
           {properties.map((prop) => (
             <div key={prop._id} className="property-card">
+              {prop.images?.length > 0 && (
+                <img
+                  src={prop.images[0]}
+                  alt={prop.title}
+                  className="property-image"
+                />
+              )}
               <h3>{prop.title}</h3>
               <p>Category: {prop.category}</p>
               <p>Location: {prop.location}</p>
-              <div className="property-actions">
-                <button
-                  className="edit-btn"
-                  onClick={() => navigate(`/edit-property/${prop._id}`)}
-                >
-                  Edit Property
-                </button>
-                <button
-                  className="add-to-cart-btn"
-                  onClick={() => addToCart(prop)}
-                >
-                  Add to Cart
-                </button>
-              </div>
+              <button
+                className="edit-btn"
+                onClick={() => navigate(`/property/${prop._id}`)}
+              >
+                ✏️ Edit Property
+              </button>
             </div>
           ))}
         </div>
       </section>
 
+      {/* ===== Inbox Panel ===== */}
+      {showInbox && (
+        <div className="inbox-panel">
+          <Inbox chats={inbox} onSelectChat={() => {}} />
+        </div>
+      )}
+
       {/* ===== Cart Sidebar ===== */}
       <div className={`cart-sidebar ${showCart ? "open" : ""}`}>
-        <button className="cart-back-btn" onClick={() => setShowCart(false)}>← Back</button>
+        <button className="cart-back-btn" onClick={() => setShowCart(false)}>
+          ← Back
+        </button>
         <h3>🛒 My Cart ({cart.length})</h3>
         <ul>
           {cart.map((item) => (

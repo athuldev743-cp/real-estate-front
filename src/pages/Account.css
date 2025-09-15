@@ -15,7 +15,8 @@ body {
 .account-header {
   position: relative;
   height: 220px;
-  background: url('/public/image/account-bg.jpeg') center/cover no-repeat;
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,7 +26,7 @@ body {
 .header-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .header-content {
@@ -52,7 +53,7 @@ body {
   border: none;
   border-radius: 12px;
   padding: 10px 16px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-weight: 600;
   cursor: pointer;
@@ -79,62 +80,55 @@ body {
 }
 
 .user-products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .property-card {
-  background: rgba(20,20,20,0.6);
+  display: flex;
+  align-items: center;
+  background: rgba(20, 20, 20, 0.6);
   backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(255,215,0,0.2);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+  gap: 20px;
+}
+
+.property-image {
+  width: 180px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .property-card h3 {
   color: #ffd700;
   font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .property-card p {
   color: #ddd;
-  margin: 6px 0;
+  margin: 4px 0;
 }
 
-.property-actions {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.edit-btn, .add-to-cart-btn {
+.edit-btn {
+  margin-top: 8px;
   border: none;
-  padding: 10px;
+  padding: 10px 16px;
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.edit-btn {
   background: #ff8c00;
   color: #000;
 }
 
 .edit-btn:hover {
   background: #ffd700;
-}
-
-.add-to-cart-btn {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
-
-.add-to-cart-btn:hover {
-  background: linear-gradient(90deg, #ffd700, #ff8c00);
-  color: #000;
 }
 
 /* ---------- Cart Sidebar ---------- */
@@ -144,9 +138,9 @@ body {
   right: -350px;
   width: 350px;
   height: 100%;
-  background: rgba(20,20,20,0.95);
+  background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
-  box-shadow: -6px 0 30px rgba(0,0,0,0.7);
+  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.7);
   padding: 20px;
   z-index: 3000;
   overflow-y: auto;
@@ -169,14 +163,14 @@ body {
 
 .cart-sidebar li {
   padding: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   color: #fff;
   transition: background 0.2s;
 }
 
 .cart-sidebar li:hover {
-  background: rgba(255,215,0,0.1);
+  background: rgba(255, 215, 0, 0.1);
   color: #ffd700;
 }
 
@@ -185,7 +179,7 @@ body {
   padding: 8px 12px;
   border: none;
   border-radius: 12px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
   cursor: pointer;
 }
@@ -195,17 +189,32 @@ body {
   color: #000;
 }
 
+/* ---------- Inbox Panel ---------- */
+.inbox-panel {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  width: 320px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+  padding: 15px;
+  z-index: 3000;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  .user-products-grid {
-    grid-template-columns: 1fr;
-    padding: 20px;
-  }
-
-  .header-content {
+  .property-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+  }
+
+  .property-image {
+    width: 100%;
+    height: 180px;
   }
 
   .cart-sidebar {
