@@ -38,19 +38,16 @@ export default function AddPropertyForm({ user }) {
 
   const [images, setImages] = useState([]);
 
-  // Auto-fill phone number from registered user
- useEffect(() => {
-  // 1️⃣ Try using the user prop
-  if (user?.phone) {
-    setPhone(user.phone);
-    // Save in localStorage for future use
-    localStorage.setItem("phone", user.phone);
-  } else {
-    // 2️⃣ Fallback to localStorage
-    const storedPhone = localStorage.getItem("phone");
-    if (storedPhone) setPhone(storedPhone);
-  }
-}, [user]);
+  // ---------------- Auto-fill phone number ----------------
+  useEffect(() => {
+    if (user?.phone) {
+      setPhone(user.phone);
+      localStorage.setItem("phone", user.phone); // store for refresh
+    } else {
+      const storedPhone = localStorage.getItem("phone");
+      if (storedPhone) setPhone(storedPhone);
+    }
+  }, [user]);
 
   // ---------------- Search Location ----------------
   const handleSearch = async () => {
@@ -97,7 +94,7 @@ export default function AddPropertyForm({ user }) {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("price", price);
-    formData.append("mobileNO", phone);
+    formData.append("mobileNO", phone); // user can edit this
     formData.append("category", category);
     formData.append("latitude", selectedLocation.lat);
     formData.append("longitude", selectedLocation.lon);
@@ -113,7 +110,7 @@ export default function AddPropertyForm({ user }) {
       setDescription("");
       setPrice("");
       setCategory("");
-      setPhone(user?.phone || "");
+      setPhone(user?.phone || ""); // auto-fill again
       setSearchedLocation(null);
       setSelectedLocation(null);
       setSearch("");
@@ -133,7 +130,15 @@ export default function AddPropertyForm({ user }) {
         <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
         <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
         <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
-        <input type="text" placeholder="Phone Number" value={phone} readOnly />
+        
+        {/* ---------------- Phone input ---------------- */}
+        <input
+          type="text"
+          placeholder="Phone Number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          required
+        />
 
         <select value={category} onChange={(e) => setCategory(e.target.value)} required style={{ marginTop: "8px" }}>
           <option value="">Select Category</option>
