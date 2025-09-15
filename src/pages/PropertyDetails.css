@@ -2,7 +2,7 @@
 
 /* General page layout */
 .property-details-page {
-  max-width: 1200px; /* wider to fit big gallery */
+  max-width: 1000px;
   margin: 20px auto;
   padding: 10px 20px;
   font-family: Arial, sans-serif;
@@ -40,76 +40,42 @@
   flex-wrap: wrap;
   gap: 20px;
   margin-top: 20px;
-  align-items: flex-start;
 }
 
-/* ---------- Image Gallery Row ---------- */
+/* Image row container */
 .property-image-container {
   flex: 1 1 100%;
-  display: flex;
-  align-items: center;
-  position: relative;
-  margin-bottom: 25px;
-}
-
-.property-images-row {
-  display: flex;
   overflow-x: auto;
-  gap: 15px;
+  white-space: nowrap;
+  padding-bottom: 10px;
   scroll-behavior: smooth;
-  padding: 10px 0;
 }
 
-.property-images-row::-webkit-scrollbar {
-  display: none; /* hide scrollbar */
+/* Image row */
+.property-image-row {
+  display: inline-flex;
+  gap: 15px;
 }
 
+/* Individual images */
 .property-image {
-  height: 500px;   /* big gallery height */
-  width: auto;
+  height: 500px; /* Force fixed height */
+  width: auto; /* Keep aspect ratio */
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  object-fit: cover; /* Ensure no stretching */
   flex-shrink: 0;
-  border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease;
-  object-fit: cover;
+  transition: transform 0.3s;
 }
 
 .property-image:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
-/* Gallery navigation arrows */
-.gallery-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0,0,0,0.5);
-  color: white;
-  border: none;
-  font-size: 22px;
-  padding: 10px 14px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 2;
-  transition: background 0.2s;
-}
-
-.gallery-arrow:hover {
-  background: rgba(0,0,0,0.7);
-}
-
-.gallery-arrow.left {
-  left: -15px;
-}
-
-.gallery-arrow.right {
-  right: -15px;
-}
-
-/* ---------- Info section ---------- */
+/* Info section */
 .property-info {
-  flex: 1 1 350px;
-  min-width: 320px;
+  flex: 1 1 300px;
 }
 
 .property-info h2 {
@@ -124,7 +90,7 @@
 
 /* Price styling */
 .price {
-  font-size: 20px;
+  font-size: 18px;
   color: #2a9d8f;
   font-weight: bold;
 }
@@ -134,13 +100,13 @@
 .add-to-cart-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 15px;
   margin-top: 10px;
-  padding: 10px 14px;
-  font-size: 15px;
+  padding: 8px 12px;
+  font-size: 14px;
   font-weight: 500;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -165,7 +131,7 @@
 
 /* Owner label */
 .owner-label {
-  margin-top: 12px;
+  margin-top: 10px;
   font-weight: bold;
   color: #264653;
 }
@@ -174,8 +140,7 @@
 .property-map {
   border-radius: 8px;
   overflow: hidden;
-  margin-top: 25px;
-  height: 350px; /* adjust so it matches new image proportions */
+  margin-top: 20px;
 }
 
 /* Chat modal */
