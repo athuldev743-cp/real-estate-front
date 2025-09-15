@@ -13,17 +13,27 @@ function RecenterMap({ position }) {
   return null;
 }
 
+// ✅ Category list
+const categories = [
+  { id: 1, name: "Plots", value: "plots" },
+  { id: 2, name: "Buildings", value: "buildings" },
+  { id: 3, name: "House", value: "house" },
+  { id: 4, name: "Apartment", value: "apartment" },
+  { id: 5, name: "Villa", value: "villa" },
+  { id: 6, name: "Farmland", value: "farmlands" },
+];
+
 export default function AddPropertyForm({ user }) {
   // ---------------- Form states ----------------
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
-  const [category, setCategory] = useState(""); // ✅ category state added
+  const [category, setCategory] = useState(""); // ✅ dynamic category
 
   // ---------------- Location states ----------------
   const [search, setSearch] = useState("");
-  const [position, setPosition] = useState([9.9679, 76.2450]); // Kochi default
+  const [position, setPosition] = useState([9.9679, 76.245]); // Kochi default
   const [searchedLocation, setSearchedLocation] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
@@ -43,7 +53,6 @@ export default function AddPropertyForm({ user }) {
 
     try {
       const backendURL = `${process.env.REACT_APP_API_URL}/api/search-location`;
-
       const res = await fetch(`${backendURL}?q=${encodeURIComponent(search)}`);
 
       if (!res.ok) {
@@ -159,7 +168,7 @@ export default function AddPropertyForm({ user }) {
           required
         />
 
-        {/* ---------------- Category ---------------- */}
+        {/* ---------------- Category dropdown ---------------- */}
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -167,10 +176,11 @@ export default function AddPropertyForm({ user }) {
           style={{ marginTop: "8px" }}
         >
           <option value="">Select Category</option>
-          <option value="House">House</option>
-          <option value="Apartment">Apartment</option>
-          <option value="Land">Land</option>
-          <option value="Commercial">Commercial</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.value}>
+              {cat.name}
+            </option>
+          ))}
         </select>
 
         {/* ---------------- Search location ---------------- */}
