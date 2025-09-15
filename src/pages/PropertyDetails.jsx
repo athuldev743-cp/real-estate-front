@@ -110,31 +110,34 @@ export default function PropertyDetails({ user }) {
       </div>
 
       <div className="property-main">
-        {/* ---------- Image Gallery Row ---------- */}
-        <div className="property-image-container">
-          <button className="gallery-arrow left" onClick={() => scrollGallery("left")}>◀</button>
+       {/* ---------- Image Gallery Row ---------- */}
+<div className="property-image-container">
+  <button className="gallery-arrow left" onClick={() => scrollGallery("left")}>◀</button>
 
-          <div className="property-images-row">
-            {property.images && property.images.length > 0 ? (
-              property.images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img || "/image/default-property.jpeg"}
-                  alt={`Property ${index}`}
-                  className="property-image"
-                />
-              ))
-            ) : (
-              <img
-                src="/image/default-property.jpeg"
-                alt="Default Property"
-                className="property-image"
-              />
-            )}
-          </div>
+  <div className="property-images-row">
+    {property.images && property.images.length > 0 ? (
+      property.images.map((img, index) => (
+        <img
+          key={index}
+          src={img || "/image/default-property.jpeg"}
+          alt={`Property ${index}`}
+          className="property-image"
+          onClick={() => scrollGallery("right")}   // 👉 click scrolls right
+        />
+      ))
+    ) : (
+      <img
+        src="/image/default-property.jpeg"
+        alt="Default Property"
+        className="property-image"
+        onClick={() => scrollGallery("right")}
+      />
+    )}
+  </div>
 
-          <button className="gallery-arrow right" onClick={() => scrollGallery("right")}>▶</button>
-        </div>
+  <button className="gallery-arrow right" onClick={() => scrollGallery("right")}>▶</button>
+</div>
+
 
         {/* ---------- Property Info ---------- */}
         <div className="property-info">
