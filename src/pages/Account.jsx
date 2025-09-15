@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getMyProperties, getNotifications, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat";
 import Inbox from "./Inbox";
@@ -6,11 +7,16 @@ import { FaShoppingCart, FaInbox } from "react-icons/fa";
 import "./Account.css";
 
 export default function Account({ user, setUser }) {
+  const navigate = useNavigate();
+
   const [properties, setProperties] = useState([]);
-  const [activeChat, setActiveChat] = useState(null); // { chatId, propertyId, ownerId }
+  const [activeChat, setActiveChat] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [inbox, setInbox] = useState([]);
   const [showInbox, setShowInbox] = useState(false);
+  const [showCart, setShowCart] = useState(false);
+
+  // Load cart from localStorage
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
@@ -18,12 +24,12 @@ export default function Account({ user, setUser }) {
 
   const fullName = localStorage.getItem("fullName");
 
-  // Save cart to localStorage
+  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Fetch properties
+  // Fetch user's properties
   useEffect(() => {
     const fetchProperties = async () => {
       try {
@@ -51,13 +57,14 @@ export default function Account({ user, setUser }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch inbox chats when Inbox is opened
+  // Fetch inbox chats when inbox panel is opened
   useEffect(() => {
     if (!showInbox) return;
     const fetchInbox = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
+
         const res = await fetch(`${process.env.REACT_APP_API_URL}/chat/inbox`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -81,6 +88,7 @@ export default function Account({ user, setUser }) {
     localStorage.removeItem("fullName");
     localStorage.removeItem("email");
     setUser(null);
+    navigate("/login");
   };
 
   const openChat = async (property) => {
@@ -131,7 +139,7 @@ export default function Account({ user, setUser }) {
               </span>
             )}
           </button>
-          <button className="nav-btn" onClick={() => {}}>
+          <button className="nav-btn" onClick={() => setShowCart(prev => !prev)}>
             <FaShoppingCart /> Cart ({cart.length})
           </button>
           <button className="nav-btn logout-btn" onClick={handleLogout}>
@@ -147,7 +155,7 @@ export default function Account({ user, setUser }) {
         </div>
       )}
 
-      {/* ===== User Products ===== */}
+      {/* ===== User Products Grid ===== */}
       <div className="user-products-grid">
         {properties.map((prop) => (
           <div key={prop._id} className="property-card">
@@ -184,19 +192,21 @@ export default function Account({ user, setUser }) {
         </div>
       )}
 
-      {/* ===== Cart Preview ===== */}
-      {cart.length > 0 && (
-        <div className="cart-preview">
-          <h3>🛒 My Cart ({cart.length})</h3>
-          <ul>
-            {cart.map((item) => (
-              <li key={item._id}>
-                {item.title} - ₹{item.price || "N/A"}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* ===== Cart Sidebar ===== */}
+      <div className={`cart-sidebar ${showCart ? "open" : ""}`}>
+        <h3>🛒 My Cart ({cart.length})</h3>
+        <ul>
+          {cart.map((item) => (
+            <li
+              key={item._id}
+              className="cart-item"
+              onClick={() => navigate(`/property/${item._id}`)}
+            >
+              {item.title} - ₹{item.price || "N/A"}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

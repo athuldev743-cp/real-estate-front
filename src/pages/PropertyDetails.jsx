@@ -5,6 +5,7 @@ import Chat from "./Chat";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./PropertyDetails.css";
+import { FaShoppingCart } from "react-icons/fa";
 
 export default function PropertyDetails({ user }) {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function PropertyDetails({ user }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatData, setChatData] = useState(null);
 
-  // Cart state from localStorage
+  // Cart state (sync with localStorage)
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
@@ -33,11 +34,6 @@ export default function PropertyDetails({ user }) {
     if (!userEmail) navigate("/login");
   }, [userEmail, navigate]);
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
   // Fetch property details
   useEffect(() => {
     const fetchProperty = async () => {
@@ -54,6 +50,11 @@ export default function PropertyDetails({ user }) {
     fetchProperty();
   }, [id]);
 
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
   // Check if current user is owner
   const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 
@@ -64,7 +65,7 @@ export default function PropertyDetails({ user }) {
       setChatData({
         chatId: res.chatId,
         propertyId: property._id,
-        ownerId: property.owner, // email of owner
+        ownerId: property.owner,
       });
       setChatOpen(true);
     } catch (err) {
@@ -78,8 +79,8 @@ export default function PropertyDetails({ user }) {
     setChatData(null);
   };
 
-  // Add to cart
-  const handleAddToCart = () => {
+  // Add to cart function
+  const addToCart = () => {
     if (!cart.find((item) => item._id === property._id)) {
       setCart([...cart, property]);
       alert(`${property.title} added to cart!`);
@@ -117,22 +118,24 @@ export default function PropertyDetails({ user }) {
           <p><strong>Owner:</strong> {property.ownerFullName || property.owner || "N/A"}</p>
           <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
 
+          {/* Chat button */}
           {!isOwner && (
-            <>
-              <button className="chat-btn" onClick={handleChatOpen}>
-                💬 Chat with Seller
-              </button>
-              <button className="add-to-cart-btn" onClick={handleAddToCart} style={{ marginTop: "10px" }}>
-                🛒 Add to Cart
-              </button>
-            </>
+            <button className="chat-btn" onClick={handleChatOpen}>
+              💬 Chat with Seller
+            </button>
           )}
-
           {isOwner && <p className="owner-label">You are the owner of this property</p>}
+
+          {/* Add to cart button */}
+          {!isOwner && (
+            <button className="add-to-cart-btn" onClick={addToCart} style={{ marginTop: "10px" }}>
+              <FaShoppingCart /> Add to Cart
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Map */}
+      {/* Map for buyers */}
       {property.latitude && property.longitude && (
         <div className="property-map" style={{ height: "300px", width: "100%", marginTop: "20px" }}>
           <MapContainer
