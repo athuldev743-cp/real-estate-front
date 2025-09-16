@@ -17,16 +17,18 @@ export default function PropertyDetails({ user }) {
   const [chatData, setChatData] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null); // For full image
 
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : [];
-  });
-
   const currentUser = user || {
     fullName: localStorage.getItem("fullName"),
     email: localStorage.getItem("email"),
   };
   const userEmail = currentUser?.email?.trim().toLowerCase() || null;
+
+  // ✅ Load cart for this specific user
+  const [cart, setCart] = useState(() => {
+    if (!userEmail) return [];
+    const saved = localStorage.getItem(`cart_${userEmail}`);
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     if (!userEmail) navigate("/login");
@@ -47,9 +49,12 @@ export default function PropertyDetails({ user }) {
     fetchProperty();
   }, [id]);
 
+  // ✅ Save cart per user
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+    if (userEmail) {
+      localStorage.setItem(`cart_${userEmail}`, JSON.stringify(cart));
+    }
+  }, [cart, userEmail]);
 
   const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 

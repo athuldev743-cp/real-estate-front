@@ -1,5 +1,6 @@
+// src/pages/Account.jsx
 import React, { useState, useEffect } from "react";
-import { getMyProperties } from "../api/PropertyAPI";
+import { getMyProperties, getCart, removeFromCart } from "../api/PropertyAPI";
 import Inbox from "./Inbox";
 import { useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaInbox, FaTrash } from "react-icons/fa";
@@ -10,20 +11,12 @@ export default function Account({ user, setUser }) {
   const [properties, setProperties] = useState([]);
   const [inbox, setInbox] = useState([]);
   const [showInbox, setShowInbox] = useState(false);
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
 
   const fullName = localStorage.getItem("fullName");
 
-  // Save cart to localStorage
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  // Fetch properties
+  // Fetch user properties
   useEffect(() => {
     const fetchProperties = async () => {
       try {
@@ -56,20 +49,38 @@ export default function Account({ user, setUser }) {
     fetchInbox();
   }, [showInbox]);
 
+  // Fetch cart from backend
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  const fetchCart = async () => {
+    try {
+      const data = await getCart();
+      setCart(data.items || []);
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+    }
+  };
+
+  const handleRemoveFromCart = async (id) => {
+    try {
+      await removeFromCart(id);
+      fetchCart(); // refresh cart
+    } catch (err) {
+      console.error("Error removing from cart:", err);
+    }
+  };
+
+  const handleCheckout = () => {
+    alert("Checkout feature coming soon!");
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("fullName");
     localStorage.removeItem("email");
     setUser(null);
-  };
-
-  const handleRemoveFromCart = (id) => {
-    const updatedCart = cart.filter((item) => item._id !== id);
-    setCart(updatedCart);
-  };
-
-  const handleCheckout = () => {
-    alert("Checkout feature coming soon!");
   };
 
   return (

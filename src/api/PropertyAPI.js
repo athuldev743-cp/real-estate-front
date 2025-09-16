@@ -181,3 +181,21 @@ export const deleteProperty = async (id) => {
     method: "DELETE",
   });
 };
+// -------------------- Cart --------------------
+export const getCart = async () => {
+  return authFetch(`${BASE_URL}/api/cart`);
+};
+
+export const addToCart = async (propertyId) => {
+  if (!propertyId) throw new Error("Property ID is required");
+  return authFetch(`${BASE_URL}/api/cart/${propertyId}`, {
+    method: "POST",
+  });
+};
+
+export const removeFromCart = async (propertyId) => {
+  if (!propertyId) throw new Error("Property ID is required");
+  return authFetch(`${BASE_URL}/api/cart/${propertyId}`, {
+    method: "DELETE",
+  });
+};
