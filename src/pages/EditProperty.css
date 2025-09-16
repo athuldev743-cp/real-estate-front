@@ -1,58 +1,125 @@
-.edit-property-page {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background: black;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-.edit-property-page h2 {
-  margin-bottom: 20px;
-  text-align: center;
-  color: #333;
+/* Background + Text */
+body {
+  background-color: #000000; /* pure black */
+  color: #ffffff; /* white text */
+  line-height: 1.6;
 }
 
-.edit-form label {
-  display: block;
-  margin-bottom: 15px;
-  font-weight: bold;
-  color: #444;
+/* Links */
+a {
+  color: #1e90ff; /* neon blue */
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+a:hover {
+  color: #00bfff;
 }
 
-.edit-form input,
-.edit-form textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-.edit-form textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.edit-form button {
-  margin-top: 20px;
-  width: 100%;
-  padding: 12px;
-  background: #007bff;
-  color:  #aaa;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
+/* Buttons */
+button {
+  background-color: #111111;
+  border: 1px solid #444;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+}
+button:hover {
+  background-color: #222222;
+  border-color: #666;
 }
 
-.edit-form button:hover {
-  background: #0056b3;
+/* Inputs / Forms */
+input, select, textarea {
+  background-color: #111111;
+  border: 1px solid #333333;
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
+  width: 100%;
+  outline: none;
+  transition: border 0.3s ease;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #1e90ff;
 }
 
-.edit-form button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
+/* Cards */
+.card {
+  background-color: #0a0a0a;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px 0;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+}
+
+/* Header / Navbar */
+header, nav {
+  background-color: #0d0d0d;
+  border-bottom: 1px solid #222;
+  padding: 15px 20px;
+}
+nav a {
+  margin-right: 15px;
+  font-weight: 500;
+}
+
+/* Category Header */
+.category-header {
+  background: url("/image/luxury-header.jpeg") center/cover no-repeat;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  border-bottom: 2px solid #111;
+}
+
+/* Property Grid */
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+.property-card {
+  background-color: #111;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+  color: #fff;
+  transition: transform 0.3s ease, border 0.3s ease;
+}
+.property-card:hover {
+  transform: translateY(-4px);
+  border-color: #1e90ff;
+}
+.property-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* Footer */
+footer {
+  background-color: #0d0d0d;
+  border-top: 1px solid #222;
+  padding: 20px;
+  text-align: center;
+  color: #777;
+  font-size: 0.9rem;
 }
