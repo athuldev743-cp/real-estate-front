@@ -89,9 +89,9 @@ export default function Category() {
           <div className="slider-container">
             <input
               type="range"
-              min={100000}               // 1 lakh
-              max={10000000000}          // 100 crore
-              step={100000}              // 1 lakh step
+              min={10000}               
+              max={10000000000}          
+              step={10000}            
               value={price}
               onChange={(e) => setPrice(Number(e.target.value))}
               className="price-slider"
