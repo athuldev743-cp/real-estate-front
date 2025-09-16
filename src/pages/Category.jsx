@@ -11,10 +11,16 @@ export default function Category() {
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Filters
   const [price, setPrice] = useState(10000000); // default max price
   const [locationFilter, setLocationFilter] = useState("");
 
   const navigate = useNavigate();
+
+  const displayCategoryName = (cat) => {
+    if (!cat || cat.toLowerCase() === "all") return "Top Deals";
+    return cat.charAt(0).toUpperCase() + cat.slice(1);
+  };
 
   // Fetch properties
   useEffect(() => {
@@ -42,31 +48,23 @@ export default function Category() {
   useEffect(() => {
     let data = [...properties];
 
-    // Price filter
-    if (price) {
-      data = data.filter((p) => p.price <= price);
-    }
+    // Filter by price
+    data = data.filter((p) => p.price <= price);
 
-    // Location filter
+    // Filter by location
     if (locationFilter) {
-      const filterText = locationFilter.toLowerCase();
       data = data.filter((p) => {
         const loc = `${p.location || ""} ${p.city || ""} ${p.address || ""}`.toLowerCase();
-        return loc.includes(filterText);
+        return loc.includes(locationFilter.toLowerCase());
       });
     }
 
     setFilteredProperties(data);
   }, [price, locationFilter, properties]);
 
-  const displayCategoryName = (cat) => {
-    if (!cat || cat.toLowerCase() === "all") return "Top Deals";
-    return cat.charAt(0).toUpperCase() + cat.slice(1);
-  };
-
   return (
     <div className="category-page">
-      {/* Category Header with Background */}
+      {/* ---------- Category Header ---------- */}
       <div
         className="category-header"
         style={{
@@ -82,15 +80,15 @@ export default function Category() {
         <h2 className="category-title">{displayCategoryName(category)}</h2>
       </div>
 
-      {/* Filters */}
+      {/* ---------- Filters ---------- */}
       <div className="filters">
         <label>
           Max Price: ₹{price.toLocaleString()}
           <input
             type="range"
-            min={100000}        // 1 Lakh
-            max={10000000000}   // 100 Crores
-            step={100000}       // 1 Lakh step
+            min={100000}        // 1 lakh
+            max={1000000000}   // 10 crore (adjustable)
+            step={100000}       // 1 lakh step
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
           />
@@ -104,13 +102,13 @@ export default function Category() {
         />
       </div>
 
-      {/* Properties */}
+      {/* ---------- Properties Grid ---------- */}
       {loading ? (
         <p className="loading-text">Loading properties...</p>
       ) : filteredProperties.length > 0 ? (
         <div className="properties-grid">
           {filteredProperties.map((p) => (
-            <div key={p._id || p.title} className="property-card">
+            <div key={p._id || p.title} className="property-card-fixed">
               <div className="property-image-wrapper">
                 <img
                   src={
@@ -119,7 +117,6 @@ export default function Category() {
                       : p.image_url || "/image/default-property.jpeg"
                   }
                   alt={p.title}
-                  className="property-image"
                 />
                 {p.hasNewMessages && (
                   <div className="chat-badge">
