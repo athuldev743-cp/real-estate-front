@@ -11,7 +11,6 @@ export default function Category() {
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters
   const [price, setPrice] = useState(10000000); // default max price
   const [locationFilter, setLocationFilter] = useState("");
 
@@ -43,16 +42,17 @@ export default function Category() {
   useEffect(() => {
     let data = [...properties];
 
-    // Filter by price
+    // Price filter
     if (price) {
       data = data.filter((p) => p.price <= price);
     }
 
-    // Filter by location
+    // Location filter
     if (locationFilter) {
+      const filterText = locationFilter.toLowerCase();
       data = data.filter((p) => {
         const loc = `${p.location || ""} ${p.city || ""} ${p.address || ""}`.toLowerCase();
-        return loc.includes(locationFilter.toLowerCase());
+        return loc.includes(filterText);
       });
     }
 
@@ -66,7 +66,19 @@ export default function Category() {
 
   return (
     <div className="category-page">
-      <div className="category-header">
+      {/* Category Header with Background */}
+      <div
+        className="category-header"
+        style={{
+          backgroundImage: "url(/image/luxury-header.jpeg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: "200px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <h2 className="category-title">{displayCategoryName(category)}</h2>
       </div>
 
@@ -76,9 +88,9 @@ export default function Category() {
           Max Price: ₹{price.toLocaleString()}
           <input
             type="range"
-            min={100000}        // 1 lakh
-            max={10000000000}   // 100 crore
-            step={100000}       // 1 lakh step
+            min={100000}        // 1 Lakh
+            max={10000000000}   // 100 Crores
+            step={100000}       // 1 Lakh step
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
           />
