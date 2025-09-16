@@ -87,23 +87,24 @@ export default function Category() {
         <label className="slider-label">
           Max Price: ₹{price.toLocaleString()}
           <div className="slider-container">
-            <input
-              type="range"
-              min={10000}               
-              max={10000000000}          
-              step={10000}            
-              value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
-              className="price-slider"
-            />
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `calc(${((price - 100000) / (10000000000 - 100000)) * 100}% - 20px)`,
-              }}
-            >
-              ₹{price.toLocaleString()}
-            </div>
+           <input type="range"
+          min={10000}                // ₹10k minimum
+          max={5000000000}           // ₹50 crore maximum
+          step={10000}               // step of ₹10k
+          value={price}
+          onChange={(e) => setPrice(Number(e.target.value))}
+          className="price-slider"
+/>
+
+<div
+  className="slider-tooltip"
+  style={{
+    left: ((price - 10000) / (5000000000 - 10000)) * 100 + "%"
+  }}
+>
+  ₹{price.toLocaleString()}
+</div>
+
           </div>
         </label>
 
