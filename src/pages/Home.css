@@ -12,26 +12,7 @@ body {
   line-height: 1.6;
 }
 
-/* ---------- Navbar ---------- */
-/* ---------- Navbar ---------- */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 12px 40px;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between; /* logo left, links right */
-  align-items: center;
-  background: rgba(0, 0, 0, 0.45); /* glassy black */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  transition: transform 0.3s ease-in-out;
-}
 
-/* ---------- Navbar Content ---------- */
 /* ---------- Navbar ---------- */
 .navbar {
   position: fixed;
@@ -76,6 +57,7 @@ body {
 /* ---------- Nav Links ---------- */
 .nav-links {
   display: flex;
+  margin-left: auto;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -83,15 +65,25 @@ body {
   align-items: center;
 }
 
-.nav-links li {
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0 0 0 60px; /* increase left margin to create space from logo */
+  padding: 0;
+  gap: 20px; /* spacing between buttons */
+  align-items: center;
+}
+.nav-search {
   display: flex;
   align-items: center;
+  gap: 10px;
+  margin-left: auto; /* THIS pushes it to the right */
 }
 
 /* ---------- Buttons ---------- */
 .register-btn,
 .add-property-btn,
-.my-account-btn,
+
 .search-btn,
 .view-deals-btn {
   background: black;
@@ -103,11 +95,16 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
-
-.search-btn {
-  margin-right: 30px;
+.my-account-btn {
+  min-width: 140px; 
+  text-align: center; 
+  background: black;
+  color: white;
 }
+
+
+
+
 
 /* Hover effect for buttons */
 .register-btn:hover,
