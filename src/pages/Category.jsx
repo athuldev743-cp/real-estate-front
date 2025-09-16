@@ -11,9 +11,12 @@ export default function Category() {
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  // Price filter
+  const MIN = 100000;       // 1 Lakh
+  const MAX = 1000000000;   // 100 Crore
+  const [priceRange, setPriceRange] = useState([MIN, MAX]);
+
+  // Location filter
   const [locationFilter, setLocationFilter] = useState("");
 
   const navigate = useNavigate();
@@ -27,8 +30,7 @@ export default function Category() {
         if (category?.toLowerCase() === "all") {
           data = await getProperties(searchQuery);
         } else {
-          const backendCategory = category.toLowerCase();
-          data = await getPropertiesByCategory(backendCategory, searchQuery);
+          data = await getPropertiesByCategory(category.toLowerCase(), searchQuery);
         }
         setProperties(data);
         setFilteredProperties(data);
@@ -44,21 +46,26 @@ export default function Category() {
   // Apply filters
   useEffect(() => {
     let data = [...properties];
-
-    if (minPrice) {
-      data = data.filter((p) => p.price >= parseInt(minPrice));
-    }
-    if (maxPrice) {
-      data = data.filter((p) => p.price <= parseInt(maxPrice));
-    }
+    data = data.filter(
+      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
+    );
     if (locationFilter) {
       data = data.filter((p) =>
-        p.location.toLowerCase().includes(locationFilter.toLowerCase())
+        p.location?.toLowerCase().includes(locationFilter.toLowerCase())
       );
     }
-
     setFilteredProperties(data);
-  }, [minPrice, maxPrice, locationFilter, properties]);
+  }, [priceRange, locationFilter, properties]);
+
+  const handleMinChange = (e) => {
+    const val = Number(e.target.value);
+    if (val <= priceRange[1]) setPriceRange([val, priceRange[1]]);
+  };
+
+  const handleMaxChange = (e) => {
+    const val = Number(e.target.value);
+    if (val >= priceRange[0]) setPriceRange([priceRange[0], val]);
+  };
 
   const displayCategoryName = (cat) => {
     if (!cat || cat.toLowerCase() === "all") return "Top Deals";
@@ -67,7 +74,7 @@ export default function Category() {
 
   return (
     <div className="category-page">
-      {/* Animated Header */}
+      {/* Header */}
       <div className="category-header">
         <div className="animated-gradient"></div>
         <div className="light-streaks"></div>
@@ -76,18 +83,31 @@ export default function Category() {
 
       {/* Filters */}
       <div className="filters">
-        <input
-          type="number"
-          placeholder="Min Price"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Max Price"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-        />
+        <div className="dual-slider">
+          <label>Price Range: ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}</label>
+          <div className="slider-container">
+            <input
+              type="range"
+              min={MIN}
+              max={MAX}
+              step={100000}
+              value={priceRange[0]}
+              onChange={handleMinChange}
+              className="range-min"
+            />
+            <input
+              type="range"
+              min={MIN}
+              max={MAX}
+              step={100000}
+              value={priceRange[1]}
+              onChange={handleMaxChange}
+              className="range-max"
+            />
+            <div className="slider-track"></div>
+          </div>
+        </div>
+
         <input
           type="text"
           placeholder="Filter by Location"
@@ -96,7 +116,7 @@ export default function Category() {
         />
       </div>
 
-      {/* Properties */}
+      {/* Properties Grid */}
       {loading ? (
         <p className="loading-text">Loading properties...</p>
       ) : filteredProperties.length > 0 ? (
@@ -107,7 +127,7 @@ export default function Category() {
                 <img
                   src={
                     Array.isArray(p.images) && p.images.length > 0
-                      ? p.images[0] // show only first image in card
+                      ? p.images[0]
                       : p.image_url || "/image/default-property.jpeg"
                   }
                   alt={p.title}
@@ -121,7 +141,7 @@ export default function Category() {
               </div>
               <h3>{p.title}</h3>
               <p>{p.description}</p>
-              <p><strong>₹{p.price}</strong></p>
+              <p><strong>₹{p.price.toLocaleString()}</strong></p>
               <p>{p.location}</p>
               <div className="property-actions">
                 <button
