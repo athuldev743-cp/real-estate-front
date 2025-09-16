@@ -34,18 +34,18 @@ export default function EditProperty() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [phone, setPhone] = useState("");
-  const [images, setImages] = useState([]);
-  const [existingImages, setExistingImages] = useState([]);
+  const [images, setImages] = useState([]); // new uploads
+  const [existingImages, setExistingImages] = useState([]); // images already in DB
 
   // Map
   const [position, setPosition] = useState([9.9679, 76.245]);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  // Fetch property
+  // Fetch property from backend
   useEffect(() => {
     async function fetchProperty() {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/properties/${id}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/property/${id}`);
         if (!res.ok) throw new Error("Property not found");
         const data = await res.json();
 
@@ -55,6 +55,7 @@ export default function EditProperty() {
         setCategory(data.category || "");
         setPhone(data.mobileNO || "");
         setExistingImages(data.images || []);
+
         if (data.latitude && data.longitude) {
           setSelectedLocation({ lat: data.latitude, lon: data.longitude });
           setPosition([data.latitude, data.longitude]);
@@ -101,7 +102,7 @@ export default function EditProperty() {
       images.forEach((img) => formData.append("images", img));
       formData.append("existingImages", JSON.stringify(existingImages));
 
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/properties/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/property/${id}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -121,7 +122,7 @@ export default function EditProperty() {
     if (!window.confirm("⚠️ Are you sure you want to delete this property?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/properties/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/property/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -160,9 +161,7 @@ export default function EditProperty() {
             {existingImages.map((img, idx) => (
               <div key={idx} className="image-preview">
                 <img src={img} alt="existing" />
-                <button type="button" onClick={() => removeExistingImage(idx)}>
-                  ×
-                </button>
+                <button type="button" onClick={() => removeExistingImage(idx)}>×</button>
               </div>
             ))}
           </div>
@@ -175,9 +174,7 @@ export default function EditProperty() {
             {images.map((img, idx) => (
               <div key={idx} className="image-preview">
                 <img src={URL.createObjectURL(img)} alt="new" />
-                <button type="button" onClick={() => removeNewImage(idx)}>
-                  ×
-                </button>
+                <button type="button" onClick={() => removeNewImage(idx)}>×</button>
               </div>
             ))}
           </div>
@@ -187,11 +184,7 @@ export default function EditProperty() {
         <MapContainer center={position} zoom={13} style={{ height: "300px", width: "100%", marginTop: "10px" }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <RecenterMap position={position} />
-          {selectedLocation && (
-            <Marker position={[selectedLocation.lat, selectedLocation.lon]}>
-              <Popup>Selected Location</Popup>
-            </Marker>
-          )}
+          {selectedLocation && <Marker position={[selectedLocation.lat, selectedLocation.lon]}><Popup>Selected Location</Popup></Marker>}
         </MapContainer>
 
         <div className="edit-actions">
