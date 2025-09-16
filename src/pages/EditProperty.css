@@ -77,7 +77,7 @@ nav a {
 
 /* Category Header */
 .category-header {
-  background: url("/image/luxury-header.jpeg") center/cover no-repeat;
+  background: url("/public/image/account-header.jpeg") center/cover no-repeat;
   height: 250px;
   display: flex;
   align-items: center;
