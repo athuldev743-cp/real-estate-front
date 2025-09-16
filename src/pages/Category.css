@@ -8,7 +8,6 @@
 
 /* Header */
 .category-header {
-  position: relative;
   margin-bottom: 20px;
 }
 
@@ -35,92 +34,48 @@
   min-width: 200px;
 }
 
-/* Dual Slider Container */
-.dual-slider {
-  flex: 2;
+/* Price Slider */
+.price-slider-container {
   display: flex;
   flex-direction: column;
-  gap: 5px;
   min-width: 250px;
 }
 
-.dual-slider label {
+.price-slider-container label {
   font-weight: bold;
+  margin-bottom: 5px;
 }
 
-/* Slider Wrapper */
-.slider-container {
-  position: relative;
-  width: 100%;
-  height: 12px;
-}
-
-/* Hide default input */
-.slider-container input[type="range"] {
+.price-slider {
   -webkit-appearance: none;
   width: 100%;
-  position: absolute;
-  top: 0;
-  pointer-events: none;
-  background: none;
-}
-
-/* Enable thumb dragging */
-.range-min,
-.range-max {
-  pointer-events: all;
-}
-
-/* Slider Track */
-.slider-track {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 12px;
-  width: 100%;
-  border-radius: 6px;
+  height: 10px;
+  border-radius: 5px;
   background: #ddd;
-  z-index: 1;
+  outline: none;
+  transition: background 0.2s;
+  cursor: pointer;
 }
 
-/* Active range (between handles) */
-.slider-track::before {
-  content: '';
-  position: absolute;
-  height: 12px;
-  border-radius: 6px;
-  background: #2a9d8f;
-  top: 0;
-  left: 0;
-  width: 0%; /* updated dynamically via JS if needed */
-  z-index: 2;
-}
-
-/* Slider thumbs */
-.range-min::-webkit-slider-thumb,
-.range-max::-webkit-slider-thumb {
+.price-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  height: 20px;
+  appearance: none;
   width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #2a9d8f;
   cursor: pointer;
   border: 2px solid #fff;
-  margin-top: -4px;
-  position: relative;
-  z-index: 3;
+  margin-top: -5px;
 }
 
-.range-min::-moz-range-thumb,
-.range-max::-moz-range-thumb {
-  height: 20px;
+.price-slider::-moz-range-thumb {
   width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #2a9d8f;
   cursor: pointer;
   border: 2px solid #fff;
-  position: relative;
-  z-index: 3;
 }
 
 /* Properties Grid */
@@ -201,13 +156,5 @@
   .filters {
     flex-direction: column;
     gap: 15px;
-  }
-
-  .dual-slider {
-    width: 100%;
-  }
-
-  .properties-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }

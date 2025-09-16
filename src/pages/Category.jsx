@@ -11,12 +11,8 @@ export default function Category() {
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Price filter
-  const MIN = 100000;       // 1 Lakh
-  const MAX = 1000000000;   // 100 Crore
-  const [priceRange, setPriceRange] = useState([MIN, MAX]);
-
-  // Location filter
+  // Filters
+  const [price, setPrice] = useState(10000000); // initial max price default
   const [locationFilter, setLocationFilter] = useState("");
 
   const navigate = useNavigate();
@@ -30,7 +26,8 @@ export default function Category() {
         if (category?.toLowerCase() === "all") {
           data = await getProperties(searchQuery);
         } else {
-          data = await getPropertiesByCategory(category.toLowerCase(), searchQuery);
+          const backendCategory = category.toLowerCase();
+          data = await getPropertiesByCategory(backendCategory, searchQuery);
         }
         setProperties(data);
         setFilteredProperties(data);
@@ -46,26 +43,18 @@ export default function Category() {
   // Apply filters
   useEffect(() => {
     let data = [...properties];
-    data = data.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
-    );
+
+    if (price) {
+      data = data.filter((p) => p.price <= price);
+    }
     if (locationFilter) {
       data = data.filter((p) =>
         p.location?.toLowerCase().includes(locationFilter.toLowerCase())
       );
     }
+
     setFilteredProperties(data);
-  }, [priceRange, locationFilter, properties]);
-
-  const handleMinChange = (e) => {
-    const val = Number(e.target.value);
-    if (val <= priceRange[1]) setPriceRange([val, priceRange[1]]);
-  };
-
-  const handleMaxChange = (e) => {
-    const val = Number(e.target.value);
-    if (val >= priceRange[0]) setPriceRange([priceRange[0], val]);
-  };
+  }, [price, locationFilter, properties]);
 
   const displayCategoryName = (cat) => {
     if (!cat || cat.toLowerCase() === "all") return "Top Deals";
@@ -76,36 +65,22 @@ export default function Category() {
     <div className="category-page">
       {/* Header */}
       <div className="category-header">
-        <div className="animated-gradient"></div>
-        <div className="light-streaks"></div>
         <h2 className="category-title">{displayCategoryName(category)}</h2>
       </div>
 
       {/* Filters */}
       <div className="filters">
-        <div className="dual-slider">
-          <label>Price Range: ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}</label>
-          <div className="slider-container">
-            <input
-              type="range"
-              min={MIN}
-              max={MAX}
-              step={100000}
-              value={priceRange[0]}
-              onChange={handleMinChange}
-              className="range-min"
-            />
-            <input
-              type="range"
-              min={MIN}
-              max={MAX}
-              step={100000}
-              value={priceRange[1]}
-              onChange={handleMaxChange}
-              className="range-max"
-            />
-            <div className="slider-track"></div>
-          </div>
+        <div className="price-slider-container">
+          <label>Max Price: ₹{price.toLocaleString()}</label>
+          <input
+            type="range"
+            min={100000}          // 1 Lakh
+            max={1000000000}      // 100 Crores
+            step={100000}         // step 1 Lakh
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="price-slider"
+          />
         </div>
 
         <input
@@ -116,7 +91,7 @@ export default function Category() {
         />
       </div>
 
-      {/* Properties Grid */}
+      {/* Properties */}
       {loading ? (
         <p className="loading-text">Loading properties...</p>
       ) : filteredProperties.length > 0 ? (
