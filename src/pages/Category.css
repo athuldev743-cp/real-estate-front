@@ -37,7 +37,7 @@
   z-index: 1;
 }
 
-/* Filters container */
+/* Filters */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -54,10 +54,11 @@
   min-width: 200px;
 }
 
-/* Google-style slider */
+/* Slider styling */
 .slider-container {
   position: relative;
   width: 100%;
+  margin-top: 6px;
 }
 
 .price-slider {
@@ -65,60 +66,76 @@
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: #ddd;
   outline: none;
-  margin-top: 6px;
+  background: #ddd;
+  position: relative;
 }
 
+/* Filled portion */
+.price-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    #2a9d8f var(--slider-value, 50%),
+    #ddd var(--slider-value, 50%)
+  );
+}
+
+.price-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    #2a9d8f var(--slider-value, 50%),
+    #ddd var(--slider-value, 50%)
+  );
+}
+
+/* Thumb */
 .price-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: #2a9d8f;
   border-radius: 50%;
-  cursor: pointer;
   border: 2px solid white;
-  transition: background 0.2s;
-}
-
-.price-slider::-webkit-slider-thumb:hover {
-  background: #21867a;
+  cursor: pointer;
+  margin-top: -6px;
 }
 
 .price-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: #2a9d8f;
   border-radius: 50%;
-  cursor: pointer;
   border: 2px solid white;
-  transition: background 0.2s;
+  cursor: pointer;
 }
 
-/* Tooltip above slider */
+/* Tooltip */
 .slider-tooltip {
   position: absolute;
   top: -30px;
-  left: calc((var(--value-percent, 0) * 1%) - 20px);
   background: #2a9d8f;
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
+  transform: translateX(-50%);
   white-space: nowrap;
-  pointer-events: none;
 }
 
 /* Properties grid */
 .properties-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, 400px);
   justify-content: center;
+  gap: 20px;
 }
 
-/* Fixed property card */
-.property-card-fixed {
+/* Fixed-size property cards */
+.property-card {
   width: 400px;
   height: 500px;
   border: 1px solid #ddd;
@@ -130,57 +147,24 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.property-card-fixed:hover {
+.property-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-.property-card-fixed .property-image-wrapper {
+.property-image-wrapper {
+  position: relative;
   width: 100%;
-  height: 220px;
+  height: 180px;
   overflow: hidden;
 }
 
-.property-card-fixed .property-image-wrapper img {
+.property-image-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.property-card-fixed h3 {
-  font-size: 18px;
-  margin: 10px 12px 5px;
-}
-
-.property-card-fixed p {
-  margin: 5px 12px;
-  font-size: 14px;
-  color: #555;
-  flex-shrink: 0;
-}
-
-.property-card-fixed .property-actions {
-  display: flex;
-  justify-content: center;
-  padding: 10px 0;
-  margin-top: auto;
-}
-
-.property-card-fixed .view-details-btn {
-  padding: 8px 14px;
-  background-color: #2a9d8f;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.property-card-fixed .view-details-btn:hover {
-  background-color: #21867a;
-}
-
-/* Chat badge */
 .chat-badge {
   position: absolute;
   top: 8px;
@@ -191,7 +175,38 @@
   color: white;
 }
 
-/* Loading text */
+.property-card h3 {
+  font-size: 18px;
+  margin: 10px 12px 5px;
+}
+
+.property-card p {
+  margin: 5px 12px;
+  font-size: 14px;
+  color: #555;
+}
+
+.property-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.view-details-btn {
+  padding: 8px 14px;
+  background-color: #2a9d8f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.view-details-btn:hover {
+  background-color: #21867a;
+}
+
 .loading-text {
   text-align: center;
   font-size: 16px;
@@ -199,14 +214,9 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
+@media (max-width: 1024px) {
   .properties-grid {
-    grid-template-columns: 1fr;
-    justify-items: center;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    justify-content: center;
   }
 }

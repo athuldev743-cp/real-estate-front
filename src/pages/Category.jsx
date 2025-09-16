@@ -12,15 +12,10 @@ export default function Category() {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [price, setPrice] = useState(10000000); // Default max price
+  const [price, setPrice] = useState(100000000000); // default max price
   const [locationFilter, setLocationFilter] = useState("");
 
   const navigate = useNavigate();
-
-  const displayCategoryName = (cat) => {
-    if (!cat || cat.toLowerCase() === "all") return "Top Deals";
-    return cat.charAt(0).toUpperCase() + cat.slice(1);
-  };
 
   // Fetch properties
   useEffect(() => {
@@ -49,7 +44,9 @@ export default function Category() {
     let data = [...properties];
 
     // Filter by price
-    data = data.filter((p) => p.price <= price);
+    if (price) {
+      data = data.filter((p) => p.price <= price);
+    }
 
     // Filter by location
     if (locationFilter) {
@@ -62,9 +59,14 @@ export default function Category() {
     setFilteredProperties(data);
   }, [price, locationFilter, properties]);
 
+  const displayCategoryName = (cat) => {
+    if (!cat || cat.toLowerCase() === "all") return "Top Deals";
+    return cat.charAt(0).toUpperCase() + cat.slice(1);
+  };
+
   return (
     <div className="category-page">
-      {/* ---------- Category Header ---------- */}
+      {/* Category Header */}
       <div
         className="category-header"
         style={{
@@ -80,21 +82,33 @@ export default function Category() {
         <h2 className="category-title">{displayCategoryName(category)}</h2>
       </div>
 
-      {/* ---------- Filters ---------- */}
+      {/* Filters */}
       <div className="filters">
         <label className="slider-label">
           Max Price: ₹{price.toLocaleString()}
           <div className="slider-container">
             <input
               type="range"
-              min={100000}        // 1 lakh
-              max={1000000000}    // 10 crore
-              step={100000}       // 1 lakh step
+              min={100000}             // 1 lakh
+              max={100000000000}       // 1,000 crore
+              step={100000}            // 1 lakh step
               value={price}
               onChange={(e) => setPrice(Number(e.target.value))}
               className="price-slider"
+              style={{
+                "--slider-value":
+                  ((price - 100000) / (100000000000 - 100000)) * 100 + "%",
+              }}
             />
-            <div className="slider-tooltip">{`₹${price.toLocaleString()}`}</div>
+            <div
+              className="slider-tooltip"
+              style={{
+                left:
+                  ((price - 100000) / (100000000000 - 100000)) * 100 + "%",
+              }}
+            >
+              ₹{price.toLocaleString()}
+            </div>
           </div>
         </label>
 
@@ -106,13 +120,13 @@ export default function Category() {
         />
       </div>
 
-      {/* ---------- Properties Grid ---------- */}
+      {/* Properties */}
       {loading ? (
         <p className="loading-text">Loading properties...</p>
       ) : filteredProperties.length > 0 ? (
         <div className="properties-grid">
           {filteredProperties.map((p) => (
-            <div key={p._id || p.title} className="property-card-fixed">
+            <div key={p._id || p.title} className="property-card">
               <div className="property-image-wrapper">
                 <img
                   src={
@@ -121,6 +135,7 @@ export default function Category() {
                       : p.image_url || "/image/default-property.jpeg"
                   }
                   alt={p.title}
+                  className="property-image"
                 />
                 {p.hasNewMessages && (
                   <div className="chat-badge">
