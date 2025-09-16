@@ -12,7 +12,7 @@ export default function Category() {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [price, setPrice] = useState(10000000); // initial max price default
+  const [price, setPrice] = useState(10000000); // default max price
   const [locationFilter, setLocationFilter] = useState("");
 
   const navigate = useNavigate();
@@ -26,8 +26,7 @@ export default function Category() {
         if (category?.toLowerCase() === "all") {
           data = await getProperties(searchQuery);
         } else {
-          const backendCategory = category.toLowerCase();
-          data = await getPropertiesByCategory(backendCategory, searchQuery);
+          data = await getPropertiesByCategory(category.toLowerCase(), searchQuery);
         }
         setProperties(data);
         setFilteredProperties(data);
@@ -44,13 +43,17 @@ export default function Category() {
   useEffect(() => {
     let data = [...properties];
 
+    // Filter by price
     if (price) {
       data = data.filter((p) => p.price <= price);
     }
+
+    // Filter by location
     if (locationFilter) {
-      data = data.filter((p) =>
-        p.location?.toLowerCase().includes(locationFilter.toLowerCase())
-      );
+      data = data.filter((p) => {
+        const loc = `${p.location || ""} ${p.city || ""} ${p.address || ""}`.toLowerCase();
+        return loc.includes(locationFilter.toLowerCase());
+      });
     }
 
     setFilteredProperties(data);
@@ -63,25 +66,23 @@ export default function Category() {
 
   return (
     <div className="category-page">
-      {/* Header */}
       <div className="category-header">
         <h2 className="category-title">{displayCategoryName(category)}</h2>
       </div>
 
       {/* Filters */}
       <div className="filters">
-        <div className="price-slider-container">
-          <label>Max Price: ₹{price.toLocaleString()}</label>
+        <label>
+          Max Price: ₹{price.toLocaleString()}
           <input
             type="range"
-            min={100000}          // 1 Lakh
-            max={1000000000}      // 100 Crores
-            step={100000}         // step 1 Lakh
+            min={100000}        // 1 lakh
+            max={10000000000}   // 100 crore
+            step={100000}       // 1 lakh step
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
-            className="price-slider"
           />
-        </div>
+        </label>
 
         <input
           type="text"
@@ -117,7 +118,7 @@ export default function Category() {
               <h3>{p.title}</h3>
               <p>{p.description}</p>
               <p><strong>₹{p.price.toLocaleString()}</strong></p>
-              <p>{p.location}</p>
+              <p>{p.location || p.city || p.address || "N/A"}</p>
               <div className="property-actions">
                 <button
                   className="view-details-btn"
