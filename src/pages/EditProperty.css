@@ -1,0 +1,58 @@
+.edit-property-page {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.edit-property-page h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.edit-form label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: #444;
+}
+
+.edit-form input,
+.edit-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.edit-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-form button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-form button:hover {
+  background: #0056b3;
+}
+
+.edit-form button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}

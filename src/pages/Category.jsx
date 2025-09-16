@@ -88,8 +88,8 @@ export default function Category() {
           Max Price: ₹{price.toLocaleString()}
           <div className="slider-container">
            <input type="range"
-          min={10000}                // ₹10k minimum
-          max={5000000000}           // ₹50 crore maximum
+          min={100000}                // ₹10k minimum
+          max={10000000000}           
           step={10000}               // step of ₹10k
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
@@ -99,7 +99,7 @@ export default function Category() {
 <div
   className="slider-tooltip"
   style={{
-    left: ((price - 10000) / (5000000000 - 10000)) * 100 + "%"
+    left: ((price - 10000) / (10000000000 - 10000)) * 100 + "%"
   }}
 >
   ₹{price.toLocaleString()}

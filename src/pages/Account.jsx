@@ -103,12 +103,13 @@ export default function Account({ user, setUser }) {
               <h3>{prop.title}</h3>
               <p>Category: {prop.category}</p>
               <p>Location: {prop.location}</p>
-              <button
-                className="edit-btn"
-                onClick={() => navigate(`/property/${prop._id}`)}
-              >
-                ✏️ Edit Property
-              </button>
+             <button
+  className="edit-btn"
+  onClick={() => navigate(`/property/${prop._id}/edit`)}
+>
+  ✏️ Edit Property
+</button>
+
             </div>
           ))}
         </div>

@@ -11,7 +11,7 @@ import Category from "./pages/Category";
 import PropertyDetails from "./pages/PropertyDetails";
 import Search from "./pages/Search";
 import OwnerDashboard from "./components/OwnerDashboard";
-// <-- import inbox/chat dashboard
+import EditProperty from "./pages/EditProperty"; // <-- import EditProperty
 
 // API
 import { getCurrentUser } from "./api/PropertyAPI";
@@ -53,7 +53,7 @@ function App() {
 
       <Route
         path="/account"
-        element={user ? <Account user={user} /> : <Navigate to="/login" />}
+        element={user ? <Account user={user} setUser={setUser} /> : <Navigate to="/login" />}
       />
 
       <Route
@@ -63,6 +63,13 @@ function App() {
 
       <Route path="/category/:category" element={<Category />} />
       <Route path="/property/:id" element={<PropertyDetails user={user} />} />
+
+      {/* ✅ Separate route for editing */}
+      <Route
+        path="/property/:id/edit"
+        element={user ? <EditProperty /> : <Navigate to="/login" />}
+      />
+
       <Route path="/search" element={<Search />} />
 
       {/* ---------------- Owner Inbox / Chat Dashboard ---------------- */}
