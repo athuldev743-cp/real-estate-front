@@ -49,7 +49,7 @@ export default function Account({ user, setUser }) {
     fetchInbox();
   }, [showInbox]);
 
-  // Fetch cart from backend
+  // Fetch cart from backend whenever Account opens
   useEffect(() => {
     fetchCart();
   }, []);
@@ -66,7 +66,8 @@ export default function Account({ user, setUser }) {
   const handleRemoveFromCart = async (id) => {
     try {
       await removeFromCart(id);
-      fetchCart(); // refresh cart
+      // update cart state immediately instead of full refetch
+      setCart((prev) => prev.filter((item) => item._id !== id));
     } catch (err) {
       console.error("Error removing from cart:", err);
     }
