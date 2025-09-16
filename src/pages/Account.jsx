@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getMyProperties } from "../api/PropertyAPI";
 import Inbox from "./Inbox";
 import { useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaInbox } from "react-icons/fa";
+import { FaShoppingCart, FaInbox, FaTrash } from "react-icons/fa";
 import "./Account.css";
 
 export default function Account({ user, setUser }) {
@@ -63,6 +63,15 @@ export default function Account({ user, setUser }) {
     setUser(null);
   };
 
+  const handleRemoveFromCart = (id) => {
+    const updatedCart = cart.filter((item) => item._id !== id);
+    setCart(updatedCart);
+  };
+
+  const handleCheckout = () => {
+    alert("Checkout feature coming soon!");
+  };
+
   return (
     <div className="account-page">
       {/* ===== Header ===== */}
@@ -103,13 +112,12 @@ export default function Account({ user, setUser }) {
               <h3>{prop.title}</h3>
               <p>Category: {prop.category}</p>
               <p>Location: {prop.location}</p>
-             <button
-  className="edit-btn"
-  onClick={() => navigate(`/property/${prop._id}/edit`)}
->
-  ✏️ Edit Property
-</button>
-
+              <button
+                className="edit-btn"
+                onClick={() => navigate(`/property/${prop._id}/edit`)}
+              >
+                ✏️ Edit Property
+              </button>
             </div>
           ))}
         </div>
@@ -128,16 +136,33 @@ export default function Account({ user, setUser }) {
           ← Back
         </button>
         <h3>🛒 My Cart ({cart.length})</h3>
-        <ul>
-          {cart.map((item) => (
-            <li
-              key={item._id}
-              onClick={() => navigate(`/property/${item._id}`)}
-            >
-              {item.title} - ₹{item.price || "N/A"}
-            </li>
-          ))}
-        </ul>
+        {cart.length === 0 ? (
+          <p>Your cart is empty.</p>
+        ) : (
+          <>
+            <ul className="cart-list">
+              {cart.map((item) => (
+                <li key={item._id} className="cart-item">
+                  <div
+                    className="cart-item-info"
+                    onClick={() => navigate(`/property/${item._id}`)}
+                  >
+                    <strong>{item.title}</strong> - ₹{item.price || "N/A"}
+                  </div>
+                  <button
+                    className="remove-btn"
+                    onClick={() => handleRemoveFromCart(item._id)}
+                  >
+                    <FaTrash />
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button className="checkout-btn" onClick={handleCheckout}>
+              ✅ Proceed to Checkout
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

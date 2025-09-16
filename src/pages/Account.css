@@ -111,7 +111,6 @@ body {
 }
 
 .property-card p {
- 
   margin: 4px 0;
 }
 
@@ -135,7 +134,7 @@ body {
 .cart-sidebar {
   position: fixed;
   top: 0;
-  right: -350px;
+  right: -400px; /* start hidden */
   width: 350px;
   height: 100%;
   background: rgba(20, 20, 20, 0.95);
@@ -144,11 +143,11 @@ body {
   padding: 20px;
   z-index: 3000;
   overflow-y: auto;
-  transition: right 0.3s ease;
+  transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* smooth slide */
 }
 
 .cart-sidebar.open {
-  right: 0;
+  right: 0; /* slide into view */
 }
 
 .cart-sidebar h3 {
@@ -157,23 +156,68 @@ body {
   color: #ffd700;
 }
 
-.cart-sidebar ul {
+/* ---------- Cart Items ---------- */
+.cart-list {
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.cart-sidebar li {
-  padding: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  color: #fff;
-  transition: background 0.2s;
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(30, 30, 30, 0.6);
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
 }
 
-.cart-sidebar li:hover {
+.cart-item:hover {
   background: rgba(255, 215, 0, 0.1);
-  color: #ffd700;
 }
 
+.cart-item-info {
+  flex-grow: 1;
+  cursor: pointer;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #ff4d4d;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.remove-btn:hover {
+  transform: scale(1.2);
+  color: #ff1a1a;
+}
+
+/* ---------- Checkout Button ---------- */
+.checkout-btn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  color: #000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background: linear-gradient(90deg, #ff8c00, #ffd700);
+  transform: translateY(-2px);
+}
+
+/* ---------- Cart Back Button ---------- */
 .cart-back-btn {
   margin-bottom: 15px;
   padding: 8px 12px;
