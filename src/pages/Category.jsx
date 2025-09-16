@@ -12,7 +12,7 @@ export default function Category() {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [price, setPrice] = useState(10000000); // default max price
+  const [price, setPrice] = useState(10000000); // Default max price
   const [locationFilter, setLocationFilter] = useState("");
 
   const navigate = useNavigate();
@@ -82,16 +82,20 @@ export default function Category() {
 
       {/* ---------- Filters ---------- */}
       <div className="filters">
-        <label>
+        <label className="slider-label">
           Max Price: ₹{price.toLocaleString()}
-          <input
-            type="range"
-            min={100000}        // 1 lakh
-            max={1000000000}   // 10 crore (adjustable)
-            step={100000}       // 1 lakh step
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-          />
+          <div className="slider-container">
+            <input
+              type="range"
+              min={100000}        // 1 lakh
+              max={1000000000}    // 10 crore
+              step={100000}       // 1 lakh step
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className="price-slider"
+            />
+            <div className="slider-tooltip">{`₹${price.toLocaleString()}`}</div>
+          </div>
         </label>
 
         <input
