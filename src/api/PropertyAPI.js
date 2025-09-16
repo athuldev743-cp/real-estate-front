@@ -174,3 +174,10 @@ export const markMessagesAsRead = async (chatId) => {
   if (!chatId) throw new Error("Chat ID is required");
   return authFetch(`${BASE_URL}/chat/mark-read/${chatId}`, { method: "POST" });
 };
+//...........delete..................................
+export const deleteProperty = async (id) => {
+  if (!id) throw new Error("Property ID is required");
+  return authFetch(`${BASE_URL}/api/property/${id}`, {
+    method: "DELETE",
+  });
+};
