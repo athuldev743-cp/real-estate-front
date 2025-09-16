@@ -42,41 +42,72 @@
   margin-top: 20px;
 }
 
-/* Image row container */
-/* Image row container */
+/* ---------- Image Gallery ---------- */
 .property-image-container {
-  height: 500px;
+  position: relative;
+  width: 600px;          /* Container width */
+  height: 500px;         /* Fixed height for gallery */
+  overflow: hidden;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.property-images-row {
+  display: flex;
+  gap: 12px;
   overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 10px;
   scroll-behavior: smooth;
+  height: 100%;
 }
 
-/* Image row */
-.property-image-row {
-  display: inline-flex;
-  gap: 15px;
+.property-images-row::-webkit-scrollbar {
+  display: none;
 }
 
-/* Individual images */
 .property-image {
-  height: 500px;       /* Fixed height */
-  width: auto;         /* Let width scale naturally */
+  height: 500px;       /* Fixed image height */
+  width: auto;
+  flex-shrink: 0;
   border-radius: 8px;
   border: 1px solid #ccc;
-  object-fit: contain; /* ✅ Show full image without cropping */
-  flex-shrink: 0;
+  object-fit: cover;
   cursor: pointer;
-  transition: transform 0.3s;
-  background-color: #000; /* optional: gives padding around image */
+  transition: transform 0.2s;
 }
 
 .property-image:hover {
   transform: scale(1.02);
 }
 
+/* Gallery arrows */
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  font-size: 24px;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
 
-/* Info section */
+.gallery-arrow:hover {
+  background: rgba(0,0,0,0.7);
+}
+
+.gallery-arrow.left {
+  left: 5px;
+}
+
+.gallery-arrow.right {
+  right: 5px;
+}
+
+/* ---------- Property Info ---------- */
 .property-info {
   flex: 1 1 300px;
 }
@@ -99,12 +130,17 @@
 }
 
 /* Buttons */
+.action-buttons {
+  display: flex;
+  gap: 20px;        /* 20px gap between buttons */
+  margin-top: 15px;
+}
+
 .chat-btn,
 .add-to-cart-btn {
   display: inline-flex;
   align-items: center;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 8px;
   padding: 8px 12px;
   font-size: 14px;
   font-weight: 500;
@@ -144,6 +180,28 @@
   border-radius: 8px;
   overflow: hidden;
   margin-top: 20px;
+  width: 100%;
+  height: 300px; /* Default height */
+}
+
+/* Make map responsive on smaller screens */
+@media screen and (max-width: 768px) {
+  .property-main {
+    flex-direction: column;
+  }
+
+  .property-image-container {
+    width: 100%;
+    height: 400px;
+  }
+
+  .property-image {
+    height: 400px;
+  }
+
+  .property-map {
+    height: 250px;
+  }
 }
 
 /* Chat modal */
@@ -179,7 +237,7 @@
   background-color: #d75a3f;
 }
 
-/* Center text for loading or errors */
+/* Center text for loading/errors */
 .center-text {
   text-align: center;
   font-size: 16px;

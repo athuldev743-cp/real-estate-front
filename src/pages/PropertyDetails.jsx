@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPropertyById, getMessages } from "../api/PropertyAPI";
 import Chat from "./Chat";
@@ -10,13 +10,14 @@ import { FaShoppingCart } from "react-icons/fa";
 export default function PropertyDetails({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const galleryRef = useRef(null); // Ref for gallery scrolling
 
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatData, setChatData] = useState(null);
 
-  // Cart state (sync with localStorage)
+  // Cart state
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
@@ -29,7 +30,7 @@ export default function PropertyDetails({ user }) {
   };
   const userEmail = currentUser?.email?.trim().toLowerCase() || null;
 
-  // Redirect to login if no user
+  // Redirect to login if not logged in
   useEffect(() => {
     if (!userEmail) navigate("/login");
   }, [userEmail, navigate]);
@@ -55,13 +56,12 @@ export default function PropertyDetails({ user }) {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Check if current user is owner
   const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 
-  // Open chat with property owner
+  // Open chat
   const handleChatOpen = async () => {
     try {
-      const res = await getMessages(property._id); // returns { chatId, messages }
+      const res = await getMessages(property._id);
       setChatData({
         chatId: res.chatId,
         propertyId: property._id,
@@ -79,7 +79,7 @@ export default function PropertyDetails({ user }) {
     setChatData(null);
   };
 
-  // Add to cart function
+  // Add to cart
   const addToCart = () => {
     if (!cart.find((item) => item._id === property._id)) {
       setCart([...cart, property]);
@@ -89,11 +89,13 @@ export default function PropertyDetails({ user }) {
     }
   };
 
-  // Scroll gallery function
+  // Scroll gallery
   const scrollGallery = (dir) => {
-    const container = document.querySelector(".property-images-row");
-    if (container) {
-      container.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
+    if (galleryRef.current) {
+      galleryRef.current.scrollBy({
+        left: dir === "left" ? -300 : 300,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -110,34 +112,31 @@ export default function PropertyDetails({ user }) {
       </div>
 
       <div className="property-main">
-       {/* ---------- Image Gallery Row ---------- */}
-<div className="property-image-container">
-  <button className="gallery-arrow left" onClick={() => scrollGallery("left")}>◀</button>
+        {/* ---------- Image Gallery Row ---------- */}
+        <div className="property-image-container">
+          <button className="gallery-arrow left" onClick={() => scrollGallery("left")}>◀</button>
 
-  <div className="property-images-row">
-    {property.images && property.images.length > 0 ? (
-      property.images.map((img, index) => (
-        <img
-          key={index}
-          src={img || "/image/default-property.jpeg"}
-          alt={`Property ${index}`}
-          className="property-image"
-          onClick={() => scrollGallery("right")}   // 👉 click scrolls right
-        />
-      ))
-    ) : (
-      <img
-        src="/image/default-property.jpeg"
-        alt="Default Property"
-        className="property-image"
-        onClick={() => scrollGallery("right")}
-      />
-    )}
-  </div>
+          <div className="property-images-row" ref={galleryRef}>
+            {property.images && property.images.length > 0 ? (
+              property.images.map((img, index) => (
+                <img
+                  key={index}
+                  src={img || "/image/default-property.jpeg"}
+                  alt={`Property ${index}`}
+                  className="property-image"
+                />
+              ))
+            ) : (
+              <img
+                src="/image/default-property.jpeg"
+                alt="Default Property"
+                className="property-image"
+              />
+            )}
+          </div>
 
-  <button className="gallery-arrow right" onClick={() => scrollGallery("right")}>▶</button>
-</div>
-
+          <button className="gallery-arrow right" onClick={() => scrollGallery("right")}>▶</button>
+        </div>
 
         {/* ---------- Property Info ---------- */}
         <div className="property-info">
@@ -148,31 +147,31 @@ export default function PropertyDetails({ user }) {
           <p><strong>Owner:</strong> {property.ownerFullName || property.owner || "N/A"}</p>
           <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
 
-          {/* Chat button */}
-          {!isOwner && (
-            <button className="chat-btn" onClick={handleChatOpen}>
-              💬 Chat with Seller
-            </button>
-          )}
-          {isOwner && <p className="owner-label">You are the owner of this property</p>}
+          <div className="action-buttons">
+            {!isOwner && (
+              <button className="chat-btn" onClick={handleChatOpen}>
+                💬 Chat with Seller
+              </button>
+            )}
+            {!isOwner && (
+              <button className="add-to-cart-btn" onClick={addToCart}>
+                <FaShoppingCart /> Add to Cart
+              </button>
+            )}
+          </div>
 
-          {/* Add to cart button */}
-          {!isOwner && (
-            <button className="add-to-cart-btn" onClick={addToCart} style={{ marginTop: "10px" }}>
-              <FaShoppingCart /> Add to Cart
-            </button>
-          )}
+          {isOwner && <p className="owner-label">You are the owner of this property</p>}
         </div>
       </div>
 
-      {/* Map for buyers */}
+      {/* ---------- Map ---------- */}
       {property.latitude && property.longitude && (
-        <div className="property-map" style={{ height: "300px", width: "100%", marginTop: "20px" }}>
+        <div className="property-map">
           <MapContainer
             center={[property.latitude, property.longitude]}
             zoom={13}
-            style={{ height: "100%", width: "100%" }}
             scrollWheelZoom={false}
+            style={{ height: "100%", width: "100%" }}
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Marker position={[property.latitude, property.longitude]}>
@@ -182,7 +181,7 @@ export default function PropertyDetails({ user }) {
         </div>
       )}
 
-      {/* Chat Modal */}
+      {/* ---------- Chat Modal ---------- */}
       {chatOpen && chatData && (
         <div className="chat-modal">
           <button className="chat-close-btn" onClick={handleChatClose}>✖</button>
