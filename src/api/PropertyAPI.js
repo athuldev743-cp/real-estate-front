@@ -164,25 +164,26 @@ export const getProperties = async (searchQuery = "") => {
 
 const VALID_CATEGORIES = ["house", "villa", "apartment", "farmlands", "plots", "buildings"];
 
+// PropertyAPI.js
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   if (!category) throw new Error("Category is required");
 
-  // ✅ Check for valid category
   if (!VALID_CATEGORIES.includes(category.toLowerCase())) {
     console.error(`❌ Invalid category requested: ${category}`);
     throw new Error(`Invalid category. Must be one of: ${VALID_CATEGORIES.join(", ")}`);
   }
 
   try {
-    const url = `${BASE_URL}/api/category/${encodeURIComponent(category.toLowerCase())}${
+    const url = `${BASE_URL}/category/${encodeURIComponent(category.toLowerCase())}${
       searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
-    }`;
+    }`; // removed /api
     return await authFetch(url);
   } catch (err) {
     console.error(`❌ Failed to fetch properties for category ${category}:`, err);
-    throw err; // throw instead of returning [] so you can catch in UI
+    throw err;
   }
 };
+
 
 
 
