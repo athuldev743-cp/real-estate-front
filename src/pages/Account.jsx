@@ -53,11 +53,23 @@ export default function Account({ user, setUser }) {
   const fetchCart = async () => {
     try {
       const data = await getCart();
-      setCart(data.items || []);
+      setCart(data.items || data || []);
     } catch (err) {
       console.error("Error fetching cart:", err);
     }
   };
+
+  // Fetch cart on mount
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  // ✅ Re-fetch cart when user focuses back on this page/tab
+  useEffect(() => {
+    const handleFocus = () => fetchCart();
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, []);
 
   const handleRemoveFromCart = async (id) => {
     try {
@@ -93,13 +105,7 @@ export default function Account({ user, setUser }) {
             <button className="nav-btn" onClick={() => setShowInbox((prev) => !prev)}>
               <FaInbox /> Inbox
             </button>
-            <button
-              className="nav-btn"
-              onClick={() => {
-                fetchCart(); // Fetch latest cart items before opening
-                setShowCart(true);
-              }}
-            >
+            <button className="nav-btn" onClick={() => setShowCart(true)}>
               <FaShoppingCart /> Cart ({cart.length})
             </button>
             <button className="nav-btn logout-btn" onClick={handleLogout}>
