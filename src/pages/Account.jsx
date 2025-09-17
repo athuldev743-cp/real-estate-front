@@ -44,19 +44,22 @@ export default function Account({ user, setUser }) {
   }, [navigate, setUser]);
 
   // ----------------- FETCH PROPERTIES -----------------
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const data = await getMyProperties();
-        if (data?.error === "Session expired") return navigate("/login");
-        setProperties(data || []);
-      } catch (err) {
-        console.error("Error fetching properties:", err);
-        setProperties([]);
-      }
-    };
-    fetchProperties();
-  }, [navigate]);
+ useEffect(() => {
+  const fetchProperties = async () => {
+    try {
+      const data = await getMyProperties();
+      if (data?.error === "Session expired") return navigate("/login");
+
+      // Access the array inside the returned object
+      setProperties(data.properties || []);  
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+      setProperties([]);
+    }
+  };
+  fetchProperties();
+}, [navigate]);
+
 
   // ----------------- FETCH INBOX -----------------
   useEffect(() => {
