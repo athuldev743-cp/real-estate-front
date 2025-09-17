@@ -19,26 +19,23 @@ export default function Account({ user, setUser }) {
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
 
-  const fullName = localStorage.getItem("fullName");
+  const fullName = localStorage.getItem("fullName") || "User";
 
-  // ✅ Check authentication on mount
+  // ----------------- AUTH CHECK -----------------
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
+      if (!token) return navigate("/login");
 
       try {
         const userData = await getCurrentUser();
-        if (!userData) {
-          navigate("/login");
-        } else {
-          setUser(userData);
+        if (!userData || userData.error) {
+          localStorage.removeItem("token");
+          return navigate("/login");
         }
+        setUser(userData);
       } catch (err) {
-        console.error("❌ Auth error:", err.message);
+        console.error("❌ Auth error:", err);
         localStorage.removeItem("token");
         navigate("/login");
       }
@@ -46,26 +43,25 @@ export default function Account({ user, setUser }) {
     checkAuth();
   }, [navigate, setUser]);
 
-  // ✅ Fetch user properties
+  // ----------------- FETCH PROPERTIES -----------------
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const data = await getMyProperties();
-        if (data?.error === "Session expired") {
-          navigate("/login");
-        } else {
-          setProperties(data || []);
-        }
+        if (data?.error === "Session expired") return navigate("/login");
+        setProperties(data || []);
       } catch (err) {
         console.error("Error fetching properties:", err);
+        setProperties([]);
       }
     };
     fetchProperties();
   }, [navigate]);
 
-  // ✅ Fetch inbox chats when Inbox is opened
+  // ----------------- FETCH INBOX -----------------
   useEffect(() => {
     if (!showInbox) return;
+
     const fetchInbox = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -73,46 +69,39 @@ export default function Account({ user, setUser }) {
 
         const res = await fetch(
           `${process.env.REACT_APP_API_URL}/chat/inbox`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        if (res.status === 401) {
-          navigate("/login");
-          return;
-        }
-
+        if (res.status === 401) return navigate("/login");
         if (!res.ok) throw new Error("Failed to fetch inbox");
+
         const data = await res.json();
         setInbox(data.chats || []);
       } catch (err) {
         console.error("Error fetching inbox:", err);
+        setInbox([]);
       }
     };
+
     fetchInbox();
   }, [showInbox, navigate]);
 
-  // ✅ Fetch cart from backend
+  // ----------------- FETCH CART -----------------
   const fetchCart = async () => {
     try {
       const data = await getCart();
-      if (data?.error === "Session expired") {
-        navigate("/login");
-      } else {
-        setCart(data.items || data || []);
-      }
+      if (data?.error === "Session expired") return navigate("/login");
+      setCart(data.items || data || []);
     } catch (err) {
       console.error("Error fetching cart:", err);
+      setCart([]);
     }
   };
 
-  // Fetch cart on mount
   useEffect(() => {
     fetchCart();
   }, []);
 
-  // ✅ Re-fetch cart when user focuses back on this page/tab
   useEffect(() => {
     const handleFocus = () => fetchCart();
     window.addEventListener("focus", handleFocus);
@@ -122,15 +111,13 @@ export default function Account({ user, setUser }) {
   const handleRemoveFromCart = async (id) => {
     try {
       await removeFromCart(id);
-      fetchCart(); // refresh cart
+      fetchCart();
     } catch (err) {
       console.error("Error removing from cart:", err);
     }
   };
 
-  const handleCheckout = () => {
-    alert("Checkout feature coming soon!");
-  };
+  const handleCheckout = () => alert("Checkout feature coming soon!");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -149,7 +136,7 @@ export default function Account({ user, setUser }) {
       >
         <div className="header-overlay"></div>
         <div className="header-content">
-          <h1>Welcome, {fullName || "User"}</h1>
+          <h1>Welcome, {fullName}</h1>
           <div className="header-buttons">
             <button
               className="nav-btn"
@@ -176,13 +163,13 @@ export default function Account({ user, setUser }) {
               {prop.images?.length > 0 && (
                 <img
                   src={prop.images[0]}
-                  alt={prop.title}
+                  alt={prop.title || "Property Image"}
                   className="property-image"
                 />
               )}
-              <h3>{prop.title}</h3>
-              <p>Category: {prop.category}</p>
-              <p>Location: {prop.location}</p>
+              <h3>{prop.title || "Untitled"}</h3>
+              <p>Category: {prop.category || "N/A"}</p>
+              <p>Location: {prop.location || "N/A"}</p>
               <button
                 className="edit-btn"
                 onClick={() => navigate(`/property/${prop._id}/edit`)}
