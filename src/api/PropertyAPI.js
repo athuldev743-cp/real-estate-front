@@ -165,14 +165,15 @@ export const getProperties = async (searchQuery = "") => {
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   if (!category) throw new Error("Category is required");
   try {
-    const url = `${BASE_URL}/api/properties?category=${encodeURIComponent(category.toLowerCase())}${
-      searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""
+    const url = `${BASE_URL}/api/category/${encodeURIComponent(category.toLowerCase())}${
+      searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
     }`;
     return await authFetch(url);
   } catch {
     return [];
   }
 };
+
 
 
 export const getPropertyById = async (id) => {
