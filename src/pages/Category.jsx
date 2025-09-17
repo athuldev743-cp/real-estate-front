@@ -4,6 +4,8 @@ import { getPropertiesByCategory, getProperties } from "../api/PropertyAPI";
 import { FaCommentDots } from "react-icons/fa";
 import "./Category.css";
 
+const VALID_CATEGORIES = ["house", "villa", "apartment", "farmlands", "plots", "buildings"];
+
 export default function Category() {
   const { category } = useParams();
   const searchQuery = new URLSearchParams(useLocation().search).get("search") || "";
@@ -19,11 +21,19 @@ export default function Category() {
 
   // Fetch properties
   useEffect(() => {
+    // Skip if category is missing or invalid
+    if (!category || (!VALID_CATEGORIES.includes(category.toLowerCase()) && category.toLowerCase() !== "all")) {
+      setProperties([]);
+      setFilteredProperties([]);
+      setLoading(false);
+      return;
+    }
+
     async function fetchData() {
       setLoading(true);
       try {
         let data;
-        if (category?.toLowerCase() === "all") {
+        if (category.toLowerCase() === "all") {
           data = await getProperties(searchQuery);
         } else {
           data = await getPropertiesByCategory(category.toLowerCase(), searchQuery);
@@ -32,10 +42,13 @@ export default function Category() {
         setFilteredProperties(data);
       } catch (err) {
         console.error("Error fetching properties:", err);
+        setProperties([]);
+        setFilteredProperties([]);
       } finally {
         setLoading(false);
       }
     }
+
     fetchData();
   }, [category, searchQuery]);
 
@@ -43,12 +56,10 @@ export default function Category() {
   useEffect(() => {
     let data = [...properties];
 
-    // Filter by price
     if (price) {
       data = data.filter((p) => p.price <= price);
     }
 
-    // Filter by location
     if (locationFilter) {
       data = data.filter((p) => {
         const loc = `${p.location || ""} ${p.city || ""} ${p.address || ""}`.toLowerCase();
@@ -66,7 +77,6 @@ export default function Category() {
 
   return (
     <div className="category-page">
-      {/* Category Header */}
       <div
         className="category-header"
         style={{
@@ -87,24 +97,23 @@ export default function Category() {
         <label className="slider-label">
           Max Price: ₹{price.toLocaleString()}
           <div className="slider-container">
-           <input type="range"
-          min={100000}                // ₹10k minimum
-          max={10000000000}           
-          step={10000}               // step of ₹10k
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          className="price-slider"
-/>
-
-<div
-  className="slider-tooltip"
-  style={{
-    left: ((price - 10000) / (10000000000 - 10000)) * 100 + "%"
-  }}
->
-  ₹{price.toLocaleString()}
-</div>
-
+            <input
+              type="range"
+              min={100000} // ₹10k minimum
+              max={10000000000}
+              step={10000} // step of ₹10k
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className="price-slider"
+            />
+            <div
+              className="slider-tooltip"
+              style={{
+                left: ((price - 100000) / (10000000000 - 100000)) * 100 + "%",
+              }}
+            >
+              ₹{price.toLocaleString()}
+            </div>
           </div>
         </label>
 
@@ -125,11 +134,7 @@ export default function Category() {
             <div key={p._id || p.title} className="property-card">
               <div className="property-image-wrapper">
                 <img
-                  src={
-                    Array.isArray(p.images) && p.images.length > 0
-                      ? p.images[0]
-                      : p.image_url || "/image/default-property.jpeg"
-                  }
+                  src={Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : p.image_url || "/image/default-property.jpeg"}
                   alt={p.title}
                   className="property-image"
                 />
@@ -141,13 +146,12 @@ export default function Category() {
               </div>
               <h3>{p.title}</h3>
               <p>{p.description}</p>
-              <p><strong>₹{p.price.toLocaleString()}</strong></p>
+              <p>
+                <strong>₹{p.price.toLocaleString()}</strong>
+              </p>
               <p>{p.location || p.city || p.address || "N/A"}</p>
               <div className="property-actions">
-                <button
-                  className="view-details-btn"
-                  onClick={() => navigate(`/property/${p._id}`)}
-                >
+                <button className="view-details-btn" onClick={() => navigate(`/property/${p._id}`)}>
                   View Details
                 </button>
               </div>
