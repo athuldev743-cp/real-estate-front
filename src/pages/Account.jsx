@@ -49,11 +49,7 @@ export default function Account({ user, setUser }) {
     fetchInbox();
   }, [showInbox]);
 
-  // Fetch cart from backend whenever Account opens
-  useEffect(() => {
-    fetchCart();
-  }, []);
-
+  // Fetch cart from backend
   const fetchCart = async () => {
     try {
       const data = await getCart();
@@ -66,8 +62,7 @@ export default function Account({ user, setUser }) {
   const handleRemoveFromCart = async (id) => {
     try {
       await removeFromCart(id);
-      // update cart state immediately instead of full refetch
-      setCart((prev) => prev.filter((item) => item._id !== id));
+      fetchCart(); // refresh cart
     } catch (err) {
       console.error("Error removing from cart:", err);
     }
@@ -98,7 +93,13 @@ export default function Account({ user, setUser }) {
             <button className="nav-btn" onClick={() => setShowInbox((prev) => !prev)}>
               <FaInbox /> Inbox
             </button>
-            <button className="nav-btn" onClick={() => setShowCart(true)}>
+            <button
+              className="nav-btn"
+              onClick={() => {
+                fetchCart(); // Fetch latest cart items before opening
+                setShowCart(true);
+              }}
+            >
               <FaShoppingCart /> Cart ({cart.length})
             </button>
             <button className="nav-btn logout-btn" onClick={handleLogout}>

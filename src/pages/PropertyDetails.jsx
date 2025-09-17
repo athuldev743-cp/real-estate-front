@@ -1,6 +1,7 @@
+// src/pages/PropertyDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPropertyById, getMessages } from "../api/PropertyAPI";
+import { getPropertyById, getMessages, addToCart as addToCartAPI } from "../api/PropertyAPI";
 import Chat from "./Chat";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -23,13 +24,6 @@ export default function PropertyDetails({ user }) {
   };
   const userEmail = currentUser?.email?.trim().toLowerCase() || null;
 
-  // ✅ Load cart for this specific user
-  const [cart, setCart] = useState(() => {
-    if (!userEmail) return [];
-    const saved = localStorage.getItem(`cart_${userEmail}`);
-    return saved ? JSON.parse(saved) : [];
-  });
-
   useEffect(() => {
     if (!userEmail) navigate("/login");
   }, [userEmail, navigate]);
@@ -48,13 +42,6 @@ export default function PropertyDetails({ user }) {
     };
     fetchProperty();
   }, [id]);
-
-  // ✅ Save cart per user
-  useEffect(() => {
-    if (userEmail) {
-      localStorage.setItem(`cart_${userEmail}`, JSON.stringify(cart));
-    }
-  }, [cart, userEmail]);
 
   const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 
@@ -78,12 +65,18 @@ export default function PropertyDetails({ user }) {
     setChatData(null);
   };
 
-  const addToCart = () => {
-    if (!cart.find((item) => item._id === property._id)) {
-      setCart([...cart, property]);
+  // ✅ Add property to backend cart
+  const addToCart = async () => {
+    try {
+      await addToCartAPI(property._id);
       alert(`${property.title} added to cart!`);
-    } else {
-      alert("This property is already in your cart.");
+    } catch (err) {
+      if (err.message.includes("already")) {
+        alert("This property is already in your cart.");
+      } else {
+        console.error("Failed to add to cart:", err);
+        alert("Failed to add to cart. Try again later.");
+      }
     }
   };
 
