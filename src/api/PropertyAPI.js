@@ -6,6 +6,7 @@ const BASE_URL =
 
 console.log("🌍 API Base URL:", BASE_URL);
 
+
 // -------------------- Auth --------------------
 export const loginUser = async (data) => {
   if (!data.email || !data.password) throw new Error("Email and password are required");
@@ -161,6 +162,8 @@ export const getProperties = async (searchQuery = "") => {
     return [];
   }
 };
+
+const VALID_CATEGORIES = ["house", "villa", "apartment", "farmlands", "plots", "buildings"];
 
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   if (!category) throw new Error("Category is required");
