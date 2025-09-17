@@ -1,7 +1,7 @@
 // src/pages/Inbox.jsx
 import React, { useState, useEffect } from "react";
 import Chat from "./Chat";
-import { getInboxChats } from "../api/PropertyAPI"; // your backend API call
+import { getOwnerInbox } from "../api/PropertyAPI"; // Corrected import
 import "./Inbox.css";
 
 export default function InboxPage() {
@@ -16,7 +16,7 @@ export default function InboxPage() {
 
     const fetchChats = async () => {
       try {
-        const data = await getInboxChats();
+        const data = await getOwnerInbox(); // Updated usage
         // Backend should return: [{ chat_id, property_id, user_name, last_message, unread_count }]
         setChats(data || []);
       } catch (err) {
