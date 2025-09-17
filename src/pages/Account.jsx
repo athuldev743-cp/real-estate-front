@@ -1,6 +1,6 @@
 // src/pages/Account.jsx
 import React, { useState, useEffect } from "react";
-import { getMyProperties, getCart, removeFromCart } from "../api/PropertyAPI";
+import { getMyProperties, getCart, removeFromCart, getCurrentUser } from "../api/PropertyAPI";
 import Inbox from "./Inbox";
 import { useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaInbox, FaTrash } from "react-icons/fa";
@@ -15,6 +15,19 @@ export default function Account({ user, setUser }) {
   const [showCart, setShowCart] = useState(false);
 
   const fullName = localStorage.getItem("fullName");
+
+
+  useEffect(() => {
+  const checkAuth = async () => {
+    const userData = await getCurrentUser();
+    if (!userData) {
+      navigate("/login");
+    } else {
+      setUser(userData);
+    }
+  };
+  checkAuth();
+}, [navigate, setUser]);
 
   // Fetch user properties
   useEffect(() => {

@@ -85,8 +85,17 @@ const refreshAccessToken = async () => {
 // -------------------- Authenticated Fetch --------------------
 const authFetch = async (url, options = {}) => {
   let token = localStorage.getItem("token");
-  if (!options.headers) options.headers = {};
-  options.headers.Authorization = `Bearer ${token}`;
+
+  // Merge headers properly
+  const defaultHeaders = {};
+  if (!(options.body instanceof FormData)) {
+    defaultHeaders["Content-Type"] = "application/json";
+  }
+  options.headers = {
+    ...defaultHeaders,
+    ...options.headers,
+    Authorization: `Bearer ${token}`,
+  };
 
   let res = await fetch(url, options);
 
@@ -96,24 +105,33 @@ const authFetch = async (url, options = {}) => {
       options.headers.Authorization = `Bearer ${token}`;
       res = await fetch(url, options);
     } catch (err) {
+      localStorage.clear();
       throw new Error("Session expired. Please login again.");
     }
   }
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.detail || "Request failed");
+  if (!res.ok) {
+    console.error(`❌ API Error [${res.status}] ${url}`, data);
+    throw new Error(data.detail || `Request failed with ${res.status}`);
+  }
   return data;
 };
 
 // -------------------- User --------------------
 export const getCurrentUser = async () => {
   try {
-    return await authFetch(`${BASE_URL}/auth/me`);
+    const user = await authFetch(`${BASE_URL}/auth/me`, { method: "GET" });
+    return user;
   } catch (err) {
-    console.error("getCurrentUser error:", err.message);
+    console.error("❌ getCurrentUser error:", err.message);
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     return null;
   }
 };
+
+
 
 // -------------------- Properties --------------------
 
