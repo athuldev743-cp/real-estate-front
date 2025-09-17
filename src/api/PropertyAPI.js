@@ -174,7 +174,6 @@ export const getPropertiesByCategory = async (category, searchQuery = "") => {
   }
 
   try {
-    // Include /api prefix
     const url = `${BASE_URL}/api/category/${encodeURIComponent(category.toLowerCase())}${
       searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
     }`;
