@@ -1,38 +1,84 @@
-export default function Inbox({ onSelectChat, chats: propChats }) {
-  const [chats, setChats] = useState(propChats || []);
-  const [loading, setLoading] = useState(!propChats);
-  const currentUserEmail = localStorage.getItem("email");
+// src/pages/Inbox.jsx
+import React, { useState, useEffect } from "react";
+import Chat from "./Chat";
+import { getInboxChats } from "../api/PropertyAPI"; // your backend API call
+import "./Inbox.css";
 
-  // Update local chats when propChats changes
+export default function InboxPage() {
+  const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedChat, setSelectedChat] = useState(null); // { chatId, propertyId }
+  const [currentUserEmail, setCurrentUserEmail] = useState("");
+
   useEffect(() => {
-    if (propChats) setChats(propChats);
-  }, [propChats]);
+    const email = localStorage.getItem("email");
+    setCurrentUserEmail(email);
+
+    const fetchChats = async () => {
+      try {
+        const data = await getInboxChats();
+        // Backend should return: [{ chat_id, property_id, user_name, last_message, unread_count }]
+        setChats(data || []);
+      } catch (err) {
+        console.error("Failed to fetch inbox chats:", err);
+        setChats([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, []);
+
+  const handleSelectChat = (chatId, propertyId) => {
+    setSelectedChat({ chatId, propertyId });
+  };
 
   if (loading) return <div>Loading chats...</div>;
-  if (chats.length === 0) return <div>No chats yet.</div>;
+  if (!loading && chats.length === 0) return <div>No chats yet.</div>;
 
   return (
-    <div className="inbox">
-      {chats.map((chat) => (
-        <div
-          key={chat.chat_id}
-          className="inbox-item"
-          onClick={() => {
-            onSelectChat(chat.chat_id, chat.property_id);
-          }}
-        >
-          <div className="chat-info">
-            <div className="chat-header">
-              <span className="chat-user">{chat.user_name}</span>
-              {chat.last_message?.timestamp && (
-                <span className="chat-time">{new Date(chat.last_message.timestamp).toLocaleTimeString()}</span>
+    <div className="inbox-page">
+      <div className="inbox-list">
+        <h2>Inbox</h2>
+        {chats.map((chat) => (
+          <div
+            key={chat.chat_id}
+            className="inbox-item"
+            onClick={() => handleSelectChat(chat.chat_id, chat.property_id)}
+          >
+            <div className="chat-info">
+              <div className="chat-header">
+                <span className="chat-user">{chat.user_name}</span>
+                {chat.last_message?.timestamp && (
+                  <span className="chat-time">
+                    {new Date(chat.last_message.timestamp).toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+              {chat.last_message && (
+                <div className="chat-last-msg">{chat.last_message.text}</div>
               )}
             </div>
-            {chat.last_message && <div className="chat-last-msg">{chat.last_message.text}</div>}
+            {chat.unread_count > 0 && (
+              <span className="unread-badge">{chat.unread_count}</span>
+            )}
           </div>
-          {chat.unread_count > 0 && <span className="unread-badge">{chat.unread_count}</span>}
-        </div>
-      ))}
+        ))}
+      </div>
+
+      <div className="chat-container">
+        {selectedChat ? (
+          <Chat
+            chatId={selectedChat.chatId}
+            propertyId={selectedChat.propertyId}
+            userId={currentUserEmail}
+            ownerId={currentUserEmail} // Owner email
+          />
+        ) : (
+          <div className="no-chat-selected">Select a chat to start messaging</div>
+        )}
+      </div>
     </div>
   );
 }

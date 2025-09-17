@@ -1,86 +1,60 @@
 import React, { useState, useEffect, useRef } from "react";
-import { sendMessage as sendMsgAPI, getMessages as getInitialMessages } from "../api/PropertyAPI";
+import { sendMessage, getMessages } from "../api/PropertyAPI";
 import "./Chat.css";
 
 export default function Chat({ chatId, userId, propertyId, ownerId }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const ws = useRef(null);
   const messagesEndRef = useRef(null);
-  const messageQueue = useRef([]);
 
-  const PIE_SOCKET_URL = process.env.REACT_APP_WS_URL;
-
-  // Scroll to bottom when messages change
+  // ---------------- Scroll to bottom ----------------
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Load initial messages from backend
+  // ---------------- Fetch messages ----------------
   useEffect(() => {
     if (!chatId) return;
-    getInitialMessages(propertyId).then((res) => {
-      setMessages(res.messages || []);
-    });
-  }, [chatId, propertyId]);
 
-  // ---------------- PieSocket WebSocket Setup ----------------
-  useEffect(() => {
-    if (!chatId || !userId) return;
-
-    ws.current = new WebSocket(PIE_SOCKET_URL);
-
-    ws.current.onopen = () => {
-      console.log("PieSocket connected");
-      messageQueue.current.forEach((msg) => ws.current.send(JSON.stringify(msg)));
-      messageQueue.current = [];
-    };
-
-    ws.current.onmessage = (event) => {
+    const fetchMessages = async () => {
       try {
-        const msg = JSON.parse(event.data);
-        if (msg.chatId === chatId) {
-          setMessages((prev) => [...prev, msg]);
-        }
+        const res = await getMessages(chatId); // GET /chat/{chat_id}/messages
+        setMessages(res.messages || []);
       } catch (err) {
-        console.error("Failed to parse WebSocket message:", err);
+        console.error("Failed to fetch messages:", err);
       }
     };
 
-    ws.current.onerror = (err) => console.error("WebSocket error:", err);
-    ws.current.onclose = () => console.log("WebSocket disconnected");
+    fetchMessages();
 
-    return () => ws.current?.close();
-  }, [chatId, userId]);
+    // Optional: poll for new messages every 5 seconds
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
+  }, [chatId]);
 
-  // ---------------- Send Message ----------------
+  // ---------------- Send message ----------------
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
-    const msg = {
-      chatId,
-      propertyId,
-      sender: userId,
-      text: input,
-      timestamp: Date.now(),
-    };
+    const msgText = input;
+    setInput(""); // Clear input immediately
 
-    // Send via PieSocket
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify(msg));
-    } else {
-      messageQueue.current.push(msg);
-    }
+    // Optimistic UI update
+    setMessages((prev) => [
+      ...prev,
+      { sender: userId, text: msgText, timestamp: Date.now() },
+    ]);
 
-    // Save to backend
     try {
-      await sendMsgAPI(chatId, input);
+      await sendMessage(chatId, msgText); // POST /chat/{chat_id}/send
     } catch (err) {
-      console.error("Failed to save message:", err);
+      console.error("Failed to send message:", err);
+      // Optionally, mark message as failed in UI
     }
+  };
 
-    setMessages((prev) => [...prev, msg]);
-    setInput("");
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") handleSendMessage();
   };
 
   const getSenderLabel = (sender) =>
@@ -106,7 +80,7 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
-          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+          onKeyDown={handleKeyPress}
         />
         <button onClick={handleSendMessage}>Send</button>
       </div>
