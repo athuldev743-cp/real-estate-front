@@ -1,6 +1,11 @@
 // src/pages/Account.jsx
 import React, { useState, useEffect } from "react";
-import { getMyProperties, getCart, removeFromCart, getCurrentUser } from "../api/PropertyAPI";
+import {
+  getMyProperties,
+  getCart,
+  removeFromCart,
+  getCurrentUser,
+} from "../api/PropertyAPI";
 import Inbox from "./Inbox";
 import { useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaInbox, FaTrash } from "react-icons/fa";
@@ -16,42 +21,68 @@ export default function Account({ user, setUser }) {
 
   const fullName = localStorage.getItem("fullName");
 
-
+  // ✅ Check authentication on mount
   useEffect(() => {
-  const checkAuth = async () => {
-    const userData = await getCurrentUser();
-    if (!userData) {
-      navigate("/login");
-    } else {
-      setUser(userData);
-    }
-  };
-  checkAuth();
-}, [navigate, setUser]);
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
 
-  // Fetch user properties
+      try {
+        const userData = await getCurrentUser();
+        if (!userData) {
+          navigate("/login");
+        } else {
+          setUser(userData);
+        }
+      } catch (err) {
+        console.error("❌ Auth error:", err.message);
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+    };
+    checkAuth();
+  }, [navigate, setUser]);
+
+  // ✅ Fetch user properties
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const data = await getMyProperties();
-        setProperties(data);
+        if (data?.error === "Session expired") {
+          navigate("/login");
+        } else {
+          setProperties(data || []);
+        }
       } catch (err) {
         console.error("Error fetching properties:", err);
       }
     };
     fetchProperties();
-  }, []);
+  }, [navigate]);
 
-  // Fetch inbox chats when Inbox is opened
+  // ✅ Fetch inbox chats when Inbox is opened
   useEffect(() => {
     if (!showInbox) return;
     const fetchInbox = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/chat/inbox`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        if (!token) return navigate("/login");
+
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/chat/inbox`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (res.status === 401) {
+          navigate("/login");
+          return;
+        }
+
         if (!res.ok) throw new Error("Failed to fetch inbox");
         const data = await res.json();
         setInbox(data.chats || []);
@@ -60,13 +91,17 @@ export default function Account({ user, setUser }) {
       }
     };
     fetchInbox();
-  }, [showInbox]);
+  }, [showInbox, navigate]);
 
-  // Fetch cart from backend
+  // ✅ Fetch cart from backend
   const fetchCart = async () => {
     try {
       const data = await getCart();
-      setCart(data.items || data || []);
+      if (data?.error === "Session expired") {
+        navigate("/login");
+      } else {
+        setCart(data.items || data || []);
+      }
     } catch (err) {
       console.error("Error fetching cart:", err);
     }
@@ -102,6 +137,7 @@ export default function Account({ user, setUser }) {
     localStorage.removeItem("fullName");
     localStorage.removeItem("email");
     setUser(null);
+    navigate("/login");
   };
 
   return (
@@ -113,9 +149,12 @@ export default function Account({ user, setUser }) {
       >
         <div className="header-overlay"></div>
         <div className="header-content">
-          <h1>Welcome, {fullName}</h1>
+          <h1>Welcome, {fullName || "User"}</h1>
           <div className="header-buttons">
-            <button className="nav-btn" onClick={() => setShowInbox((prev) => !prev)}>
+            <button
+              className="nav-btn"
+              onClick={() => setShowInbox((prev) => !prev)}
+            >
               <FaInbox /> Inbox
             </button>
             <button className="nav-btn" onClick={() => setShowCart(true)}>
