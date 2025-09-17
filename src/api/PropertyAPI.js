@@ -47,29 +47,6 @@ export const registerUser = async (data) => {
   }
 };
 
-export const verifyOTP = async ({ email, otp }) => {
-  if (!email || !otp) throw new Error("Email and OTP are required");
-  try {
-    const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    });
-    const result = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(result.detail || "OTP verification failed");
-
-    localStorage.setItem("token", result.access_token);
-    localStorage.setItem("refresh_token", result.refresh_token);
-    localStorage.setItem("fullName", result.fullName);
-    localStorage.setItem("email", result.email);
-    localStorage.setItem("phone", result.phone);
-    return result;
-  } catch (err) {
-    console.error("❌ verifyOTP error:", err);
-    throw err;
-  }
-};
-
 // -------------------- Token Refresh --------------------
 const refreshAccessToken = async () => {
   const refresh_token = localStorage.getItem("refresh_token");
@@ -147,7 +124,9 @@ export const getCurrentUser = async () => {
 };
 
 // -------------------- Properties --------------------
-export const addProperty = async (formData) => authFetch(`${BASE_URL}/api/add-property`, { method: "POST", body: formData });
+export const addProperty = async (formData) =>
+  authFetch(`${BASE_URL}/api/add-property`, { method: "POST", body: formData });
+
 export const getProperties = async (searchQuery = "") => {
   try {
     const url = searchQuery
@@ -158,6 +137,7 @@ export const getProperties = async (searchQuery = "") => {
     return [];
   }
 };
+
 export const getPropertiesByCategory = async (category, searchQuery = "") => {
   if (!category) throw new Error("Category is required");
   try {
@@ -169,6 +149,7 @@ export const getPropertiesByCategory = async (category, searchQuery = "") => {
     return [];
   }
 };
+
 export const getPropertyById = async (id) => {
   if (!id) throw new Error("Property ID is required");
   try {
@@ -177,6 +158,7 @@ export const getPropertyById = async (id) => {
     return null;
   }
 };
+
 export const getMyProperties = async () => {
   try {
     return await authFetch(`${BASE_URL}/api/my-properties`);
@@ -185,7 +167,7 @@ export const getMyProperties = async () => {
   }
 };
 
-// -------------------- Chat --------------------
+// -------------------- Chat (REST only) --------------------
 export const getMessages = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
@@ -194,6 +176,7 @@ export const getMessages = async (propertyId) => {
     return { chatId: null, messages: [] };
   }
 };
+
 export const sendMessage = async (chatId, text) => {
   if (!chatId || !text) throw new Error("Chat ID and message text are required");
   try {
@@ -206,6 +189,7 @@ export const sendMessage = async (chatId, text) => {
     return null;
   }
 };
+
 export const getOwnerInbox = async () => {
   try {
     return await authFetch(`${BASE_URL}/chat/inbox`);
@@ -213,29 +197,13 @@ export const getOwnerInbox = async () => {
     return [];
   }
 };
+
 export const getOwnerChatMessages = async (chatId) => {
   if (!chatId) throw new Error("Chat ID is required");
   try {
     return await authFetch(`${BASE_URL}/chat/${chatId}/messages`);
   } catch {
     return [];
-  }
-};
-
-// -------------------- Notifications --------------------
-export const getNotifications = async () => {
-  try {
-    return await authFetch(`${BASE_URL}/chat/notifications`);
-  } catch {
-    return [];
-  }
-};
-export const markMessagesAsRead = async (chatId) => {
-  if (!chatId) throw new Error("Chat ID is required");
-  try {
-    return await authFetch(`${BASE_URL}/chat/mark-read/${chatId}`, { method: "POST" });
-  } catch {
-    return null;
   }
 };
 
@@ -257,6 +225,7 @@ export const getCart = async () => {
     return [];
   }
 };
+
 export const addToCart = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
@@ -265,6 +234,7 @@ export const addToCart = async (propertyId) => {
     return null;
   }
 };
+
 export const removeFromCart = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
