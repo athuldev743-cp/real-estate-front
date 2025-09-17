@@ -46,6 +46,30 @@ export const registerUser = async (data) => {
     throw err;
   }
 };
+// -------------------- Verify OTP --------------------
+export const verifyOTP = async ({ email, otp }) => {
+  if (!email || !otp) throw new Error("Email and OTP are required");
+  try {
+    const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(result.detail || "OTP verification failed");
+
+    localStorage.setItem("token", result.access_token);
+    localStorage.setItem("refresh_token", result.refresh_token);
+    localStorage.setItem("fullName", result.fullName);
+    localStorage.setItem("email", result.email);
+    localStorage.setItem("phone", result.phone);
+    return result;
+  } catch (err) {
+    console.error("❌ verifyOTP error:", err);
+    throw err;
+  }
+};
+
 
 // -------------------- Token Refresh --------------------
 const refreshAccessToken = async () => {
