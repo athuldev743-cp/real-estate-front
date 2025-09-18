@@ -3,21 +3,20 @@ import React, { useState, useEffect, useRef } from "react";
 import { fetchChatMessages, sendMessage } from "../api/PropertyAPI";
 import "./Chat.css";
 
-export default function Chat({ chatId, propertyId, userId, ownerId, initialMessages = [] }) {
-  // ✅ Use initialMessages if provided
+export default function Chat({ chatId, propertyId, userId, ownerId, buyerId, initialMessages = [] }) {
   const [messages, setMessages] = useState(Array.isArray(initialMessages) ? initialMessages : []);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(messages.length === 0);
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom whenever messages change
+  // Scroll to bottom on messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch messages (poll every 5 seconds)
+  // Poll messages every 5s
   useEffect(() => {
-    if (!chatId && !propertyId) return;
+    if (!chatId) return;
 
     let interval;
 
@@ -25,7 +24,6 @@ export default function Chat({ chatId, propertyId, userId, ownerId, initialMessa
       try {
         const msgs = await fetchChatMessages(chatId);
         if (Array.isArray(msgs)) {
-          // ✅ Only update if new messages arrived
           setMessages((prev) => {
             if (prev.length !== msgs.length) return msgs;
             return prev;
@@ -38,19 +36,17 @@ export default function Chat({ chatId, propertyId, userId, ownerId, initialMessa
       }
     };
 
-    // Only fetch if no initial messages
     if (messages.length === 0) fetchMessages();
-
-    interval = setInterval(fetchMessages, 5000); // poll every 5s
+    interval = setInterval(fetchMessages, 5000);
 
     return () => clearInterval(interval);
-  }, [chatId, propertyId]);
+  }, [chatId]);
 
-  // Send a new message
+  // Send message
   const handleSendMessage = async () => {
     if (!input.trim() || !chatId) return;
 
-    const msgText = input;
+    const msgText = input.trim();
     const timestamp = new Date().toISOString();
     setInput("");
 
@@ -77,8 +73,13 @@ export default function Chat({ chatId, propertyId, userId, ownerId, initialMessa
     if (e.key === "Enter") handleSendMessage();
   };
 
-  const getSenderLabel = (sender) =>
-    sender === userId ? "You" : sender === ownerId ? "Owner" : "Buyer";
+  // Label messages
+  const getSenderLabel = (sender) => {
+    if (sender === userId) return "You";
+    if (sender === ownerId) return "Owner";
+    if (sender === buyerId) return "Buyer";
+    return sender;
+  };
 
   return (
     <div className="chat-container">

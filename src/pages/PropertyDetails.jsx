@@ -18,6 +18,7 @@ export default function PropertyDetails({ user }) {
 
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [chatLoading, setChatLoading] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatData, setChatData] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
@@ -54,12 +55,18 @@ export default function PropertyDetails({ user }) {
 
   // ----- Open chat -----
   const handleChatOpen = async () => {
-    if (!property?._id) return;
+    if (!property?._id || chatLoading) return;
 
+    setChatLoading(true);
     try {
-      const chat = await getChatByPropertyId(property._id);
+      // Ensure property ID is a string
+      const propertyIdStr =
+        typeof property._id === "string" ? property._id : property._id.$oid;
 
-      if (!chat.chatId) {
+      // Get or create chat
+      const chat = await getChatByPropertyId(propertyIdStr);
+
+      if (!chat?.chatId) {
         alert("Chat could not be started for this property.");
         return;
       }
@@ -67,8 +74,9 @@ export default function PropertyDetails({ user }) {
       // Set chat data immediately for initial messages
       setChatData({
         chatId: chat.chatId,
-        propertyId: property._id,
-        ownerId: property.owner,
+        propertyId: propertyIdStr,
+        ownerId: chat.owner || property.owner,
+        buyerId: chat.buyer || userEmail,
         messages: chat.messages || [],
       });
 
@@ -76,6 +84,8 @@ export default function PropertyDetails({ user }) {
     } catch (err) {
       console.error("Failed to open chat:", err);
       alert("Unable to start chat. Try again later.");
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -175,8 +185,8 @@ export default function PropertyDetails({ user }) {
 
           <div className="action-buttons">
             {!isOwner && (
-              <button className="chat-btn" onClick={handleChatOpen}>
-                💬 Chat with Seller
+              <button className="chat-btn" onClick={handleChatOpen} disabled={chatLoading}>
+                {chatLoading ? "Opening Chat..." : "💬 Chat with Seller"}
               </button>
             )}
             {!isOwner && (
@@ -218,6 +228,7 @@ export default function PropertyDetails({ user }) {
             userId={userEmail}
             propertyId={chatData.propertyId}
             ownerId={chatData.ownerId}
+            buyerId={chatData.buyerId}
             initialMessages={chatData.messages} // first messages immediately shown
           />
         </div>

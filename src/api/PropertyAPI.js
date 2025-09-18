@@ -171,7 +171,7 @@ export const deleteProperty = async (id) => {
     return null;
   }
 };
-// src/api/PropertyAPI.js
+// chat
 
 // Helper to get auth headers
 const getAuthHeaders = () => {
