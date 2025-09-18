@@ -3,11 +3,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { fetchChatMessages, sendMessage } from "../api/PropertyAPI";
 import "./Chat.css";
 
-export default function Chat({ chatId, propertyId, userId, ownerId }) {
-  const [messages, setMessages] = useState([]);
+export default function Chat({ chatId, propertyId, userId, ownerId, initialMessages = [] }) {
+  const [messages, setMessages] = useState(initialMessages); // ✅ use initialMessages
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialMessages.length === 0); // ✅ show loading only if no initial messages
   const messagesEndRef = useRef(null);
+
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -15,32 +16,35 @@ export default function Chat({ chatId, propertyId, userId, ownerId }) {
   }, [messages]);
 
   // Fetch messages (poll every 5 seconds)
-  useEffect(() => {
-    if (!chatId && !propertyId) {
+useEffect(() => {
+  if (!chatId && !propertyId) {
+    setMessages([]);
+    setLoading(false);
+    return;
+  }
+
+  let interval;
+
+  const fetchMessages = async () => {
+    try {
+      const msgs = await fetchChatMessages({ chatId, propertyId });
+      setMessages(msgs || []); // ✅ keep updating messages
+    } catch (err) {
+      console.error("❌ Failed to fetch messages:", err);
       setMessages([]);
+    } finally {
       setLoading(false);
-      return;
     }
+  };
 
-    let interval;
+  // Only fetch from backend if no initial messages
+  if (messages.length === 0) fetchMessages();
 
-    const fetchMessages = async () => {
-      try {
-        const msgs = await fetchChatMessages({ chatId, propertyId });
-        setMessages(msgs || []);
-      } catch (err) {
-        console.error("❌ Failed to fetch messages:", err);
-        setMessages([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  interval = setInterval(fetchMessages, 5000); // poll every 5s
 
-    fetchMessages();
-    interval = setInterval(fetchMessages, 5000); // poll every 5s
+  return () => clearInterval(interval);
+}, [chatId, propertyId]);
 
-    return () => clearInterval(interval);
-  }, [chatId, propertyId]);
 
   // Send a new message
   const handleSendMessage = async () => {

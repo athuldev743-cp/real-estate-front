@@ -219,10 +219,14 @@ export const getOwnerChatMessages = async (chatId) => {
 // Unified fetch: property ID OR chat ID
 export const fetchChatMessages = async ({ propertyId, chatId }) => {
   if (chatId) {
-    return getOwnerChatMessages(chatId);
+    const messages = await getOwnerChatMessages(chatId);
+    return { chatId, messages };
   } else if (propertyId) {
     const chat = await getChatByPropertyId(propertyId);
-    return chat.messages || [];
+    return {
+      chatId: chat.chatId,
+      messages: chat.messages || [],
+    };
   } else {
     throw new Error("Either propertyId or chatId is required");
   }

@@ -53,47 +53,67 @@ export default function PropertyDetails({ user }) {
       : false;
 
   // ----- Open chat -----
-  const handleChatOpen = async () => {
-    try {
-      const chat = await getChatByPropertyId(property._id);
+ const handleChatOpen = async () => {
+  try {
+    const chat = await getChatByPropertyId(property._id);
 
-      if (!chat.chatId) {
-        alert("Chat could not be started for this property.");
-        return;
-      }
-
-      setChatData({
-        chatId: chat.chatId,
-        propertyId: property._id,
-        ownerId: property.owner,
-      });
-
-      setChatOpen(true);
-    } catch (err) {
-      console.error("Failed to open chat:", err);
-      alert("Unable to start chat. Try again later.");
+    if (!chat.chatId) {
+      alert("Chat could not be started for this property.");
+      return;
     }
-  };
 
-  const handleChatClose = () => {
-    setChatOpen(false);
-    setChatData(null);
-  };
+    setChatData({
+      chatId: chat.chatId,
+      propertyId: property._id,
+      ownerId: property.owner,
+      messages: chat.messages || [], // ✅ include messages
+    });
+
+    setChatOpen(true);
+  } catch (err) {
+    console.error("Failed to open chat:", err);
+    alert("Unable to start chat. Try again later.");
+  }
+};
+
 
   // ----- Add to cart -----
-  const addToCart = async () => {
-    try {
-      await addToCartAPI(property._id);
+  
+const addToCart = async () => {
+  if (!property?._id) return;
+
+  try {
+    const res = await addToCartAPI(property._id);
+
+    if (res?.message === "Added to cart") {
       alert(`${property.title} added to cart!`);
-    } catch (err) {
-      if (err.message.includes("already")) {
-        alert("This property is already in your cart.");
-      } else {
-        console.error("Failed to add to cart:", err);
-        alert("Failed to add to cart. Try again later.");
-      }
+    } else {
+      alert("This property might already be in your cart.");
     }
-  };
+
+  } catch (err) {
+    console.error("Failed to add to cart:", err);
+
+    // Check for expired/missing token
+    if (err.response?.status === 401) {
+      alert("Your session expired. Please log in again.");
+      localStorage.clear();
+      navigate("/login");
+    }
+    // Property not found
+    else if (err.response?.status === 404) {
+      alert("Property not found.");
+    }
+    // Already in cart or other backend issue
+    else if (err.response?.status === 422) {
+      alert("This property is already in your cart.");
+    }
+    // Fallback
+    else {
+      alert("Failed to add to cart. Try again later.");
+    }
+  }
+};
 
   // ----- Lightbox -----
   const openLightbox = (img) => setLightboxImage(img);
@@ -189,19 +209,19 @@ export default function PropertyDetails({ user }) {
       )}
 
       {/* Chat Modal */}
-      {chatOpen && chatData && (
-        <div className="chat-modal">
-          <button className="chat-close-btn" onClick={handleChatClose}>
-            ✖
-          </button>
-          <Chat
-            chatId={chatData.chatId}
-            userId={userEmail}
-            propertyId={chatData.propertyId}
-            ownerId={chatData.ownerId}
-          />
-        </div>
-      )}
+{chatOpen && chatData && (
+  <div className="chat-modal">
+    <button className="chat-close-btn" onClick={handleChatClose}>✖</button>
+    <Chat
+      chatId={chatData.chatId}
+      userId={userEmail}
+      propertyId={chatData.propertyId}
+      ownerId={chatData.ownerId}
+      initialMessages={chatData.messages} // <-- pass messages here
+    />
+  </div>
+)}
+
 
       {/* Lightbox */}
       {lightboxImage && (
