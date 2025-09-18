@@ -29,7 +29,7 @@ export default function Chat({ chatId, propertyId, userId, ownerId }) {
         const msgs = await fetchChatMessages({ chatId, propertyId });
         setMessages(msgs || []);
       } catch (err) {
-        console.error("Failed to fetch messages:", err);
+        console.error("❌ Failed to fetch messages:", err);
         setMessages([]);
       } finally {
         setLoading(false);
@@ -37,7 +37,7 @@ export default function Chat({ chatId, propertyId, userId, ownerId }) {
     };
 
     fetchMessages();
-    interval = setInterval(fetchMessages, 5000);
+    interval = setInterval(fetchMessages, 5000); // poll every 5s
 
     return () => clearInterval(interval);
   }, [chatId, propertyId]);
@@ -64,7 +64,7 @@ export default function Chat({ chatId, propertyId, userId, ownerId }) {
         )
       );
     } catch (err) {
-      console.error("Failed to send message:", err);
+      console.error("❌ Failed to send message:", err);
       setMessages((prev) =>
         prev.map((m) =>
           m.timestamp === timestamp ? { ...m, status: "failed" } : m

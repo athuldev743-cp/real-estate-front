@@ -1,7 +1,11 @@
 // src/pages/PropertyDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPropertyById, fetchChatMessages, addToCart as addToCartAPI } from "../api/PropertyAPI";
+import {
+  getPropertyById,
+  getChatByPropertyId,
+  addToCart as addToCartAPI,
+} from "../api/PropertyAPI";
 import Chat from "./Chat";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -16,7 +20,7 @@ export default function PropertyDetails({ user }) {
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatData, setChatData] = useState(null);
-  const [lightboxImage, setLightboxImage] = useState(null); // For full image
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const currentUser = user || {
     fullName: localStorage.getItem("fullName"),
@@ -43,33 +47,40 @@ export default function PropertyDetails({ user }) {
     fetchProperty();
   }, [id]);
 
-const isOwner = userEmail === property?.owner?.trim().toLowerCase();
+  const isOwner =
+    userEmail && property?.owner
+      ? userEmail === property.owner.trim().toLowerCase()
+      : false;
 
-const handleChatOpen = async () => {
-  try {
-    // ✅ Use fetchChatMessages instead of getMessages
-    const msgs = await fetchChatMessages({ propertyId: property._id });
+  // ----- Open chat -----
+  const handleChatOpen = async () => {
+    try {
+      const chat = await getChatByPropertyId(property._id);
 
-    setChatData({
-      chatId: msgs?.chatId || null,
-      propertyId: property._id,
-      ownerId: property.owner,
-    });
+      if (!chat.chatId) {
+        alert("Chat could not be started for this property.");
+        return;
+      }
 
-    setChatOpen(true);
-  } catch (err) {
-    console.error("Failed to open chat:", err);
-    alert("Unable to start chat. Try again later.");
-  }
-};
+      setChatData({
+        chatId: chat.chatId,
+        propertyId: property._id,
+        ownerId: property.owner,
+      });
 
-const handleChatClose = () => {
-  setChatOpen(false);
-  setChatData(null);
-};
+      setChatOpen(true);
+    } catch (err) {
+      console.error("Failed to open chat:", err);
+      alert("Unable to start chat. Try again later.");
+    }
+  };
 
+  const handleChatClose = () => {
+    setChatOpen(false);
+    setChatData(null);
+  };
 
-  // ✅ Add property to backend cart
+  // ----- Add to cart -----
   const addToCart = async () => {
     try {
       await addToCartAPI(property._id);
@@ -84,30 +95,29 @@ const handleChatClose = () => {
     }
   };
 
-  const openLightbox = (img) => {
-    setLightboxImage(img);
-  };
-
-  const closeLightbox = () => {
-    setLightboxImage(null);
-  };
+  // ----- Lightbox -----
+  const openLightbox = (img) => setLightboxImage(img);
+  const closeLightbox = () => setLightboxImage(null);
 
   if (loading) return <p className="center-text">Loading property...</p>;
   if (!property) return <p className="center-text">Property not found.</p>;
 
   return (
     <div className="property-details-page">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
+      <button className="back-btn" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
 
+      {/* Property Header */}
       <div className="property-header">
         <h1>{property.title || "Untitled Property"}</h1>
         <p>{property.category?.toUpperCase() || "N/A"}</p>
       </div>
 
       <div className="property-main">
-        {/* ---------- Image Gallery Row ---------- */}
+        {/* Image Gallery */}
         <div className="property-image-row-container">
-          {property.images && property.images.length > 0 ? (
+          {property.images?.length > 0 ? (
             property.images.map((img, index) => (
               <img
                 key={index}
@@ -127,14 +137,22 @@ const handleChatClose = () => {
           )}
         </div>
 
-        {/* ---------- Property Info ---------- */}
+        {/* Property Info */}
         <div className="property-info">
           <h2>Property Details</h2>
           <p>{property.description || "No description available."}</p>
-          <p className="price"><strong>Price:</strong> ₹{property.price || "N/A"}</p>
-          <p><strong>Category:</strong> {property.category || "N/A"}</p>
-          <p><strong>Owner:</strong> {property.ownerFullName || property.owner || "N/A"}</p>
-          <p><strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}</p>
+          <p className="price">
+            <strong>Price:</strong> ₹{property.price || "N/A"}
+          </p>
+          <p>
+            <strong>Category:</strong> {property.category || "N/A"}
+          </p>
+          <p>
+            <strong>Owner:</strong> {property.ownerFullName || property.owner || "N/A"}
+          </p>
+          <p>
+            <strong>Contact Mobile:</strong> {property.mobileNO || "N/A"}
+          </p>
 
           <div className="action-buttons">
             {!isOwner && (
@@ -148,11 +166,12 @@ const handleChatClose = () => {
               </button>
             )}
           </div>
+
           {isOwner && <p className="owner-label">You are the owner of this property</p>}
         </div>
       </div>
 
-      {/* ---------- Map ---------- */}
+      {/* Map */}
       {property.latitude && property.longitude && (
         <div className="property-map">
           <MapContainer
@@ -172,7 +191,9 @@ const handleChatClose = () => {
       {/* Chat Modal */}
       {chatOpen && chatData && (
         <div className="chat-modal">
-          <button className="chat-close-btn" onClick={handleChatClose}>✖</button>
+          <button className="chat-close-btn" onClick={handleChatClose}>
+            ✖
+          </button>
           <Chat
             chatId={chatData.chatId}
             userId={userEmail}

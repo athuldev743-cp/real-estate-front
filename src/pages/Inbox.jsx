@@ -5,57 +5,77 @@ import { getOwnerInbox } from "../api/PropertyAPI";
 import "./Inbox.css";
 
 export default function Inbox({ chats, onSelectChat }) {
+  return (
+    <div className="inbox-list">
+      <h2>Inbox</h2>
+      {chats.map((chat) => (
+        <div
+          key={chat.chat_id}
+          className="inbox-item"
+          onClick={() => onSelectChat(chat)}
+        >
+          <div className="chat-info">
+            <div className="chat-header">
+              <span className="chat-user">{chat.user_name}</span>
+              {chat.last_message?.timestamp && (
+                <span className="chat-time">
+                  {new Date(chat.last_message.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              )}
+            </div>
+            {chat.last_message && (
+              <div className="chat-last-msg">{chat.last_message.text}</div>
+            )}
+          </div>
+          {chat.unread_count > 0 && (
+            <span className="unread-badge">{chat.unread_count}</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Optional Inbox page for standalone testing
+export function InboxPage() {
+  const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedChat, setSelectedChat] = useState(null);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
 
   useEffect(() => {
     const email = localStorage.getItem("email");
     setCurrentUserEmail(email);
+
+    const fetchChats = async () => {
+      try {
+        const data = await getOwnerInbox();
+        setChats(data || []);
+      } catch (err) {
+        console.error("Failed to fetch inbox chats:", err);
+        setChats([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChats();
   }, []);
 
   const handleSelectChat = (chat) => {
     if (!chat.property_id) return;
     setSelectedChat({ propertyId: chat.property_id, chatId: chat.chat_id });
-    onSelectChat(chat); // notify parent
   };
+
+  if (loading) return <div>Loading chats...</div>;
+  if (!loading && chats.length === 0) return <div>No chats yet.</div>;
 
   return (
     <div className="inbox-page">
-      <div className="inbox-list">
-        <h2>Inbox</h2>
-        {chats.length === 0 ? (
-          <p>No chats yet.</p>
-        ) : (
-          chats.map((chat) => (
-            <div
-              key={chat.chat_id}
-              className="inbox-item"
-              onClick={() => handleSelectChat(chat)}
-            >
-              <div className="chat-info">
-                <div className="chat-header">
-                  <span className="chat-user">{chat.user_name}</span>
-                  {chat.last_message?.timestamp && (
-                    <span className="chat-time">
-                      {new Date(chat.last_message.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  )}
-                </div>
-                {chat.last_message && (
-                  <div className="chat-last-msg">{chat.last_message.text}</div>
-                )}
-              </div>
-              {chat.unread_count > 0 && (
-                <span className="unread-badge">{chat.unread_count}</span>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-
+      <Inbox chats={chats} onSelectChat={handleSelectChat} />
       <div className="chat-container">
         {selectedChat ? (
           <Chat
