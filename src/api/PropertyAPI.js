@@ -7,7 +7,8 @@ const VALID_CATEGORIES = ["house", "villa", "apartment", "farmlands", "plots", "
 export const loginUser = async (data) => {
   if (!data.email || !data.password) throw new Error("Email and password are required");
   try {
-    const res = await API.post("/auth/login", data);
+    // ✅ Updated URL
+    const res = await API.post("/api/auth/login", data);
     const result = res.data;
     localStorage.setItem("token", result.access_token);
     localStorage.setItem("refresh_token", result.refresh_token);
@@ -20,6 +21,7 @@ export const loginUser = async (data) => {
     throw new Error(err.response?.data?.detail || "Login failed");
   }
 };
+
 
 export const registerUser = async (data) => {
   if (!data.fullName || !data.email || !data.password)
