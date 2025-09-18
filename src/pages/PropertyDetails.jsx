@@ -43,27 +43,31 @@ export default function PropertyDetails({ user }) {
     fetchProperty();
   }, [id]);
 
-  const isOwner = userEmail === property?.owner?.trim().toLowerCase();
+const isOwner = userEmail === property?.owner?.trim().toLowerCase();
 
-  const handleChatOpen = async () => {
-    try {
-      const res = await getMessages(property._id);
-      setChatData({
-        chatId: res.chatId,
-        propertyId: property._id,
-        ownerId: property.owner,
-      });
-      setChatOpen(true);
-    } catch (err) {
-      console.error("Failed to open chat:", err);
-      alert("Unable to start chat. Try again later.");
-    }
-  };
+const handleChatOpen = async () => {
+  try {
+    // ✅ Use fetchChatMessages instead of getMessages
+    const msgs = await fetchChatMessages({ propertyId: property._id });
 
-  const handleChatClose = () => {
-    setChatOpen(false);
-    setChatData(null);
-  };
+    setChatData({
+      chatId: msgs?.chatId || null,
+      propertyId: property._id,
+      ownerId: property.owner,
+    });
+
+    setChatOpen(true);
+  } catch (err) {
+    console.error("Failed to open chat:", err);
+    alert("Unable to start chat. Try again later.");
+  }
+};
+
+const handleChatClose = () => {
+  setChatOpen(false);
+  setChatData(null);
+};
+
 
   // ✅ Add property to backend cart
   const addToCart = async () => {
