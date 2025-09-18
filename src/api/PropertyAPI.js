@@ -1,23 +1,14 @@
-const BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  (window.location.hostname === "localhost"
-    ? "http://localhost:8000"
-    : "https://back-end-lybr.onrender.com");
+// PropertyAPI.js
+import API from "./axios";
 
-console.log("🌍 API Base URL:", BASE_URL);
-
+const VALID_CATEGORIES = ["house", "villa", "apartment", "farmlands", "plots", "buildings"];
 
 // -------------------- Auth --------------------
 export const loginUser = async (data) => {
   if (!data.email || !data.password) throw new Error("Email and password are required");
   try {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const result = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(result.detail || "Login failed");
+    const res = await API.post("/auth/login", data);
+    const result = res.data;
     localStorage.setItem("token", result.access_token);
     localStorage.setItem("refresh_token", result.refresh_token);
     localStorage.setItem("fullName", result.fullName);
@@ -25,8 +16,8 @@ export const loginUser = async (data) => {
     localStorage.setItem("phone", result.phone);
     return result;
   } catch (err) {
-    console.error("❌ loginUser error:", err);
-    throw err;
+    console.error("❌ loginUser error:", err.response?.data || err.message);
+    throw new Error(err.response?.data?.detail || "Login failed");
   }
 };
 
@@ -34,31 +25,19 @@ export const registerUser = async (data) => {
   if (!data.fullName || !data.email || !data.password)
     throw new Error("Full name, email, and password are required");
   try {
-    const res = await fetch(`${BASE_URL}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const result = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(result.detail || "Registration failed");
-    return result;
+    const res = await API.post("/auth/register", data);
+    return res.data;
   } catch (err) {
-    console.error("❌ registerUser error:", err);
-    throw err;
+    console.error("❌ registerUser error:", err.response?.data || err.message);
+    throw new Error(err.response?.data?.detail || "Registration failed");
   }
 };
-// -------------------- Verify OTP --------------------
+
 export const verifyOTP = async ({ email, otp }) => {
   if (!email || !otp) throw new Error("Email and OTP are required");
   try {
-    const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    });
-    const result = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(result.detail || "OTP verification failed");
-
+    const res = await API.post("/auth/verify-otp", { email, otp });
+    const result = res.data;
     localStorage.setItem("token", result.access_token);
     localStorage.setItem("refresh_token", result.refresh_token);
     localStorage.setItem("fullName", result.fullName);
@@ -66,82 +45,17 @@ export const verifyOTP = async ({ email, otp }) => {
     localStorage.setItem("phone", result.phone);
     return result;
   } catch (err) {
-    console.error("❌ verifyOTP error:", err);
-    throw err;
+    console.error("❌ verifyOTP error:", err.response?.data || err.message);
+    throw new Error(err.response?.data?.detail || "OTP verification failed");
   }
 };
 
-
-// -------------------- Token Refresh --------------------
-const refreshAccessToken = async () => {
-  const refresh_token = localStorage.getItem("refresh_token");
-  if (!refresh_token) throw new Error("No refresh token available");
-
-  try {
-    const res = await fetch(`${BASE_URL}/auth/refresh-token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token }),
-    });
-    const result = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      localStorage.clear();
-      throw new Error(result.detail || "Refresh token failed");
-    }
-    localStorage.setItem("token", result.access_token);
-    localStorage.setItem("refresh_token", result.refresh_token);
-    localStorage.setItem("fullName", result.fullName);
-    localStorage.setItem("email", result.email);
-    localStorage.setItem("phone", result.phone);
-    return result.access_token;
-  } catch (err) {
-    console.error("❌ refreshAccessToken error:", err);
-    localStorage.clear();
-    throw new Error("Session expired. Please login again.");
-  }
-};
-
-// -------------------- Authenticated Fetch --------------------
-const authFetch = async (url, options = {}) => {
-  let token = localStorage.getItem("token");
-
-  const defaultHeaders = {};
-  if (!(options.body instanceof FormData)) {
-    defaultHeaders["Content-Type"] = "application/json";
-  }
-  options.headers = {
-    ...defaultHeaders,
-    ...options.headers,
-    Authorization: `Bearer ${token}`,
-  };
-
-  try {
-    let res = await fetch(url, options);
-
-    if (res.status === 401) {
-      token = await refreshAccessToken();
-      options.headers.Authorization = `Bearer ${token}`;
-      res = await fetch(url, options);
-    }
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      console.error(`❌ API Error [${res.status}] ${url}`, data);
-      throw new Error(data.detail || `Request failed with ${res.status}`);
-    }
-    return data;
-  } catch (err) {
-    console.error(`❌ Network/API error on ${url}:`, err);
-    throw new Error("Network error or server unreachable");
-  }
-};
-
-// -------------------- User --------------------
 export const getCurrentUser = async () => {
   try {
-    return await authFetch(`${BASE_URL}/auth/me`, { method: "GET" });
+    const res = await API.get("/auth/me");
+    return res.data;
   } catch (err) {
-    console.error("❌ getCurrentUser error:", err);
+    console.error("❌ getCurrentUser error:", err.response?.data || err.message);
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     return null;
@@ -149,68 +63,93 @@ export const getCurrentUser = async () => {
 };
 
 // -------------------- Properties --------------------
-export const addProperty = async (formData) =>
-  authFetch(`${BASE_URL}/api/add-property`, { method: "POST", body: formData });
-
-export const getProperties = async (searchQuery = "") => {
+export const addProperty = async (formData) => {
   try {
-    const url = searchQuery
-      ? `${BASE_URL}/api/properties?search=${encodeURIComponent(searchQuery)}`
-      : `${BASE_URL}/api/properties`;
-    return await authFetch(url);
-  } catch {
-    return [];
-  }
-};
-
-const VALID_CATEGORIES = ["house", "villa", "apartment", "farmlands", "plots", "buildings"];
-
-export const getPropertiesByCategory = async (category, searchQuery = "") => {
-  if (!category) throw new Error("Category is required");
-
-  if (!VALID_CATEGORIES.includes(category.toLowerCase())) {
-    console.error(`❌ Invalid category requested: ${category}`);
-    throw new Error(`Invalid category. Must be one of: ${VALID_CATEGORIES.join(", ")}`);
-  }
-
-  try {
-    const url = `${BASE_URL}/api/category/${encodeURIComponent(category.toLowerCase())}${
-      searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
-    }`;
-    return await authFetch(url);
+    const res = await API.post("/api/add-property", formData);
+    return res.data;
   } catch (err) {
-    console.error(`❌ Failed to fetch properties for category ${category}:`, err);
+    console.error("❌ addProperty error:", err.response?.data || err.message);
     throw err;
   }
 };
 
+export const getProperties = async (searchQuery = "") => {
+  try {
+    const res = await API.get("/api/properties", { params: searchQuery ? { search: searchQuery } : {} });
+    return res.data;
+  } catch (err) {
+    console.error("❌ getProperties error:", err.response?.data || err.message);
+    return [];
+  }
+};
 
-
-
+export const getPropertiesByCategory = async (category, searchQuery = "") => {
+  if (!category) throw new Error("Category is required");
+  if (!VALID_CATEGORIES.includes(category.toLowerCase())) {
+    throw new Error(`Invalid category. Must be one of: ${VALID_CATEGORIES.join(", ")}`);
+  }
+  try {
+    const res = await API.get(`/api/category/${category.toLowerCase()}`, {
+      params: searchQuery ? { search: searchQuery } : {},
+    });
+    return res.data;
+  } catch (err) {
+    console.error(`❌ getPropertiesByCategory error: ${category}`, err.response?.data || err.message);
+    return [];
+  }
+};
 
 export const getPropertyById = async (id) => {
   if (!id) throw new Error("Property ID is required");
   try {
-    return await authFetch(`${BASE_URL}/api/property/${id}`);
-  } catch {
+    const res = await API.get(`/api/property/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ getPropertyById error: ${id}`, err.response?.data || err.message);
     return null;
   }
 };
 
 export const getMyProperties = async () => {
   try {
-    return await authFetch(`${BASE_URL}/api/my-properties`);
-  } catch {
+    const res = await API.get("/api/my-properties");
+    return res.data.properties || [];
+  } catch (err) {
+    console.error("❌ getMyProperties error:", err.response?.data || err.message);
     return [];
   }
 };
 
-// -------------------- Chat (REST only) --------------------
+export const updateProperty = async (id, formData) => {
+  if (!id) throw new Error("Property ID is required");
+  try {
+    const res = await API.put(`/api/property/${id}`, formData);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ updateProperty error: ${id}`, err.response?.data || err.message);
+    throw err;
+  }
+};
+
+export const deleteProperty = async (id) => {
+  if (!id) throw new Error("Property ID is required");
+  try {
+    const res = await API.delete(`/api/property/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ deleteProperty error: ${id}`, err.response?.data || err.message);
+    return null;
+  }
+};
+
+// -------------------- Chat --------------------
 export const getMessages = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
-    return await authFetch(`${BASE_URL}/chat/property/${propertyId}`);
-  } catch {
+    const res = await API.get(`/chat/property/${propertyId}`);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ getMessages error: ${propertyId}`, err.response?.data || err.message);
     return { chatId: null, messages: [] };
   }
 };
@@ -218,20 +157,20 @@ export const getMessages = async (propertyId) => {
 export const sendMessage = async (chatId, text) => {
   if (!chatId || !text) throw new Error("Chat ID and message text are required");
   try {
-    return await authFetch(`${BASE_URL}/chat/${chatId}/send`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-    });
-  } catch {
+    const res = await API.post(`/chat/${chatId}/send`, { text });
+    return res.data;
+  } catch (err) {
+    console.error(`❌ sendMessage error: ${chatId}`, err.response?.data || err.message);
     return null;
   }
 };
 
 export const getOwnerInbox = async () => {
   try {
-    return await authFetch(`${BASE_URL}/chat/inbox`);
-  } catch {
+    const res = await API.get("/chat/inbox");
+    return res.data.chats || [];
+  } catch (err) {
+    console.error("❌ getOwnerInbox error:", err.response?.data || err.message);
     return [];
   }
 };
@@ -239,27 +178,21 @@ export const getOwnerInbox = async () => {
 export const getOwnerChatMessages = async (chatId) => {
   if (!chatId) throw new Error("Chat ID is required");
   try {
-    return await authFetch(`${BASE_URL}/chat/${chatId}/messages`);
-  } catch {
+    const res = await API.get(`/chat/${chatId}/messages`);
+    return res.data.messages || [];
+  } catch (err) {
+    console.error(`❌ getOwnerChatMessages error: ${chatId}`, err.response?.data || err.message);
     return [];
-  }
-};
-
-// -------------------- Delete --------------------
-export const deleteProperty = async (id) => {
-  if (!id) throw new Error("Property ID is required");
-  try {
-    return await authFetch(`${BASE_URL}/api/property/${id}`, { method: "DELETE" });
-  } catch {
-    return null;
   }
 };
 
 // -------------------- Cart --------------------
 export const getCart = async () => {
   try {
-    return await authFetch(`${BASE_URL}/api/cart`);
-  } catch {
+    const res = await API.get("/api/cart");
+    return res.data || [];
+  } catch (err) {
+    console.error("❌ getCart error:", err.response?.data || err.message);
     return [];
   }
 };
@@ -267,8 +200,10 @@ export const getCart = async () => {
 export const addToCart = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
-    return await authFetch(`${BASE_URL}/api/cart/${propertyId}`, { method: "POST" });
-  } catch {
+    const res = await API.post(`/api/cart/${propertyId}`);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ addToCart error: ${propertyId}`, err.response?.data || err.message);
     return null;
   }
 };
@@ -276,8 +211,10 @@ export const addToCart = async (propertyId) => {
 export const removeFromCart = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
-    return await authFetch(`${BASE_URL}/api/cart/${propertyId}`, { method: "DELETE" });
-  } catch {
+    const res = await API.delete(`/api/cart/${propertyId}`);
+    return res.data;
+  } catch (err) {
+    console.error(`❌ removeFromCart error: ${propertyId}`, err.response?.data || err.message);
     return null;
   }
 };
