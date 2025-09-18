@@ -83,7 +83,16 @@ export const getCurrentUser = async () => {
 // -------------------- Properties --------------------
 export const addProperty = async (formData) => {
   try {
-    const res = await API.post("/api/add-property", formData);
+    const token = localStorage.getItem("token"); // get your JWT or auth token
+    if (!token) throw new Error("No token found. Please login.");
+
+    const res = await API.post("/api/add-property", formData, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "multipart/form-data", // if you’re sending FormData
+      },
+    });
+
     return res.data;
   } catch (err) {
     console.error("❌ addProperty error:", err.response?.data || err.message);
