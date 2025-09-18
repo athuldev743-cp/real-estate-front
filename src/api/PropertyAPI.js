@@ -163,21 +163,29 @@ export const deleteProperty = async (id) => {
 };
 
 // -------------------- Chat --------------------
+
+// Get or create chat for a property
 export const getMessages = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
-    const res = await API.get(`/chat/property/${propertyId}`);
-    return res.data;
+    const res = await API.get(`/api/chat/property/${propertyId}`);
+    // Backend returns { chat_id, property_id, messages }
+    return {
+      chatId: res.data.chat_id,
+      propertyId: res.data.property_id,
+      messages: res.data.messages || [],
+    };
   } catch (err) {
     console.error(`❌ getMessages error: ${propertyId}`, err.response?.data || err.message);
-    return { chatId: null, messages: [] };
+    return { chatId: null, propertyId: propertyId, messages: [] };
   }
 };
 
+// Send a message
 export const sendMessage = async (chatId, text) => {
   if (!chatId || !text) throw new Error("Chat ID and message text are required");
   try {
-    const res = await API.post(`/chat/${chatId}/send`, { text });
+    const res = await API.post(`/api/chat/${chatId}/send`, { text });
     return res.data;
   } catch (err) {
     console.error(`❌ sendMessage error: ${chatId}`, err.response?.data || err.message);
@@ -185,20 +193,23 @@ export const sendMessage = async (chatId, text) => {
   }
 };
 
+// Get owner's inbox
 export const getOwnerInbox = async () => {
   try {
-    const res = await API.get("/chat/inbox");
-    return res.data.chats || [];
+    const res = await API.get("/api/chat/inbox"); // ✅ include /api prefix
+    // Backend returns array directly
+    return res.data || [];
   } catch (err) {
     console.error("❌ getOwnerInbox error:", err.response?.data || err.message);
     return [];
   }
 };
 
+// Get messages for a specific chat (optional helper)
 export const getOwnerChatMessages = async (chatId) => {
   if (!chatId) throw new Error("Chat ID is required");
   try {
-    const res = await API.get(`/chat/${chatId}/messages`);
+    const res = await API.get(`/api/chat/${chatId}/messages`);
     return res.data.messages || [];
   } catch (err) {
     console.error(`❌ getOwnerChatMessages error: ${chatId}`, err.response?.data || err.message);
