@@ -164,24 +164,24 @@ export const deleteProperty = async (id) => {
 
 // -------------------- Chat --------------------
 
-// Get or create chat for a property
-export const getMessages = async (propertyId) => {
+// Get or create chat by property ID
+export const getChatByPropertyId = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
   try {
     const res = await API.get(`/api/chat/property/${propertyId}`);
-    // Backend returns { chat_id, property_id, messages }
+    // Returns { chat_id, property_id, messages }
     return {
       chatId: res.data.chat_id,
       propertyId: res.data.property_id,
       messages: res.data.messages || [],
     };
   } catch (err) {
-    console.error(`❌ getMessages error: ${propertyId}`, err.response?.data || err.message);
-    return { chatId: null, propertyId: propertyId, messages: [] };
+    console.error(`❌ getChatByPropertyId error: ${propertyId}`, err.response?.data || err.message);
+    return { chatId: null, propertyId, messages: [] };
   }
 };
 
-// Send a message
+// Send a message by chat ID
 export const sendMessage = async (chatId, text) => {
   if (!chatId || !text) throw new Error("Chat ID and message text are required");
   try {
@@ -193,11 +193,10 @@ export const sendMessage = async (chatId, text) => {
   }
 };
 
-// Get owner's inbox
+// Get all inbox chats for the owner
 export const getOwnerInbox = async () => {
   try {
-    const res = await API.get("/api/chat/inbox"); // ✅ include /api prefix
-    // Backend returns array directly
+    const res = await API.get("/api/chat/inbox");
     return res.data || [];
   } catch (err) {
     console.error("❌ getOwnerInbox error:", err.response?.data || err.message);
@@ -205,7 +204,7 @@ export const getOwnerInbox = async () => {
   }
 };
 
-// Get messages for a specific chat (optional helper)
+// Get messages for a chat by chat ID
 export const getOwnerChatMessages = async (chatId) => {
   if (!chatId) throw new Error("Chat ID is required");
   try {
@@ -216,6 +215,19 @@ export const getOwnerChatMessages = async (chatId) => {
     return [];
   }
 };
+
+// Unified fetch: property ID OR chat ID
+export const fetchChatMessages = async ({ propertyId, chatId }) => {
+  if (chatId) {
+    return getOwnerChatMessages(chatId);
+  } else if (propertyId) {
+    const chat = await getChatByPropertyId(propertyId);
+    return chat.messages || [];
+  } else {
+    throw new Error("Either propertyId or chatId is required");
+  }
+};
+
 
 // -------------------- Cart --------------------
 export const getCart = async () => {

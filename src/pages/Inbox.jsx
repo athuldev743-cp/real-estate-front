@@ -1,13 +1,13 @@
 // src/pages/Inbox.jsx
 import React, { useState, useEffect } from "react";
 import Chat from "./Chat";
-import { getOwnerInbox } from "../api/PropertyAPI"; // Corrected import
+import { getOwnerInbox } from "../api/PropertyAPI";
 import "./Inbox.css";
 
 export default function InboxPage() {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedChat, setSelectedChat] = useState(null); // { chatId, propertyId }
+  const [selectedChat, setSelectedChat] = useState(null); // { propertyId, chatId }
   const [currentUserEmail, setCurrentUserEmail] = useState("");
 
   useEffect(() => {
@@ -16,8 +16,7 @@ export default function InboxPage() {
 
     const fetchChats = async () => {
       try {
-        const data = await getOwnerInbox(); // Updated usage
-        // Backend should return: [{ chat_id, property_id, user_name, last_message, unread_count }]
+        const data = await getOwnerInbox();
         setChats(data || []);
       } catch (err) {
         console.error("Failed to fetch inbox chats:", err);
@@ -30,8 +29,9 @@ export default function InboxPage() {
     fetchChats();
   }, []);
 
-  const handleSelectChat = (chatId, propertyId) => {
-    setSelectedChat({ chatId, propertyId });
+  const handleSelectChat = (chat) => {
+    if (!chat.property_id) return;
+    setSelectedChat({ propertyId: chat.property_id, chatId: chat.chat_id });
   };
 
   if (loading) return <div>Loading chats...</div>;
@@ -45,14 +45,14 @@ export default function InboxPage() {
           <div
             key={chat.chat_id}
             className="inbox-item"
-            onClick={() => handleSelectChat(chat.chat_id, chat.property_id)}
+            onClick={() => handleSelectChat(chat)}
           >
             <div className="chat-info">
               <div className="chat-header">
                 <span className="chat-user">{chat.user_name}</span>
                 {chat.last_message?.timestamp && (
                   <span className="chat-time">
-                    {new Date(chat.last_message.timestamp).toLocaleTimeString()}
+                    {new Date(chat.last_message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 )}
               </div>
@@ -73,7 +73,7 @@ export default function InboxPage() {
             chatId={selectedChat.chatId}
             propertyId={selectedChat.propertyId}
             userId={currentUserEmail}
-            ownerId={currentUserEmail} // Owner email
+            ownerId={currentUserEmail}
           />
         ) : (
           <div className="no-chat-selected">Select a chat to start messaging</div>
