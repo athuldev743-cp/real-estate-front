@@ -173,9 +173,21 @@ export const deleteProperty = async (id) => {
 // src/api/PropertyAPI.js
 // ---------------- CHAT API ----------------
 
+// Helper to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found. Please login.");
+  return {
+    "Authorization": `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+};
+
 // Get or create chat for a property
 export const getChatByPropertyId = async (propertyId) => {
-  const res = await fetch(`/api/chat/property/${propertyId}`);
+  const res = await fetch(`/api/chat/property/${propertyId}`, {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to get chat");
   const data = await res.json();
   return {
@@ -191,7 +203,7 @@ export const getChatByPropertyId = async (propertyId) => {
 export const sendMessage = async (chatId, text) => {
   const res = await fetch(`/api/chat/${chatId}/send`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ text }),
   });
   if (!res.ok) throw new Error("Failed to send message");
@@ -200,7 +212,9 @@ export const sendMessage = async (chatId, text) => {
 
 // Owner inbox (for properties they own)
 export const getOwnerInbox = async () => {
-  const res = await fetch("/api/chat/inbox");
+  const res = await fetch("/api/chat/inbox", {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to fetch owner inbox");
   const data = await res.json();
   return data.map((chat) => ({
@@ -214,7 +228,9 @@ export const getOwnerInbox = async () => {
 
 // Buyer inbox (for properties they bought or messaged)
 export const getBuyerInbox = async () => {
-  const res = await fetch("/api/chat/buyer-inbox");
+  const res = await fetch("/api/chat/buyer-inbox", {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to fetch buyer inbox");
   const data = await res.json();
   return data.map((chat) => ({
@@ -228,7 +244,9 @@ export const getBuyerInbox = async () => {
 
 // Get messages for a specific chat
 export const fetchChatMessages = async (chatId) => {
-  const res = await fetch(`/api/chat/${chatId}/messages`);
+  const res = await fetch(`/api/chat/${chatId}/messages`, {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to fetch chat messages");
   const data = await res.json();
   return data.messages || [];
