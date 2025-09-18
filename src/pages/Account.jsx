@@ -85,9 +85,6 @@ export default function Account({ user, setUser }) {
 
   useEffect(() => {
     fetchCart();
-  }, []);
-
-  useEffect(() => {
     const handleFocus = () => fetchCart();
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
@@ -141,19 +138,12 @@ export default function Account({ user, setUser }) {
           {properties.map((prop) => (
             <div key={prop._id} className="property-card">
               {prop.images?.length > 0 && (
-                <img
-                  src={prop.images[0]}
-                  alt={prop.title || "Property Image"}
-                  className="property-image"
-                />
+                <img src={prop.images[0]} alt={prop.title || "Property Image"} className="property-image" />
               )}
               <h3>{prop.title || "Untitled"}</h3>
               <p>Category: {prop.category || "N/A"}</p>
               <p>Location: {prop.location || "N/A"}</p>
-              <button
-                className="edit-btn"
-                onClick={() => navigate(`/property/${prop._id}/edit`)}
-              >
+              <button className="edit-btn" onClick={() => navigate(`/property/${prop._id}/edit`)}>
                 ✏️ Edit Property
               </button>
             </div>
@@ -170,9 +160,7 @@ export default function Account({ user, setUser }) {
 
       {/* ===== Cart Sidebar ===== */}
       <div className={`cart-sidebar ${showCart ? "open" : ""}`}>
-        <button className="cart-back-btn" onClick={() => setShowCart(false)}>
-          ← Back
-        </button>
+        <button className="cart-back-btn" onClick={() => setShowCart(false)}>← Back</button>
         <h3>🛒 My Cart ({cart.length})</h3>
         {cart.length === 0 ? (
           <p>Your cart is empty.</p>
@@ -181,16 +169,10 @@ export default function Account({ user, setUser }) {
             <ul className="cart-list">
               {cart.map((item) => (
                 <li key={item._id} className="cart-item">
-                  <div
-                    className="cart-item-info"
-                    onClick={() => navigate(`/property/${item._id}`)}
-                  >
+                  <div className="cart-item-info" onClick={() => navigate(`/property/${item._id}`)}>
                     <strong>{item.title}</strong> - ₹{item.price || "N/A"}
                   </div>
-                  <button
-                    className="remove-btn"
-                    onClick={() => handleRemoveFromCart(item._id)}
-                  >
+                  <button className="remove-btn" onClick={() => handleRemoveFromCart(item._id)}>
                     <FaTrash />
                   </button>
                 </li>
