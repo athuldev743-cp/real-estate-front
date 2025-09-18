@@ -73,15 +73,16 @@ export default function Account({ user, setUser }) {
   }, [showInbox]);
 
   // ----------------- FETCH CART -----------------
-  const fetchCart = async () => {
-    try {
-      const data = await getCart();
-      setCart(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("❌ Error fetching cart:", err);
-      setCart([]);
-    }
-  };
+ const fetchCart = async () => {
+  try {
+    const data = await getCart();  // 👈 already returns array
+    setCart(data);
+  } catch (err) {
+    console.error("❌ Error fetching cart:", err);
+    setCart([]);
+  }
+};
+
 
   useEffect(() => {
     fetchCart();

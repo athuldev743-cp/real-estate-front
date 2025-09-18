@@ -210,12 +210,13 @@ export const getOwnerChatMessages = async (chatId) => {
 export const getCart = async () => {
   try {
     const res = await API.get("/api/cart");
-    return res.data || [];
+    return res.data.items || [];   // ✅ always return array
   } catch (err) {
     console.error("❌ getCart error:", err.response?.data || err.message);
     return [];
   }
 };
+
 
 export const addToCart = async (propertyId) => {
   if (!propertyId) throw new Error("Property ID is required");
