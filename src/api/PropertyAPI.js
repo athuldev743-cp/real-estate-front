@@ -23,38 +23,54 @@ export const loginUser = async (data) => {
 };
 
 
+// -------------------- Auth: Register --------------------
 export const registerUser = async (data) => {
-  if (!data.fullName || !data.email || !data.password)
+  const { fullName, email, password, phone } = data;
+  if (!fullName || !email || !password)
     throw new Error("Full name, email, and password are required");
+
   try {
-    const res = await API.post("/auth/register", data);
-    return res.data;
+    const res = await API.post("/api/auth/register", { fullName, email, password, phone });
+    const result = res.data;
+
+    // Store tokens and user info if backend returns them
+    if (result.access_token) {
+      localStorage.setItem("token", result.access_token);
+      localStorage.setItem("refresh_token", result.refresh_token || "");
+      localStorage.setItem("fullName", result.fullName);
+      localStorage.setItem("email", result.email);
+      if (result.phone) localStorage.setItem("phone", result.phone);
+    }
+
+    return result;
   } catch (err) {
     console.error("❌ registerUser error:", err.response?.data || err.message);
     throw new Error(err.response?.data?.detail || "Registration failed");
   }
 };
 
+
 export const verifyOTP = async ({ email, otp }) => {
   if (!email || !otp) throw new Error("Email and OTP are required");
   try {
-    const res = await API.post("/auth/verify-otp", { email, otp });
+    const res = await API.post("/api/auth/verify-otp", { email, otp });
     const result = res.data;
+
     localStorage.setItem("token", result.access_token);
     localStorage.setItem("refresh_token", result.refresh_token);
     localStorage.setItem("fullName", result.fullName);
     localStorage.setItem("email", result.email);
     localStorage.setItem("phone", result.phone);
+
     return result;
   } catch (err) {
     console.error("❌ verifyOTP error:", err.response?.data || err.message);
     throw new Error(err.response?.data?.detail || "OTP verification failed");
   }
 };
-
 export const getCurrentUser = async () => {
   try {
-    const res = await API.get("/auth/me");
+    const res = await API.get("/api/auth/me");
     return res.data;
   } catch (err) {
     console.error("❌ getCurrentUser error:", err.response?.data || err.message);
