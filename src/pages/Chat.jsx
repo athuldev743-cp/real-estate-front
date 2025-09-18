@@ -4,11 +4,11 @@ import { fetchChatMessages, sendMessage } from "../api/PropertyAPI";
 import "./Chat.css";
 
 export default function Chat({ chatId, propertyId, userId, ownerId, initialMessages = [] }) {
-  const [messages, setMessages] = useState(initialMessages); // ✅ use initialMessages
+  // ✅ Ensure initialMessages is always an array
+  const [messages, setMessages] = useState(Array.isArray(initialMessages) ? initialMessages : []);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(initialMessages.length === 0); // ✅ show loading only if no initial messages
+  const [loading, setLoading] = useState(messages.length === 0);
   const messagesEndRef = useRef(null);
-
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -16,35 +16,35 @@ export default function Chat({ chatId, propertyId, userId, ownerId, initialMessa
   }, [messages]);
 
   // Fetch messages (poll every 5 seconds)
-useEffect(() => {
-  if (!chatId && !propertyId) {
-    setMessages([]);
-    setLoading(false);
-    return;
-  }
-
-  let interval;
-
-  const fetchMessages = async () => {
-    try {
-      const msgs = await fetchChatMessages({ chatId, propertyId });
-      setMessages(msgs || []); // ✅ keep updating messages
-    } catch (err) {
-      console.error("❌ Failed to fetch messages:", err);
+  useEffect(() => {
+    if (!chatId && !propertyId) {
       setMessages([]);
-    } finally {
       setLoading(false);
+      return;
     }
-  };
 
-  // Only fetch from backend if no initial messages
-  if (messages.length === 0) fetchMessages();
+    let interval;
 
-  interval = setInterval(fetchMessages, 5000); // poll every 5s
+    const fetchMessages = async () => {
+      try {
+        const msgs = await fetchChatMessages({ chatId, propertyId });
+        // ✅ Ensure fetched messages is always an array
+        setMessages(Array.isArray(msgs) ? msgs : []);
+      } catch (err) {
+        console.error("❌ Failed to fetch messages:", err);
+        setMessages([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return () => clearInterval(interval);
-}, [chatId, propertyId]);
+    // Only fetch from backend if no initial messages
+    if (messages.length === 0) fetchMessages();
 
+    interval = setInterval(fetchMessages, 5000); // poll every 5s
+
+    return () => clearInterval(interval);
+  }, [chatId, propertyId]);
 
   // Send a new message
   const handleSendMessage = async () => {
