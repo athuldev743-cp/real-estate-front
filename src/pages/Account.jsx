@@ -86,6 +86,15 @@ export default function Account({ user, setUser }) {
 
     return () => clearInterval(interval);
   }, [showInbox]);
+  // ----------------- HANDLE SELECT CHAT -----------------
+const handleSelectChat = (chat) => {
+  setSelectedChat({
+    propertyId: chat.propertyId,
+    chatId: chat.chatId,
+    user_email: chat.buyerId || chat.ownerId, // the other participant
+    messages: chat.messages || [],            // optional initial messages
+  });
+};
 
   // ----------------- FETCH CART -----------------
   const fetchCart = async () => {
@@ -124,10 +133,7 @@ export default function Account({ user, setUser }) {
     navigate("/login");
   };
 
-  const handleSelectChat = (chat) => {
-    setSelectedChat({ propertyId: chat.property_id, chatId: chat.chat_id });
-  };
-
+ 
   return (
     <div className="account-page">
       {/* ===== Header ===== */}
@@ -195,19 +201,18 @@ export default function Account({ user, setUser }) {
           )}
         </div>
       )}
-
-      {/* ===== Chat Panel ===== */}
-      {selectedChat && (
-        <div className="chat-panel">
+          {/* ===== Chat Panel ===== */}
+            {selectedChat && (
+              <div className="chat-panel">
           <Chat
-            chatId={selectedChat.chatId}
-            propertyId={selectedChat.propertyId}
-            userId={user?.email}
-            ownerId={user?.email}
+          chatId={selectedChat.chatId}
+          propertyId={selectedChat.propertyId}
+          userId={user?.email}               // current user opening the chat
+          ownerId={selectedChat.user_email}  // the other participant
+          initialMessages={selectedChat.messages} // optional initial messages
           />
-        </div>
-      )}
-
+          </div>
+          )}
       {/* ===== Cart Sidebar ===== */}
       <div className={`cart-sidebar ${showCart ? "open" : ""}`}>
         <button className="cart-back-btn" onClick={() => setShowCart(false)}>← Back</button>

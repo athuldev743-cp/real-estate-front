@@ -4,7 +4,7 @@ import { fetchChatMessages, sendMessage } from "../api/PropertyAPI";
 import "./Chat.css";
 
 export default function Chat({ chatId, propertyId, userId, ownerId, initialMessages = [] }) {
-  // ✅ Ensure initialMessages is always an array
+  // ✅ Use initialMessages if provided
   const [messages, setMessages] = useState(Array.isArray(initialMessages) ? initialMessages : []);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(messages.length === 0);
@@ -17,28 +17,28 @@ export default function Chat({ chatId, propertyId, userId, ownerId, initialMessa
 
   // Fetch messages (poll every 5 seconds)
   useEffect(() => {
-    if (!chatId && !propertyId) {
-      setMessages([]);
-      setLoading(false);
-      return;
-    }
+    if (!chatId && !propertyId) return;
 
     let interval;
 
     const fetchMessages = async () => {
       try {
-        const msgs = await fetchChatMessages({ chatId, propertyId });
-        // ✅ Ensure fetched messages is always an array
-        setMessages(Array.isArray(msgs) ? msgs : []);
+        const msgs = await fetchChatMessages(chatId);
+        if (Array.isArray(msgs)) {
+          // ✅ Only update if new messages arrived
+          setMessages((prev) => {
+            if (prev.length !== msgs.length) return msgs;
+            return prev;
+          });
+        }
       } catch (err) {
         console.error("❌ Failed to fetch messages:", err);
-        setMessages([]);
       } finally {
         setLoading(false);
       }
     };
 
-    // Only fetch from backend if no initial messages
+    // Only fetch if no initial messages
     if (messages.length === 0) fetchMessages();
 
     interval = setInterval(fetchMessages, 5000); // poll every 5s
@@ -54,7 +54,7 @@ export default function Chat({ chatId, propertyId, userId, ownerId, initialMessa
     const timestamp = new Date().toISOString();
     setInput("");
 
-    // Optimistic update with status
+    // Optimistic update
     setMessages((prev) => [
       ...prev,
       { sender: userId, text: msgText, timestamp, status: "sending" },
@@ -63,16 +63,12 @@ export default function Chat({ chatId, propertyId, userId, ownerId, initialMessa
     try {
       await sendMessage(chatId, msgText);
       setMessages((prev) =>
-        prev.map((m) =>
-          m.timestamp === timestamp ? { ...m, status: "sent" } : m
-        )
+        prev.map((m) => (m.timestamp === timestamp ? { ...m, status: "sent" } : m))
       );
     } catch (err) {
       console.error("❌ Failed to send message:", err);
       setMessages((prev) =>
-        prev.map((m) =>
-          m.timestamp === timestamp ? { ...m, status: "failed" } : m
-        )
+        prev.map((m) => (m.timestamp === timestamp ? { ...m, status: "failed" } : m))
       );
     }
   };

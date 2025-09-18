@@ -1,46 +1,10 @@
 // src/pages/Inbox.jsx
 import React, { useState, useEffect } from "react";
 import Chat from "./Chat";
-import { getOwnerInbox } from "../api/PropertyAPI";
+import { getOwnerInbox, getBuyerInbox } from "../api/PropertyAPI";
 import "./Inbox.css";
 
-export default function Inbox({ chats, onSelectChat }) {
-  return (
-    <div className="inbox-list">
-      <h2>Inbox</h2>
-      {chats.map((chat) => (
-        <div
-          key={chat.chat_id}
-          className="inbox-item"
-          onClick={() => onSelectChat(chat)}
-        >
-          <div className="chat-info">
-            <div className="chat-header">
-              <span className="chat-user">{chat.user_name}</span>
-              {chat.last_message?.timestamp && (
-                <span className="chat-time">
-                  {new Date(chat.last_message.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              )}
-            </div>
-            {chat.last_message && (
-              <div className="chat-last-msg">{chat.last_message.text}</div>
-            )}
-          </div>
-          {chat.unread_count > 0 && (
-            <span className="unread-badge">{chat.unread_count}</span>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Optional Inbox page for standalone testing
-export function InboxPage() {
+export default function Inbox({ isOwner = true }) {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -52,7 +16,7 @@ export function InboxPage() {
 
     const fetchChats = async () => {
       try {
-        const data = await getOwnerInbox();
+        const data = isOwner ? await getOwnerInbox() : await getBuyerInbox();
         setChats(data || []);
       } catch (err) {
         console.error("Failed to fetch inbox chats:", err);
@@ -63,11 +27,16 @@ export function InboxPage() {
     };
 
     fetchChats();
-  }, []);
+  }, [isOwner]);
 
   const handleSelectChat = (chat) => {
-    if (!chat.property_id) return;
-    setSelectedChat({ propertyId: chat.property_id, chatId: chat.chat_id });
+    setSelectedChat({
+      chatId: chat.chatId,
+      propertyId: chat.propertyId,
+      ownerId: chat.ownerId || currentUserEmail,
+      buyerId: chat.buyerId || currentUserEmail,
+      initialMessages: chat.messages || [], // Pass last messages instantly
+    });
   };
 
   if (loading) return <div>Loading chats...</div>;
@@ -75,14 +44,45 @@ export function InboxPage() {
 
   return (
     <div className="inbox-page">
-      <Inbox chats={chats} onSelectChat={handleSelectChat} />
+      <div className="inbox-list">
+        <h2>Inbox</h2>
+        {chats.map((chat) => {
+          const displayName = isOwner ? chat.buyerId : chat.ownerId;
+          const lastMsgText = chat.lastMessage?.text || "No messages yet";
+          const lastMsgTime = chat.lastMessage?.timestamp
+            ? new Date(chat.lastMessage.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "";
+          return (
+            <div
+              key={chat.chatId}
+              className="inbox-item"
+              onClick={() => handleSelectChat(chat)}
+            >
+              <div className="chat-info">
+                <div className="chat-header">
+                  <span className="chat-user">{displayName}</span>
+                  {lastMsgTime && <span className="chat-time">{lastMsgTime}</span>}
+                </div>
+                <div className="chat-last-msg">{lastMsgText}</div>
+              </div>
+              {chat.unreadCount > 0 && (
+                <span className="unread-badge">{chat.unreadCount}</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       <div className="chat-container">
         {selectedChat ? (
           <Chat
             chatId={selectedChat.chatId}
-            propertyId={selectedChat.propertyId}
             userId={currentUserEmail}
-            ownerId={currentUserEmail}
+            ownerId={selectedChat.ownerId}
+            initialMessages={selectedChat.initialMessages} // show last messages instantly
           />
         ) : (
           <div className="no-chat-selected">Select a chat to start messaging</div>

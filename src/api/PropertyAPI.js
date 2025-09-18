@@ -161,76 +161,70 @@ export const deleteProperty = async (id) => {
     return null;
   }
 };
+// src/api/PropertyAPI.js
+// ---------------- CHAT API ----------------
 
-// -------------------- Chat --------------------
-
-// Get or create chat by property ID
+// Get or create chat for a property
 export const getChatByPropertyId = async (propertyId) => {
-  if (!propertyId) throw new Error("Property ID is required");
-  try {
-    const res = await API.get(`/api/chat/property/${propertyId}`);
-    // Returns { chat_id, property_id, messages }
-    return {
-      chatId: res.data.chat_id,
-      propertyId: res.data.property_id,
-      messages: res.data.messages || [],
-    };
-  } catch (err) {
-    console.error(`❌ getChatByPropertyId error: ${propertyId}`, err.response?.data || err.message);
-    return { chatId: null, propertyId, messages: [] };
-  }
+  const res = await fetch(`/api/chat/property/${propertyId}`);
+  if (!res.ok) throw new Error("Failed to get chat");
+  const data = await res.json();
+  return {
+    chatId: data.chat_id,
+    propertyId: data.property_id,
+    ownerId: data.owner,
+    buyerId: data.buyer,
+    messages: data.messages || [],
+  };
 };
 
-// Send a message by chat ID
+// Send a message to a chat
 export const sendMessage = async (chatId, text) => {
-  if (!chatId || !text) throw new Error("Chat ID and message text are required");
-  try {
-    const res = await API.post(`/api/chat/${chatId}/send`, { text });
-    return res.data;
-  } catch (err) {
-    console.error(`❌ sendMessage error: ${chatId}`, err.response?.data || err.message);
-    return null;
-  }
+  const res = await fetch(`/api/chat/${chatId}/send`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) throw new Error("Failed to send message");
+  return res.json();
 };
 
-// Get all inbox chats for the owner
+// Owner inbox (for properties they own)
 export const getOwnerInbox = async () => {
-  try {
-    const res = await API.get("/api/chat/inbox");
-    return res.data || [];
-  } catch (err) {
-    console.error("❌ getOwnerInbox error:", err.response?.data || err.message);
-    return [];
-  }
+  const res = await fetch("/api/chat/inbox");
+  if (!res.ok) throw new Error("Failed to fetch owner inbox");
+  const data = await res.json();
+  return data.map((chat) => ({
+    chatId: chat.chat_id,
+    propertyId: chat.property_id,
+    buyerId: chat.buyer,
+    lastMessage: chat.last_message,
+    unreadCount: chat.unread_count,
+  }));
 };
 
-// Get messages for a chat by chat ID
-export const getOwnerChatMessages = async (chatId) => {
-  if (!chatId) throw new Error("Chat ID is required");
-  try {
-    const res = await API.get(`/api/chat/${chatId}/messages`);
-    return res.data.messages || [];
-  } catch (err) {
-    console.error(`❌ getOwnerChatMessages error: ${chatId}`, err.response?.data || err.message);
-    return [];
-  }
+// Buyer inbox (for properties they bought or messaged)
+export const getBuyerInbox = async () => {
+  const res = await fetch("/api/chat/buyer-inbox");
+  if (!res.ok) throw new Error("Failed to fetch buyer inbox");
+  const data = await res.json();
+  return data.map((chat) => ({
+    chatId: chat.chat_id,
+    propertyId: chat.property_id,
+    ownerId: chat.owner,
+    lastMessage: chat.last_message,
+    unreadCount: chat.unread_count,
+  }));
 };
 
-// Unified fetch: property ID OR chat ID
-export const fetchChatMessages = async ({ propertyId, chatId }) => {
-  if (chatId) {
-    const messages = await getOwnerChatMessages(chatId);
-    return { chatId, messages };
-  } else if (propertyId) {
-    const chat = await getChatByPropertyId(propertyId);
-    return {
-      chatId: chat.chatId,
-      messages: chat.messages || [],
-    };
-  } else {
-    throw new Error("Either propertyId or chatId is required");
-  }
+// Get messages for a specific chat
+export const fetchChatMessages = async (chatId) => {
+  const res = await fetch(`/api/chat/${chatId}/messages`);
+  if (!res.ok) throw new Error("Failed to fetch chat messages");
+  const data = await res.json();
+  return data.messages || [];
 };
+
 
 
 // -------------------- Cart --------------------

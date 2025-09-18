@@ -54,6 +54,8 @@ export default function PropertyDetails({ user }) {
 
   // ----- Open chat -----
   const handleChatOpen = async () => {
+    if (!property?._id) return;
+
     try {
       const chat = await getChatByPropertyId(property._id);
 
@@ -62,6 +64,7 @@ export default function PropertyDetails({ user }) {
         return;
       }
 
+      // Set chat data immediately for initial messages
       setChatData({
         chatId: chat.chatId,
         propertyId: property._id,
@@ -215,7 +218,7 @@ export default function PropertyDetails({ user }) {
             userId={userEmail}
             propertyId={chatData.propertyId}
             ownerId={chatData.ownerId}
-            initialMessages={chatData.messages}
+            initialMessages={chatData.messages} // first messages immediately shown
           />
         </div>
       )}
