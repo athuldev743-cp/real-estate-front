@@ -1,7 +1,7 @@
 // src/pages/PropertyDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPropertyById, getMessages, addToCart as addToCartAPI } from "../api/PropertyAPI";
+import { getPropertyById, fetchChatMessages, addToCart as addToCartAPI } from "../api/PropertyAPI";
 import Chat from "./Chat";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";

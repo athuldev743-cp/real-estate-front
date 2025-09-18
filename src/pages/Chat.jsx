@@ -1,3 +1,4 @@
+// src/pages/Chat.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { fetchChatMessages, sendMessage } from "../api/PropertyAPI";
 import "./Chat.css";
@@ -13,7 +14,7 @@ export default function Chat({ chatId, propertyId, userId, ownerId }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch messages every 5 seconds
+  // Fetch messages (poll every 5 seconds)
   useEffect(() => {
     if (!chatId && !propertyId) {
       setMessages([]);
@@ -93,12 +94,8 @@ export default function Chat({ chatId, propertyId, userId, ownerId }) {
               className={`message ${msg.sender === userId ? "own" : "other"}`}
             >
               <strong>{getSenderLabel(msg.sender)}:</strong> {msg.text}{" "}
-              {msg.status === "sending" && (
-                <span className="status sending">⏳</span>
-              )}
-              {msg.status === "failed" && (
-                <span className="status failed">❌</span>
-              )}
+              {msg.status === "sending" && <span className="status sending">⏳</span>}
+              {msg.status === "failed" && <span className="status failed">❌</span>}
             </div>
           ))
         )}
