@@ -27,7 +27,6 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
 
     fetchMessages();
 
-    // Optional: poll for new messages every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
   }, [chatId]);
@@ -40,16 +39,23 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     setInput(""); // Clear input immediately
 
     // Optimistic UI update
-    setMessages((prev) => [
-      ...prev,
-      { sender: userId, text: msgText, timestamp: Date.now() },
-    ]);
+    const newMsg = {
+      sender: userId,
+      text: msgText,
+      timestamp: new Date().toISOString(),
+      pending: true,
+    };
+    setMessages((prev) => [...prev, newMsg]);
 
     try {
       await sendMessage(chatId, msgText); // POST /chat/{chat_id}/send
     } catch (err) {
       console.error("Failed to send message:", err);
-      // Optionally, mark message as failed in UI
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg === newMsg ? { ...msg, failed: true, pending: false } : msg
+        )
+      );
     }
   };
 
@@ -57,8 +63,12 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
     if (e.key === "Enter") handleSendMessage();
   };
 
-  const getSenderLabel = (sender) =>
-    sender === userId ? "You" : sender === ownerId ? "Owner" : "Buyer";
+  const getSenderLabel = (sender) => {
+    if (!sender) return "Unknown";
+    if (sender === userId) return "You";
+    if (sender === ownerId) return "Owner";
+    return "Buyer";
+  };
 
   return (
     <div className="chat-container">
@@ -69,6 +79,8 @@ export default function Chat({ chatId, userId, propertyId, ownerId }) {
             className={`message ${msg.sender === userId ? "own" : "other"}`}
           >
             <strong>{getSenderLabel(msg.sender)}:</strong> {msg.text}
+            {msg.failed && <span className="error"> (Failed)</span>}
+            {msg.pending && <span className="pending"> (Sending...)</span>}
           </div>
         ))}
         <div ref={messagesEndRef} />
